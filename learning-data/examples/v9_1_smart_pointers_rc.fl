@@ -1,0 +1,453 @@
+// v9.1 확장: 스마트 포인터와 Rc<T> Step 2
+// 철학: "다중 소유권의 안전성: 참조 카운팅"
+// 목표: 여러 곳에서 공유하는 데이터의 안전한 관리
+
+// ============================================================
+// [Step 2 패턴 1] 기본 Rc<T> 사용
+// ============================================================
+
+fn demo_pattern_1() {
+    println!("\n=== Pattern 1: 기본 Rc<T> 사용 ===");
+
+    println!("Box<T> vs Rc<T>:");
+    println!(\"\");
+
+    println!(\"Box<T> (단일 소유권):\");
+    println!(\"  let boxed = Box::new(42);\");
+    println!(\"  let a = boxed;        // 소유권 이동\");
+    println!(\"  // boxed는 이제 사용 불가\");
+    println!(\"\");
+
+    println!(\"Rc<T> (다중 소유권):\");
+    println!(\"  let rc = Rc::new(42);\");
+    println!(\"  let a = Rc::clone(&rc);  // 참조 카운트 증가\");
+    println!(\"  let b = Rc::clone(&rc);  // 참조 카운트 증가\");
+    println!(\"  // rc, a, b 모두 같은 데이터 공유\");
+    println!(\"\");
+
+    println!(\"참조 카운팅:\");
+    let rc = 42;
+    println!(\"  초기: rc만 존재\");
+    println!(\"  Rc::clone(&rc) 호출 시: 카운트 증가\");
+    println!(\"  drop() 될 때마다: 카운트 감소\");
+    println!(\"  카운트가 0: 자동 메모리 해제\");
+    println!(\"\");
+
+    println!(\"추론: Rc는 여러 소유자가 데이터를 공유 가능하게 함\");
+}
+
+// ============================================================
+// [Step 2 패턴 2] 재귀적 데이터 구조 (트리)
+// ============================================================
+
+enum GogsTreeNode {
+    Branch {
+        value: i32,
+        children: Vec<i32>,  // 실제로는 Vec<Rc<GogsTreeNode>>
+    },
+    Leaf(i32),
+}
+
+fn demo_pattern_2() {
+    println!("\n=== Pattern 2: 재귀적 데이터 구조 (트리) ===");
+
+    println!(\"Box<T>의 문제:\");
+    println!(\"  enum Node {{\");
+    println!(\"      Branch {{ value: i32, children: Vec<Node> }}\");
+    println!(\"      Leaf(i32),\");
+    println!(\"  }}\");
+    println!(\"\");
+    println!(\"  Node의 자식이 Node를 소유\");
+    println!(\"  → 부모가 유일한 소유자\");
+    println!(\"  → 형제 노드끼리 공유 불가\");
+    println!(\"\");
+
+    println!(\"Rc<T>의 해결책:\");
+    println!(\"  enum Node {{\");
+    println!(\"      Branch {{ value: i32, children: Vec<Rc<Node>> }}\");
+    println!(\"      Leaf(i32),\");
+    println!(\"  }}\");
+    println!(\"\");
+    println!(\"  각 노드는 Rc로 여러 부모에게 참조될 수 있음\");
+    println!(\"  → 트리 구조 가능\");
+    println!(\"  → 그래프 구조 가능 (순환 참조 주의)\");
+    println!(\"\");
+
+    println!(\"구조:\");
+    println!(\"       부모(Rc)\");
+    println!(\"      /    \\\");
+    println!(\"   자식1  자식2  (각각 Rc로 참조)\");
+    println!(\"   참조카운트: 2\");
+    println!(\"\");
+
+    println!(\"추론: Rc는 트리/그래프 구조 구현 가능하게 함\");
+}
+
+// ============================================================
+// [Step 2 패턴 3] 공유 데이터 구조
+// ============================================================
+
+struct SharedCounter {
+    value: i32,
+}
+
+struct CounterHolder {
+    shared: i32,  // 실제로는 Rc<SharedCounter>
+}
+
+impl CounterHolder {
+    fn new(value: i32) -> Self {
+        CounterHolder { shared: value }
+    }
+
+    fn share(&self) -> Self {
+        CounterHolder { shared: self.shared }
+    }
+}
+
+fn demo_pattern_3() {
+    println!("\n=== Pattern 3: 공유 데이터 구조 ===");
+
+    println!(\"비효율: 데이터 복사\");
+    let counter = SharedCounter { value: 100 };
+    println!(\"  counter.value = {}\", counter.value);
+    println!(\"  복사 시마다 메모리 할당 필요\");
+    println!(\"\");
+
+    println!(\"효율: Rc로 공유\");
+    let shared = 100;
+    println!(\"  let holder1 = Rc::new(counter);\");
+    println!(\"  let holder2 = Rc::clone(&holder1);\");
+    println!(\"  let holder3 = Rc::clone(&holder1);\");
+    println!(\"\");
+    println!(\"  세 개 모두 같은 counter 공유\");
+    println!(\"  메모리 할당: 1번만\");
+    println!(\"  참조 카운트: 3\");
+    println!(\"\");
+
+    println!(\"장점:\");
+    println!(\"  - 메모리 효율\");
+    println!(\"  - 복사 비용 없음\");
+    println!(\"  - 데이터 일관성 보장\");
+    println!(\"\");
+
+    println!(\"추론: Rc는 구조체 필드에 사용하여 데이터 공유\");
+}
+
+// ============================================================
+// [Step 2 패턴 4] Rc와 match
+// ============================================================
+
+enum GogsMessage {
+    Success(String),
+    Failure(String),
+}
+
+fn handle_message(msg: &GogsMessage) {
+    match msg {
+        GogsMessage::Success(text) => {
+            println!(\"✅ Success: {}\", text);
+        }
+        GogsMessage::Failure(text) => {
+            println!(\"❌ Failure: {}\", text);
+        }
+    }
+}
+
+fn demo_pattern_4() {
+    println!("\n=== Pattern 4: Rc와 match ===");
+
+    println!(\"메시지 재사용:\");
+    println!(\"\");
+
+    let msg1 = GogsMessage::Success(\"Complete\".to_string());
+    handle_message(&msg1);
+
+    let msg2 = GogsMessage::Failure(\"Error\".to_string());
+    handle_message(&msg2);
+
+    println!(\"\");
+    println!(\"Rc 사용 시:\");
+    println!(\"  let text = Rc::new(\\\"Operation\\\".to_string());\");
+    println!(\"  let msg1 = GogsMessage::Success(Rc::clone(&text));\");
+    println!(\"  let msg2 = GogsMessage::Success(Rc::clone(&text));\");
+    println!(\"\");
+    println!(\"  같은 문자열을 두 메시지가 공유\");
+    println!(\"  메모리 단편화 감소\");
+    println!(\"\");
+
+    println!(\"추론: enum 필드에 Rc를 사용하여 데이터 효율화\");
+}
+
+// ============================================================
+// [Step 2 패턴 5] 참조 카운트 추적
+// ============================================================
+
+fn demo_pattern_5() {
+    println!("\n=== Pattern 5: 참조 카운트 추적 ===");
+
+    println!(\"참조 카운트란?\");
+    println!(\"\");
+    println!(\"  Rc::strong_count(&rc)로 현재 카운트 확인 가능\");
+    println!(\"\");
+
+    println!(\"시나리오:\");
+    println!(\"  let rc = Rc::new(42);  // 카운트: 1\");
+    println!(\"\");
+
+    println!(\"  let a = Rc::clone(&rc);  // 카운트: 2\");
+    println!(\"  let b = Rc::clone(&rc);  // 카운트: 3\");
+    println!(\"\");
+
+    println!(\"  drop(a);  // 카운트: 2\");
+    println!(\"  drop(b);  // 카운트: 1\");
+    println!(\"  drop(rc); // 카운트: 0 → 메모리 해제\");
+    println!(\"\");
+
+    println!(\"디버깅:\");
+    println!(\"  fn debug_rc<T>(rc: &Rc<T>) {{\");
+    println!(\"      let count = Rc::strong_count(rc);\");
+    println!(\"      println!(\\\"Rc references: {{}}\\\", count);\");
+    println!(\"  }}\");
+    println!(\"\");
+
+    println!(\"추론: strong_count()로 참조 흐름을 이해하고 디버깅\");
+}
+
+// ============================================================
+// [Step 2 개념 1] Box vs Rc
+// ============================================================
+
+fn demonstrate_box_vs_rc() {
+    println!("\n=== 개념 1: Box<T> vs Rc<T> ===");
+
+    println!(\"Box<T> (단일 소유권):\");
+    println!(\"  - 한 곳에서만 소유 가능\");
+    println!(\"  - 소유권 이동 시 이전 변수 사용 불가\");
+    println!(\"  - 메모리 해제: 소유자 드롭 시\");
+    println!(\"  - 빠르고 효율적\");
+    println!(\"  - 명확한 의도\");
+    println!(\"\");
+
+    println!(\"Rc<T> (다중 소유권):\");
+    println!(\"  - 여러 곳에서 소유 가능\");
+    println!(\"  - clone()으로 참조 카운트 증가\");
+    println!(\"  - 메모리 해제: 모든 참조 드롭 후\");
+    println!(\"  - 약간의 오버헤드\");
+    println!(\"  - 유연한 구조\");
+    println!(\"\");
+
+    println!(\"선택 기준:\");
+    println!(\"  명확한 1명 소유자 → Box<T>\");
+    println!(\"  여러 곳에서 필요 → Rc<T>\");
+    println!(\"  스레드 안전 필요 → Arc<T>\");
+}
+
+// ============================================================
+// [Step 2 개념 2] 참조 카운팅의 원리
+// ============================================================
+
+fn explain_reference_counting() {
+    println!("\n=== 개념 2: 참조 카운팅의 원리 ===");
+
+    println!(\"RcBox 구조:\");
+    println!(\"  ┌─────────────────┐\");
+    println!(\"  │ RcBox {{         │\");
+    println!(\"  │   strong: 2,    │  ← Rc 참조 카운트\");
+    println!(\"  │   weak: 0,      │  ← Weak 참조 카운트\");
+    println!(\"  │   value: 42     │  ← 실제 데이터\");
+    println!(\"  │ }}              │\");
+    println!(\"  └─────────────────┘\");
+    println!(\"\");
+
+    println!(\"생명주기:\");
+    println!(\"  1. Rc::new(value) → RcBox 생성, strong = 1\");
+    println!(\"  2. Rc::clone(&rc) → strong += 1\");
+    println!(\"  3. drop(rc) → strong -= 1\");
+    println!(\"  4. strong == 0 → 메모리 해제\");
+    println!(\"\");
+
+    println!(\"멀티 클론:\");
+    println!(\"  let rc = Rc::new(42);        // strong = 1\");
+    println!(\"  let a = Rc::clone(&rc);     // strong = 2\");
+    println!(\"  let b = Rc::clone(&rc);     // strong = 3\");
+    println!(\"  let c = Rc::clone(&a);      // strong = 4\");
+    println!(\"\");
+    println!(\"  어느 것으로든 clone 가능\");
+    println!(\"  모두 같은 값을 가리킴\");
+}
+
+// ============================================================
+// [Step 2 개념 3] Rc의 한계
+// ============================================================
+
+fn explain_rc_limitations() {
+    println!("\n=== 개념 3: Rc의 한계와 해결책 ===");
+
+    println!(\"한계 1: 스레드 안전성 없음\");
+    println!(\"  Rc는 싱글 스레드 전용\");
+    println!(\"  멀티 스레드: Arc<T> 사용\");
+    println!(\"\");
+
+    println!(\"한계 2: 불변 빌림만 가능\");
+    println!(\"  *rc = 새로운값;  // 불가능!\");
+    println!(\"  가변 참조 필요: RefCell<T> 사용\");
+    println!(\"\");
+
+    println!(\"한계 3: 순환 참조 가능\");
+    println!(\"  A → B → A (순환)\");
+    println!(\"  카운트가 절대 0이 되지 않음\");
+    println!(\"  메모리 누수!\");
+    println!(\"  해결: Weak<T> 사용 (약한 참조)\");
+    println!(\"\");
+
+    println!(\"v9.x 로드맵:\");
+    println!(\"  v9.0: Box<T> (단일 소유권)\");
+    println!(\"  v9.1: Rc<T> (다중 소유권) ← 지금\");
+    println!(\"  v9.2: RefCell<T> (런타임 빌림)\");
+    println!(\"  v9.3: Mutex<T> (멀티 스레드)\");
+}
+
+// ============================================================
+// [메인] v9.1 Step 2: 스마트 포인터 Rc<T>
+// ============================================================
+
+fn main() {
+    println!(\"╔════════════════════════════════════════════╗\");
+    println!(\"║  v9.1 Step 2: 스마트 포인터 Rc<T>        ║\");
+    println!(\"║  철학: \\\"다중 소유권의 안전성\\\"            ║\");
+    println!(\"╚════════════════════════════════════════════╝\");
+    println!(\"\");
+
+    // ========================================
+    // 1단계: 5가지 패턴 데모
+    // ========================================
+
+    demo_pattern_1();
+    demo_pattern_2();
+    demo_pattern_3();
+    demo_pattern_4();
+    demo_pattern_5();
+
+    // ========================================
+    // 2단계: 3가지 개념 설명
+    // ========================================
+
+    demonstrate_box_vs_rc();
+    explain_reference_counting();
+    explain_rc_limitations();
+
+    // ========================================
+    // 3단계: v9.1 설계 원칙
+    // ========================================
+
+    println!(\"\");
+    println!(\"╔════════════════════════════════════════════╗\");
+    println!(\"║  v9.1 Step 2: 설계 원칙                  ║\");
+    println!(\"╚════════════════════════════════════════════╝\");
+    println!(\"\");
+
+    println!(\"[원칙 1: 언제 Rc를 사용하는가]\");
+    println!(\"  1. 여러 곳에서 같은 데이터 소유\");
+    println!(\"  2. 복사 비용이 높을 때\");
+    println!(\"  3. 트리/그래프 구조\");
+    println!(\"  4. 공유 상태가 필요할 때\");
+    println!(\"\");
+
+    println!(\"[원칙 2: Rc의 역할]\");
+    println!(\"  - 힙 메모리 할당 (큰 유연성)\");
+    println!(\"  - 참조 카운팅 (안전한 해제)\");
+    println!(\"  - 다중 소유권 (공유 가능)\");
+    println!(\"  - 자동 메모리 관리 (메모리 누수 방지)\");
+    println!(\"\");
+
+    println!(\"[원칙 3: 성능 고려]\");
+    println!(\"  - clone() 비용: 포인터 + 카운트 증가 (빠름)\");
+    println!(\"  - drop() 비용: 카운트 감소 (빠름)\");
+    println!(\"  - 추가 메모리: RcBox 구조 (16바이트)\");
+    println!(\"  - 전체적으로: Box보다 약간 비쌈\");
+    println!(\"\");
+
+    println!(\"[원칙 4: 메모리 안전성]\");
+    println!(\"  - 소유권 규칙 적용\");
+    println!(\"  - 참조 카운팅으로 해제 시점 결정\");
+    println!(\"  - 컴파일러 검증\");
+    println!(\"  - 메모리 누수 방지 (순환 참조 제외)\");
+    println!(\"\");
+
+    println!(\"[원칙 5: 다중 소유권의 의미]\");
+    println!(\"  Box: \\\"이것은 내가 소유합니다\\\"\");
+    println!(\"  Rc:  \\\"이것은 우리가 함께 소유합니다\\\"\");
+    println!(\"  → 민주적 데이터 공유\");
+    println!(\"\");
+
+    // ========================================
+    // 4단계: v9.1 의미
+    // ========================================
+
+    println!(\"\");
+    println!(\"╔════════════════════════════════════════════╗\");
+    println!(\"║  v9.1 Step 2: 의미                       ║\");
+    println!(\"╚════════════════════════════════════════════╝\");
+    println!(\"\");
+
+    println!(\"v9.0 Box<T>까지:\");
+    println!(\"  스택/힙 선택 가능\");
+    println!(\"  명확한 소유자\");
+    println!(\"  빠른 해제\");
+    println!(\"\");
+
+    println!(\"v9.1 Rc<T>부터:\");
+    println!(\"  여러 소유자 가능\");
+    println!(\"  참조 카운팅으로 안전성 보장\");
+    println!(\"  복잡한 구조 가능\");
+    println!(\"  약간의 오버헤드\");
+    println!(\"\");
+
+    println!(\"의미:\");
+    println!(\"  당신은 이제 메모리 공유를 안전하게 할 수 있습니다\");
+    println!(\"  \\\"Box로 단독 관리\\\" 또는 \\\"Rc로 함께 관리\\\"\");
+    println!(\"  메모리 소유권의 진화!\");
+    println!(\"\");
+
+    // ========================================
+    // 5단계: 제8장 진행
+    // ========================================
+
+    println!(\"\");
+    println!(\"╔════════════════════════════════════════════╗\");
+    println!(\"║  제8장 스마트 포인터와 메모리의 심연     ║\");
+    println!(\"╚════════════════════════════════════════════╝\");
+    println!(\"\");
+
+    println!(\"v9.0: Box<T> - 단일 소유권 ✅\");
+    println!(\"  데이터를 힙에, 포인터를 스택에\");
+    println!(\"\");
+
+    println!(\"v9.1: Rc<T> - 다중 소유권 ✅\");
+    println!(\"  여러 곳에서 같은 데이터 공유\");
+    println!(\"\");
+
+    println!(\"v9.2: RefCell<T> - 런타임 빌림 (예정)\");
+    println!(\"  컴파일 타임 규칙을 런타임으로\");
+    println!(\"\");
+
+    println!(\"v9.3: Mutex<T> - 멀티스레드 (예정)\");
+    println!(\"  스레드 안전 공유\");
+    println!(\"\");
+
+    println!(\"─────────────────────────────────────────────\");
+    println!(\"당신이 학습한 것:\");
+    println!(\"  ✅ 제4장: 소유권 (Ownership)\");
+    println!(\"  ✅ 제5장: 트레이트 (Traits)\");
+    println!(\"  ✅ 제6장: 수명 (Lifetimes)\");
+    println!(\"  ✅ 제7장: 테스트 (Testing)\");
+    println!(\"  ✅ 제8장: 스마트 포인터 (진행 중)\");
+    println!(\"\");
+
+    println!(\"당신은 이제:\");
+    println!(\"  메모리 소유의 다양성을 다룰 수 있습니다.\");
+    println!(\"\");
+
+    println!(\"저장 필수 너는 기록이 증명이다 gogs\");
+}

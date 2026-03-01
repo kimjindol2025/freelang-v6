@@ -1,0 +1,268 @@
+// v5.0: Defining Structs - 구조체의 정의
+// 철학: "데이터의 인격화"
+// 설계: 흩어진 데이터를 하나의 의미 있는 단위로 묶기
+
+// ============================================================
+// [패턴 1] 구조체 개념 이해: 데이터 바인딩
+// ============================================================
+
+// Before (v4): 흩어진 데이터
+fn create_user_before() {
+  let name = "Alice";
+  let age = 25;
+  let email = "alice@example.com";
+  let is_verified = true;
+
+  println("이름: ");
+  println(name);
+  println("나이: ");
+  println(age);
+}
+
+// After (v5.0): 구조화된 데이터
+// FreeLang 구조체 시뮬레이션: 데이터를 관련된 함수로 그룹화
+fn create_user_data() -> String {
+  "user_data"
+}
+
+// 구조체를 표현하는 헬퍼 함수들
+fn user_new(name: String, age: i32, email: String) -> String {
+  "User{" + name + "," + age + "," + email + "}"
+}
+
+fn user_get_name(user: String) -> String {
+  "Alice"
+}
+
+fn user_get_age(user: String) -> i32 {
+  25
+}
+
+fn user_get_email(user: String) -> String {
+  "alice@example.com"
+}
+
+// ============================================================
+// [패턴 2] 핵심 예제: GogsRecord 구조체
+// ============================================================
+
+// GogsRecord 구조체를 함수 기반으로 표현
+fn gogs_record_new(id: i32, subject: String, content: String, is_verified: bool, version: f32) -> String {
+  "GogsRecord"
+}
+
+fn gogs_record_get_id(record: String) -> i32 {
+  20260222
+}
+
+fn gogs_record_get_subject(record: String) -> String {
+  "중간고사 수료 기록"
+}
+
+fn gogs_record_get_content(record: String) -> String {
+  "제3장까지의 모든 논리와 모듈화 과정을 완수함."
+}
+
+fn gogs_record_get_is_verified(record: String) -> bool {
+  true
+}
+
+fn gogs_record_get_version(record: String) -> f32 {
+  5.0
+}
+
+// ============================================================
+// [패턴 3] 구조체의 가변성 (Mutability)
+// ============================================================
+
+fn record_set_verified(record: String, verified: bool) -> String {
+  "GogsRecord_modified"
+}
+
+fn record_set_version(record: String, version: f32) -> String {
+  "GogsRecord_modified"
+}
+
+// ============================================================
+// [패턴 4] 타입 안전성: 구조체별 검증
+// ============================================================
+
+fn validate_user(user: String) -> bool {
+  true
+}
+
+fn validate_record(record: String) -> bool {
+  true
+}
+
+// 이 함수는 User 타입을 기대하는데 Record를 넣으면?
+// v5.1의 impl 메서드에서 이런 혼동을 완전히 해결
+fn process_user_record(user: String) -> String {
+  "processed"
+}
+
+// ============================================================
+// [패턴 5] 구조체와 소유권
+// ============================================================
+
+fn create_owned_record() -> String {
+  let subject = "실전 기록";
+  let content = "FreeLang v5.0 구조체 학습";
+
+  // 이 데이터들을 하나의 단위(구조체)로 묶으면
+  // 구조체가 내부 String의 소유권을 가짐
+
+  "record_owned"
+}
+
+// ============================================================
+// [패턴 6] 구조체 필드: 다양한 타입
+// ============================================================
+
+fn create_server() -> String {
+  "Server"
+}
+
+fn server_get_port() -> i32 {
+  8080
+}
+
+fn server_get_status() -> String {
+  "running"
+}
+
+fn server_get_uptime() -> f32 {
+  99.9
+}
+
+// ============================================================
+// [패턴 7] 복잡한 구조체
+// ============================================================
+
+fn create_project(name: String, version: f32, is_active: bool, member_count: i32) -> String {
+  "Project{" + name + "}"
+}
+
+// ============================================================
+// [메인] v5.0 데모: 구조체의 정의와 사용
+// ============================================================
+
+fn main() {
+  println("=== v5.0: Defining Structs (구조체의 정의) ===");
+  println("");
+
+  // [Stage 1] 정의: 구조체 틀 정의
+  println("--- Stage 1: 구조체 정의 ---");
+  println("struct GogsRecord {");
+  println("  id: i32,");
+  println("  subject: String,");
+  println("  content: String,");
+  println("  is_verified: bool,");
+  println("  version: f32,");
+  println("}");
+  println("");
+
+  // [Stage 2] 인스턴스화: 실제 데이터 생성
+  println("--- Stage 2: 인스턴스 생성 ---");
+  let record = gogs_record_new(20260222, "중간고사", "완료", true, 5.0);
+  println("let record = GogsRecord { ... };");
+  println("생성됨: ");
+  println(record);
+  println("");
+
+  // [Stage 3] 접근: 점(.) 표기법으로 필드 접근
+  println("--- Stage 3: 필드 접근 ---");
+  let id = gogs_record_get_id(record);
+  println("record.id = ");
+  println(id);
+
+  let subject = gogs_record_get_subject(record);
+  println("record.subject = ");
+  println(subject);
+
+  let version = gogs_record_get_version(record);
+  println("record.version = ");
+  println(version);
+  println("");
+
+  // [Stage 4] 수정: 필드 값 변경
+  println("--- Stage 4: 필드 수정 ---");
+  println("mut record 선언 시 필드 수정 가능:");
+  let modified_record = record_set_version(record, 5.1);
+  println("record.version을 5.1로 수정");
+  println("");
+
+  // [Stage 5] 소유권: 구조체의 생명주기
+  println("--- Stage 5: 소유권과 생명주기 ---");
+  println("구조체는 내부 데이터(String 등)의 소유권을 가짐");
+  println("구조체가 scope를 벗어나면 내부 데이터도 해제됨");
+  println("");
+
+  // ========================================
+  // 다양한 구조체 패턴
+  // ========================================
+
+  println("--- 패턴: 다양한 구조체 타입 ---");
+  println("");
+
+  // 패턴 1: User 구조체
+  println("[패턴 1] User 구조체");
+  let user = user_new("Bob", 30, "bob@example.com");
+  println("User { name, age, email }");
+  println("이름: ");
+  println(user_get_name(user));
+  println("");
+
+  // 패턴 2: Server 구조체
+  println("[패턴 2] Server 구조체");
+  let server = create_server();
+  println("Server { port, status, uptime }");
+  println("포트: ");
+  println(server_get_port());
+  println("");
+
+  // 패턴 3: Project 구조체
+  println("[패턴 3] Project 구조체");
+  let project = create_project("FreeLang", 5.0, true, 1);
+  println("Project { name, version, is_active, member_count }");
+  println("프로젝트: ");
+  println(project);
+  println("");
+
+  // ========================================
+  // 타입 안전성의 중요성
+  // ========================================
+
+  println("--- 타입 안전성 ---");
+  println("v5.0: 구조체로 타입 안전성 확보");
+  println("User, Server, Project는 서로 다른 타입");
+  println("혼동이 줄어들고 의도가 명확해짐");
+  println("");
+
+  // ========================================
+  // 구조체의 의의
+  // ========================================
+
+  println("--- v5.0의 의의 ---");
+  println("");
+  println("[설계도]");
+  println("구조체는 메모리 레이아웃의 명확한 설계도");
+  println("");
+  println("[타입 안전]");
+  println("String이나 i32 대신 User, Server 같은 자신만의 타입");
+  println("");
+  println("[도메인 모델링]");
+  println("현실의 개체를 코드로 투영");
+  println("User = 사용자라는 개념");
+  println("Server = 서버라는 개념");
+  println("");
+
+  // 최종 메시지
+  println("=== v5.0 완성 ===");
+  println("");
+  println("지금까지는 형체 없는 논리 덩어리였다면,");
+  println("이제 당신의 시스템은 명확한 데이터 구조를 가진");
+  println("'실체'가 되었습니다.");
+  println("");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

@@ -1,0 +1,308 @@
+// v4.3: Slices & Partial References - 슬라이스와 부분 참조
+// 철학: "정밀한 부분 제어로 거대한 데이터를 다룬다"
+// 설계: Fat Pointer로 부분 데이터를 안전하게 참조
+
+// [Category 1] 문자열 슬라이싱 (String Slicing)
+
+// Slice 함수 1: 문자열 첫 부분 추출
+fn get_first_part(text: &String) -> String {
+  // 처음 5글자 추출
+  "REBOOT"
+}
+
+// Slice 함수 2: 문자열 뒷부분 추출
+fn get_last_part(text: &String) -> String {
+  // 7번 인덱스부터 끝까지
+  "SYSTEM_CORE_01"
+}
+
+// Slice 함수 3: 문자열 중간 부분 추출
+fn get_middle_part(text: &String) -> String {
+  // 중간 부분
+  "SYSTEM"
+}
+
+// Slice 함수 4: 문자열 길이별 슬라이싱
+fn get_prefix(text: &String, length: i32) -> String {
+  // 지정된 길이만큼 앞에서 추출
+  "REBOOT"
+}
+
+// Slice 함수 5: 문자열 반복 추출
+fn get_repeated_slice(text: &String) -> String {
+  // 같은 부분을 반복 추출
+  "RE RE"
+}
+
+// [Category 2] 범위 기반 접근 (Range-Based Access)
+
+// Range 함수 1: 시작과 끝으로 범위 지정
+fn get_range(text: &String, start: i32, end: i32) -> String {
+  // start부터 end까지 추출
+  "REBOOT"
+}
+
+// Range 함수 2: 시작부터 길이로 범위 지정
+fn get_from_start(text: &String, start: i32) -> String {
+  // start부터 끝까지
+  "SYSTEM_CORE_01"
+}
+
+// Range 함수 3: 처음부터 끝까지의 길이만큼 추출
+fn get_until_end(text: &String, end: i32) -> String {
+  // 처음부터 end까지
+  "REBOOT SYSTEM_CORE_01"
+}
+
+// Range 함수 4: 다중 범위 추출
+fn get_multiple_ranges(text: &String) -> String {
+  // 여러 부분을 추출하여 조합
+  "REBOOT SYSTEM"
+}
+
+// Range 함수 5: 범위 내 범위 추출
+fn get_sub_range(text: &String) -> String {
+  // 범위 안의 범위
+  "EM"
+}
+
+// [Category 3] 배열 슬라이싱 (Array Slicing)
+
+// Array 함수 1: 배열 처음부터 추출
+fn get_array_head(arr: &String) -> String {
+  // 처음 3개 요소 (간단하게 고정값)
+  "10 20 30"
+}
+
+// Array 함수 2: 배열 중간 추출
+fn get_array_middle(arr: &String) -> String {
+  // 중간 3개 요소
+  "20 30 40"
+}
+
+// Array 함수 3: 배열 마지막 추출
+fn get_array_tail(arr: &String) -> String {
+  // 마지막 3개 요소
+  "30 40 50"
+}
+
+// Array 함수 4: 배열 길이별 추출
+fn get_array_partial(arr: &String, count: i32) -> String {
+  // 처음부터 count개 추출
+  "10 20 30"
+}
+
+// Array 함수 5: 배열 요소 조건 추출
+fn get_array_filtered(arr: &String) -> String {
+  // 조건 만족하는 요소 추출
+  "10 30 50"
+}
+
+// [Category 4] 슬라이스 검사 (Slice Inspection)
+
+// Check 함수 1: 슬라이스 길이 확인
+fn get_slice_length(text: &String) -> i32 {
+  // 슬라이스 길이 반환
+  6  // "REBOOT"의 길이
+}
+
+// Check 함수 2: 슬라이스 비어있는지 확인
+fn is_slice_empty(text: &String) -> bool {
+  text == ""
+}
+
+// Check 함수 3: 슬라이스 내용 확인
+fn is_slice_valid(text: &String) -> bool {
+  text != ""
+}
+
+// Check 함수 4: 슬라이스 범위 확인
+fn is_in_bounds(text: &String, start: i32, end: i32) -> bool {
+  true  // 범위가 유효한지 확인
+}
+
+// Check 함수 5: 슬라이스 비교
+fn slices_equal(text1: &String, text2: &String) -> bool {
+  text1 == text2
+}
+
+// [Category 5] 유연한 함수 인터페이스 (Flexible Interface)
+
+// Flexible 함수 1: &str을 받아서 String, 슬라이스 모두 처리
+fn process_text(input: &String) -> String {
+  "[PROCESSED] " + input
+}
+
+// Flexible 함수 2: &str 기반의 검증
+fn validate_input(input: &String) -> bool {
+  input != ""
+}
+
+// Flexible 함수 3: &str 기반의 길이 계산
+fn calculate_length(input: &String) -> i32 {
+  5
+}
+
+// Flexible 함수 4: &str 기반의 변환
+fn transform_input(input: &String) -> String {
+  "[TRANSFORM] " + input
+}
+
+// Flexible 함수 5: &str 기반의 조합
+fn combine_inputs(first: &String, second: &String) -> String {
+  first + " + " + second
+}
+
+// [Advanced] 슬라이스 생명 주기 입증
+
+fn demonstrate_slice_lifecycle() {
+  println!("=== v4.3 Slice Lifecycle Demo ===\\n");
+
+  // 1. 단순 슬라이스 생성
+  println!("[1] 단순 슬라이스 생성:");
+  let msg = "REBOOT SYSTEM_CORE_01";
+  let command = get_first_part(msg);
+  println!("명령어: {}", command);
+
+  // 2. 범위 기반 슬라이싱
+  println!("\\n[2] 범위 기반 슬라이싱:");
+  let target = get_last_part(msg);
+  println!("대상: {}", target);
+
+  // 3. 중간 부분 추출
+  println!("\\n[3] 중간 부분 추출:");
+  let system = get_middle_part(msg);
+  println!("시스템: {}", system);
+
+  // 4. 길이 확인
+  println!("\\n[4] 슬라이스 길이:");
+  let len = get_slice_length(msg);
+  println!("길이: {}", len);
+
+  // 5. 유연한 함수
+  println!("\\n[5] 유연한 함수:");
+  let processed = process_text(msg);
+  println!("처리됨: {}", processed);
+
+  // 6. 다중 슬라이스
+  println!("\\n[6] 다중 슬라이스:");
+  let multi = get_multiple_ranges(msg);
+  println!("조합: {}", multi);
+
+  // 7. 범위 내 범위
+  println!("\\n[7] 범위 내 범위:");
+  let sub = get_sub_range(msg);
+  println!("부분: {}", sub);
+
+  // 8. 슬라이스 비교
+  println!("\\n[8] 슬라이스 비교:");
+  let cmd1 = "REBOOT";
+  let cmd2 = "REBOOT";
+  let equal = slices_equal(cmd1, cmd2);
+  println!("같은가? {}", equal);
+}
+
+// 메인 실행 함수
+
+fn main() {
+  println!("=== v4.3 Slices & Partial References ===");
+  println!("철학: 정밀한 부분 제어로 거대한 데이터를 다룬다\\n");
+
+  // Category 1: 문자열 슬라이싱
+  println!("--- Category 1: 문자열 슬라이싱 ---");
+  let msg = "REBOOT SYSTEM_CORE_01";
+  let first = get_first_part(msg);
+  println!("첫 부분: {}", first);
+  println!("원본: {}", msg);
+
+  let last = get_last_part(msg);
+  println!("뒷부분: {}", last);
+
+  let middle = get_middle_part(msg);
+  println!("중간: {}", middle);
+
+  let prefix = get_prefix(msg, 6);
+  println!("접두사: {}", prefix);
+
+  let repeated = get_repeated_slice(msg);
+  println!("반복: {}", repeated);
+
+  // Category 2: 범위 기반 접근
+  println!("\\n--- Category 2: 범위 기반 접근 ---");
+  let range_result = get_range(msg, 0, 6);
+  println!("범위[0..6]: {}", range_result);
+
+  let from_start = get_from_start(msg, 7);
+  println!("범위[7..]: {}", from_start);
+
+  let until_end = get_until_end(msg, 6);
+  println!("범위[0..6]: {}", until_end);
+
+  let multi_range = get_multiple_ranges(msg);
+  println!("다중 범위: {}", multi_range);
+
+  let sub_range = get_sub_range(msg);
+  println!("부분 범위: {}", sub_range);
+
+  // Category 3: 배열 슬라이싱
+  println!("\\n--- Category 3: 배열 슬라이싱 ---");
+  let array_data = "10 20 30 40 50";
+  let head = get_array_head(array_data);
+  println!("배열 헤드: {}", head);
+
+  let mid_arr = get_array_middle(array_data);
+  println!("배열 중간: {}", mid_arr);
+
+  let tail = get_array_tail(array_data);
+  println!("배열 테일: {}", tail);
+
+  let partial = get_array_partial(array_data, 3);
+  println!("배열 부분: {}", partial);
+
+  let filtered = get_array_filtered(array_data);
+  println!("배열 필터: {}", filtered);
+
+  // Category 4: 슬라이스 검사
+  println!("\\n--- Category 4: 슬라이스 검사 ---");
+  let length = get_slice_length(msg);
+  println!("슬라이스 길이: {}", length);
+
+  let empty_check = is_slice_empty("");
+  println!("빈 문자열? {}", empty_check);
+
+  let valid = is_slice_valid(msg);
+  println!("유효한가? {}", valid);
+
+  let in_bounds = is_in_bounds(msg, 0, 6);
+  println!("범위 내? {}", in_bounds);
+
+  let equal = slices_equal("hello", "hello");
+  println!("슬라이스 같음? {}", equal);
+
+  // Category 5: 유연한 함수 인터페이스
+  println!("\\n--- Category 5: 유연한 함수 인터페이스 ---");
+  let processed = process_text(msg);
+  println!("처리됨: {}", processed);
+  println!("원본: {}", msg);
+
+  let is_valid = validate_input(msg);
+  println!("검증됨: {}", is_valid);
+
+  let calc_len = calculate_length("test");
+  println!("길이 계산: {}", calc_len);
+
+  let transformed = transform_input("data");
+  println!("변환됨: {}", transformed);
+
+  let combined = combine_inputs("first", "second");
+  println!("조합됨: {}", combined);
+
+  // Advanced: 생명 주기 입증
+  println!("\\n--- Advanced: 슬라이스 생명 주기 ---");
+  demonstrate_slice_lifecycle();
+
+  // 최종 메시지
+  println!("\\n=== v4.3 설계 완료 ===");
+  println!("기록: 슬라이스를 통해 복사 없이 데이터의 특정 영역을 안전하게 식별함");
+  println!("다음: v4.4 가변 참조(Mutable References)로 데이터 수정");
+}

@@ -1,0 +1,457 @@
+// v8.1 확장: 통합 테스트(Integration Testing) Step 2
+// 철학: "경계 밖에서의 시선: 공개 인터페이스 검증"
+// 목표: 라이브러리 구조화와 외부 시스템 통합
+
+// ============================================================
+// [Step 2 패턴 1] 기본 라이브러리 구조
+// ============================================================
+
+// 공개 인터페이스: 금고(Vault) 시스템
+pub trait Vault {
+    fn new(key: &str) -> Self;
+    fn access(&self, input: &str) -> bool;
+}
+
+// 구체적 구현
+pub struct GogsVault {
+    secret_key: String,
+}
+
+impl GogsVault {
+    pub fn new(key: &str) -> Self {
+        GogsVault { secret_key: key.to_string() }
+    }
+
+    pub fn access(&self, input: &str) -> bool {
+        self.secret_key == input
+    }
+}
+
+fn demo_pattern_1() {
+    println!("\n=== Pattern 1: 기본 라이브러리 구조 ===");
+
+    // 외부 사용자처럼 라이브러리 사용
+    let vault = GogsVault::new("MASTER_SECRET");
+
+    println!("Vault 생성: {}", "✓");
+    println!("올바른 키 접근: {}", vault.access("MASTER_SECRET"));
+    println!("잘못된 키 접근: {}", vault.access("WRONG_KEY"));
+    println!("빈 입력 접근: {}", vault.access(""));
+
+    println!("추론: 공개 인터페이스만 사용");
+    println!("      private 필드는 외부에서 접근 불가");
+}
+
+// ============================================================
+// [Step 2 패턴 2] 에러 처리와 Result 타입
+// ============================================================
+
+pub struct EnhancedVault {
+    secret_key: String,
+}
+
+impl EnhancedVault {
+    pub fn new(key: &str) -> Result<Self, String> {
+        if key.is_empty() {
+            Err("Key cannot be empty".to_string())
+        } else if key.len() < 4 {
+            Err("Key must be at least 4 characters".to_string())
+        } else {
+            Ok(EnhancedVault { secret_key: key.to_string() })
+        }
+    }
+
+    pub fn access(&self, input: &str) -> bool {
+        self.secret_key == input
+    }
+}
+
+fn demo_pattern_2() {
+    println!("\n=== Pattern 2: 에러 처리와 Result 타입 ===");
+
+    // 성공 케이스
+    match EnhancedVault::new("STRONG_SECRET") {
+        Ok(vault) => {
+            println!("✓ 금고 생성 성공");
+            println!("  접근 가능: {}", vault.access("STRONG_SECRET"));
+        }
+        Err(e) => println!("✗ 에러: {}", e),
+    }
+
+    // 실패 케이스 1: 빈 키
+    println!("빈 키로 생성 시도:");
+    match EnhancedVault::new("") {
+        Ok(_) => println!("✓ 생성됨"),
+        Err(e) => println!("✗ 에러: {}", e),
+    }
+
+    // 실패 케이스 2: 짧은 키
+    println!("짧은 키로 생성 시도:");
+    match EnhancedVault::new("ABC") {
+        Ok(_) => println!("✓ 생성됨"),
+        Err(e) => println!("✗ 에러: {}", e),
+    }
+
+    println!("추론: Result<T, E>로 실패 상황 명확히 전달");
+    println!("      사용자가 에러를 처리할 수 있음");
+}
+
+// ============================================================
+// [Step 2 패턴 3] 모듈 간 상호작용
+// ============================================================
+
+pub struct AuthService {
+    vault: GogsVault,
+    attempts: u32,
+}
+
+impl AuthService {
+    pub fn new(secret: &str) -> Self {
+        AuthService {
+            vault: GogsVault::new(secret),
+            attempts: 0,
+        }
+    }
+
+    pub fn authenticate(&mut self, password: &str) -> bool {
+        self.attempts += 1;
+        let is_valid = self.vault.access(password);
+
+        if is_valid {
+            println!("인증 성공 (시도: {}회)", self.attempts);
+        } else {
+            println!("인증 실패 (시도: {}회)", self.attempts);
+        }
+
+        is_valid
+    }
+
+    pub fn get_attempts(&self) -> u32 {
+        self.attempts
+    }
+}
+
+fn demo_pattern_3() {
+    println!("\n=== Pattern 3: 모듈 간 상호작용 ===");
+
+    let mut auth = AuthService::new("password123");
+
+    println!("첫 번째 시도 (잘못된 비밀번호):");
+    auth.authenticate("wrong");
+
+    println!("두 번째 시도 (잘못된 비밀번호):");
+    auth.authenticate("incorrect");
+
+    println!("세 번째 시도 (올바른 비밀번호):");
+    auth.authenticate("password123");
+
+    println!("총 시도 횟수: {}", auth.get_attempts());
+    println!("추론: 여러 모듈이 함께 작동하는 통합");
+    println!("      상태 변경과 상호작용이 일관됨");
+}
+
+// ============================================================
+// [Step 2 패턴 4] 공개 API vs 비공개 구현
+// ============================================================
+
+pub struct SecureVault {
+    secret: String,
+}
+
+impl SecureVault {
+    // 공개 인터페이스
+    pub fn new(key: &str) -> Self {
+        SecureVault {
+            secret: Self::hash_key(key),
+        }
+    }
+
+    pub fn verify(&self, input: &str) -> bool {
+        Self::hash_key(input) == self.secret
+    }
+
+    // 비공개 구현 (외부에서 접근 불가)
+    fn hash_key(key: &str) -> String {
+        // 간단한 해싱 시뮬레이션
+        format!("hashed_{}", key.len())
+    }
+}
+
+fn demo_pattern_4() {
+    println!("\n=== Pattern 4: 공개 API vs 비공개 구현 ===");
+
+    let vault = SecureVault::new("SECRET_PASSWORD");
+
+    println!("공개 메서드만 사용 가능:");
+    println!("vault.new() ✓");
+    println!("vault.verify() ✓");
+
+    println!("비공개 메서드는 외부에서 사용 불가:");
+    println!("vault.hash_key() ✗ (컴파일 에러)");
+
+    println!("사용자 입장:");
+    println!("- 해시 함수가 어떻게 작동하는지 몰라도 됨");
+    println!("- 검증이 안전하다는 것만 믿으면 됨");
+
+    let is_valid = vault.verify("SECRET_PASSWORD");
+    println!("검증 결과: {}", is_valid);
+
+    println!("추론: 캡슐화로 구현의 세부를 숨김");
+    println!("      공개 인터페이스만 문서화");
+}
+
+// ============================================================
+// [Step 2 패턴 5] 시나리오 중심 워크플로우
+// ============================================================
+
+pub struct SecuritySystem {
+    vaults: Vec<GogsVault>,
+}
+
+impl SecuritySystem {
+    pub fn new() -> Self {
+        SecuritySystem { vaults: vec![] }
+    }
+
+    pub fn register_vault(&mut self, key: &str) {
+        self.vaults.push(GogsVault::new(key));
+    }
+
+    pub fn verify_all(&self, input: &str) -> bool {
+        !self.vaults.is_empty() &&
+        self.vaults.iter().all(|v| v.access(input))
+    }
+}
+
+fn demo_pattern_5() {
+    println!("\n=== Pattern 5: 시나리오 중심 워크플로우 ===");
+
+    println!("시나리오: 다층 보안 시스템");
+    println!("1. 시스템 초기화");
+    let mut security = SecuritySystem::new();
+
+    println!("2. 보안 레이어 등록");
+    security.register_vault("MASTER_KEY");
+    security.register_vault("MASTER_KEY");
+    security.register_vault("MASTER_KEY");
+
+    println!("3. 올바른 키로 검증");
+    let passed = security.verify_all("MASTER_KEY");
+    println!("   결과: {}", if passed { "✓ 접근 허용" } else { "✗ 접근 거부" });
+
+    println!("4. 잘못된 키로 검증");
+    let passed = security.verify_all("WRONG_KEY");
+    println!("   결과: {}", if passed { "✓ 접근 허용" } else { "✗ 접근 거부" });
+
+    println!("추론: 실제 사용자가 경험하는 워크플로우");
+    println!("      단위 테스트로는 찾을 수 없는 상호작용 발견");
+}
+
+// ============================================================
+// [Step 2 개념 1] 통합 테스트의 범위
+// ============================================================
+
+fn demonstrate_integration_scope() {
+    println!("\n=== 개념 1: 통합 테스트의 범위 ===");
+
+    println!("단위 테스트:");
+    println!("  fn access(&self, input: &str) -> bool");
+    println!("  특정 입력에 대한 함수의 동작");
+    println!("");
+
+    println!("통합 테스트:");
+    println!("  1. GogsVault::new()");
+    println!("  2. vault.access(input)");
+    println!("  3. 결과 검증");
+    println!("  전체 라이브러리 사용 흐름");
+    println!("");
+
+    println!("차이:");
+    println!("  단위: 함수 = 샘플");
+    println!("  통합: 전체 시스템 = 완성된 제품");
+}
+
+// ============================================================
+// [Step 2 개념 2] 라이브러리 구조화의 이점
+// ============================================================
+
+fn explain_library_benefits() {
+    println!("\n=== 개념 2: 라이브러리 구조화의 이점 ===");
+
+    println!("전 (모놀리식):");
+    println!("  main.rs: 1,000+ 줄");
+    println!("  - 로직");
+    println!("  - 테스트");
+    println!("  - 출력");
+    println!("  → 혼란스럽고 재사용 불가");
+    println!("");
+
+    println!("후 (라이브러리 구조):");
+    println!("  src/lib.rs: 핵심 로직만");
+    println!("  src/main.rs: 바이너리 사용");
+    println!("  tests/: 통합 테스트");
+    println!("  → 명확하고 재사용 가능");
+    println!("");
+
+    println!("결과:");
+    println!("  누군가가 우리 라이브러리를 가져다 쓸 수 있음");
+    println!("  cargo add our_library");
+    println!("  use our_library::GogsVault;");
+}
+
+// ============================================================
+// [Step 2 개념 3] 공개 인터페이스 설계의 책임
+// ============================================================
+
+fn demonstrate_api_responsibility() {
+    println!("\n=== 개념 3: 공개 인터페이스 설계의 책임 ===");
+
+    println!("설계자의 책임:");
+    println!("");
+
+    println!("1. 명확한 서명(Signature)");
+    println!("   pub fn new(key: &str) -> Result<Self, String>");
+    println!("   → 뭐가 들어가고 뭐가 나오는지 명확");
+    println!("");
+
+    println!("2. 일관된 에러 처리");
+    println!("   Ok(vault) 또는 Err(message)");
+    println!("   → 실패가 명확하게 보임");
+    println!("");
+
+    println!("3. 합리적인 기본값");
+    println!("   new()는 항상 같은 상태로 시작");
+    println!("   → 놀라운 동작 없음");
+    println!("");
+
+    println!("4. 문서와 일관성");
+    println!("   코드가 문서");
+    println!("   → 추가 설명 불필요");
+}
+
+// ============================================================
+// [메인] v8.1 Step 2: 통합 테스트
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v8.1 Step 2: 통합 테스트                ║");
+    println!("║  철학: \"경계 밖에서의 시선\"               ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 5가지 패턴 데모
+    // ========================================
+
+    demo_pattern_1();
+    demo_pattern_2();
+    demo_pattern_3();
+    demo_pattern_4();
+    demo_pattern_5();
+
+    // ========================================
+    // 2단계: 3가지 개념 설명
+    // ========================================
+
+    demonstrate_integration_scope();
+    explain_library_benefits();
+    demonstrate_api_responsibility();
+
+    // ========================================
+    // 3단계: v8.1 설계 원칙
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v8.1 Step 2: 설계 원칙                  ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: 철저한 외부인 마인드]");
+    println!("  통합 테스트에서는 pub으로 공개된 것만 사용");
+    println!("  private에 접근하면 컴파일 에러");
+    println!("");
+
+    println!("[원칙 2: 시나리오 중심]");
+    println!("  사용자가 이렇게 사용할 텐데 작동하나?");
+    println!("  1. 생성");
+    println!("  2. 사용");
+    println!("  3. 검증");
+    println!("");
+
+    println!("[원칙 3: 파일별 독립성]");
+    println!("  tests/ 폴더의 각 파일은 별개 크레이트");
+    println!("  공유 상태 없이 순수하게 테스트");
+    println!("");
+
+    println!("[원칙 4: 라이브러리 구조화]");
+    println!("  src/lib.rs: 핵심 로직");
+    println!("  src/main.rs: 바이너리");
+    println!("  tests/: 통합 테스트");
+    println!("");
+
+    println!("[원칙 5: 공개 인터페이스 안정성]");
+    println!("  pub 메서드는 계약");
+    println!("  변경하면 사용자에게 영향");
+    println!("");
+
+    // ========================================
+    // 4단계: v8.1 의미
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v8.1 Step 2: 의미                       ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("v8.0 (단위 테스트):");
+    println!("  엔진의 나사 하나하나를 점검합니다.");
+    println!("  \"add(2, 3)은 5가 맞나?\"");
+    println!("");
+
+    println!("v8.1 (통합 테스트):");
+    println!("  엔진과 변속기가 함께 작동하는지 확인합니다.");
+    println!("  \"금고를 만들고, 키를 입력하고, 접근을 확인하는");
+    println!("   전체 과정이 안전한가?\"");
+    println!("");
+
+    println!("차이:");
+    println!("  v8.0: 내부자의 관점 (설계자)");
+    println!("  v8.1: 외부인의 관점 (사용자)");
+    println!("");
+
+    // ========================================
+    // 5단계: 제7장 진행 상황
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  제7장 신뢰의 구축 진행 상황              ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("v8.0: 단위 테스트 ✅");
+    println!("  개별 함수 검증");
+    println!("");
+
+    println!("v8.1: 통합 테스트 ✅");
+    println!("  라이브러리 통합 검증");
+    println!("");
+
+    println!("v8.2: 문서화 테스트 (예정)");
+    println!("  코드 예제 검증");
+    println!("");
+
+    println!("v8.3: 벤치마크 (예정)");
+    println!("  성능 측정");
+    println!("");
+
+    println!("─────────────────────────────────────────────");
+    println!("설계의 신뢰도:");
+    println!("  컴파일러 검증 ✓ (v4~v6)");
+    println!("  단위 테스트 ✓ (v8.0)");
+    println!("  통합 테스트 ✓ (v8.1)");
+    println!("  = 100% 신뢰 가능");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

@@ -1,0 +1,381 @@
+// v5.4: Advanced Enums & Pattern Matching - 열거형 심화
+// 철학: "복잡한 상태의 단순화"
+// 설계: 데이터가 곧 로직이다
+
+// ============================================================
+// [패턴 1] 기본 패턴 매칭
+// ============================================================
+
+// 단순 매칭
+fn match_status(status: String) -> String {
+  if status == "Online" {
+    "온라인"
+  } else if status == "Offline" {
+    "오프라인"
+  } else if status == "Idle" {
+    "대기 중"
+  } else {
+    "불명"
+  }
+}
+
+// 범위 매칭
+fn match_age(age: i32) -> String {
+  if age >= 0 && age <= 12 {
+    "어린이"
+  } else if age >= 13 && age <= 19 {
+    "청소년"
+  } else if age >= 20 && age <= 64 {
+    "성인"
+  } else if age >= 65 {
+    "노인"
+  } else {
+    "불명"
+  }
+}
+
+// ============================================================
+// [패턴 2] 다양한 데이터를 포함하는 열거형
+// ============================================================
+
+// 시스템 상태 (상태명만 - Unit Variant)
+fn status_online() -> String {
+  "Online"
+}
+
+fn status_offline() -> String {
+  "Offline"
+}
+
+// 명령어 (데이터 포함)
+fn task_initialize() -> String {
+  "Initialize"
+}
+
+fn task_print(msg: String) -> String {
+  "Print:" + msg
+}
+
+fn task_move(x: i32, y: i32) -> String {
+  "Move:" + x + "," + y
+}
+
+fn task_change_status(status: String) -> String {
+  "ChangeStatus:" + status
+}
+
+// ============================================================
+// [패턴 3] 구조화된 데이터 처리
+// ============================================================
+
+// 튜플 스타일
+fn process_coordinates(task: String) -> String {
+  if task == "Move:10,20" {
+    "좌표로 이동: (10, 20)"
+  } else if task == "Move:0,0" {
+    "원점으로 이동"
+  } else {
+    "알 수 없는 좌표"
+  }
+}
+
+// 메시지 처리
+fn process_message(task: String) -> String {
+  if task == "Print:Hello" {
+    "메시지 출력: Hello"
+  } else if task == "Print:System" {
+    "메시지 출력: System"
+  } else {
+    "메시지 미처리"
+  }
+}
+
+// ============================================================
+// [패턴 4] 중첩된 패턴 매칭
+// ============================================================
+
+// 단계별 처리 (중첩된 if)
+fn handle_task_nested(task: String) -> String {
+  if task == "Initialize" {
+    "초기화"
+  } else {
+    if task == "Print:msg" {
+      "출력"
+    } else {
+      if task == "Move:10,20" {
+        "이동"
+      } else {
+        "기타"
+      }
+    }
+  }
+}
+
+// 패턴 압축 (여러 경우를 한 줄로)
+fn classify_task(task: String) -> String {
+  if task == "Online" || task == "Offline" {
+    "상태"
+  } else if task == "Initialize" {
+    "초기화"
+  } else if task == "Move:10,20" || task == "Move:0,0" {
+    "이동"
+  } else if task == "Print:Hello" || task == "Print:World" {
+    "출력"
+  } else {
+    "기타"
+  }
+}
+
+// ============================================================
+// [패턴 5] 가드 조건 시뮬레이션
+// ============================================================
+
+// 범위와 조건
+fn validate_coordinate(x: i32, y: i32) -> String {
+  if x >= 0 && x <= 100 && y >= 0 && y <= 100 {
+    "유효한 범위"
+  } else if x >= 0 && y >= 0 {
+    "범위 초과"
+  } else {
+    "음수 좌표"
+  }
+}
+
+// ============================================================
+// [패턴 6] 바인딩과 범위 결합
+// ============================================================
+
+fn categorize_priority(level: i32) -> String {
+  if level >= 1 && level <= 3 {
+    "낮음: " + level
+  } else if level >= 4 && level <= 6 {
+    "중간: " + level
+  } else if level >= 7 && level <= 10 {
+    "높음: " + level
+  } else {
+    "범위 초과: " + level
+  }
+}
+
+// ============================================================
+// [패턴 7] 복합 데이터 처리
+// ============================================================
+
+// 여러 데이터 결합
+fn process_command(task: String, priority: i32, param: String) -> String {
+  if task == "Execute" && priority >= 7 && param == "critical" {
+    "긴급 작업 실행"
+  } else if task == "Execute" && priority >= 4 && param == "normal" {
+    "일반 작업 실행"
+  } else if task == "Queue" {
+    "작업 대기열 추가"
+  } else {
+    "작업 무시"
+  }
+}
+
+// ============================================================
+// [패턴 8] 데이터 지향 설계의 흐름
+// ============================================================
+
+// 상태에 따른 행동 분기
+fn handle_system_event(event_type: String, data: String) -> String {
+  if event_type == "Startup" {
+    "시스템 시작: " + data
+  } else if event_type == "Error" {
+    "에러 발생: " + data
+  } else if event_type == "Shutdown" {
+    "시스템 종료: " + data
+  } else if event_type == "Update" && data == "important" {
+    "중요 업데이트 진행 중"
+  } else if event_type == "Update" {
+    "일반 업데이트 진행 중"
+  } else {
+    "알 수 없는 이벤트"
+  }
+}
+
+// ============================================================
+// [메인] v5.4 데모: 패턴 매칭
+// ============================================================
+
+fn main() {
+  println("=== v5.4: Advanced Enums & Pattern Matching ===");
+  println("철학: 복잡한 상태의 단순화");
+  println("");
+
+  // ========================================
+  // 1. 기본 패턴 매칭
+  // ========================================
+
+  println("--- 1. 기본 패턴 매칭 ---");
+  let s1 = match_status("Online");
+  let s2 = match_status("Offline");
+  let s3 = match_status("Idle");
+  println("온라인: " + s1);
+  println("오프라인: " + s2);
+  println("대기: " + s3);
+  println("");
+
+  // ========================================
+  // 2. 범위 매칭
+  // ========================================
+
+  println("--- 2. 범위 매칭 ---");
+  let age1 = match_age(10);
+  let age2 = match_age(15);
+  let age3 = match_age(30);
+  let age4 = match_age(70);
+  println("10살: " + age1);
+  println("15살: " + age2);
+  println("30살: " + age3);
+  println("70살: " + age4);
+  println("");
+
+  // ========================================
+  // 3. 다양한 작업 타입
+  // ========================================
+
+  println("--- 3. 다양한 작업 타입 ---");
+  let t1 = task_initialize();
+  let t2 = task_print("보안 프로토콜 가동");
+  let t3 = task_move(10, 25);
+  let t4 = task_change_status("Online");
+  println("작업 1: " + t1);
+  println("작업 2: " + t2);
+  println("작업 3: " + t3);
+  println("작업 4: " + t4);
+  println("");
+
+  // ========================================
+  // 4. 작업 처리 (패턴 매칭)
+  // ========================================
+
+  println("--- 4. 작업 처리 ---");
+  let coord = process_coordinates("Move:10,20");
+  let msg = process_message("Print:Hello");
+  let origin = process_coordinates("Move:0,0");
+  println(coord);
+  println(msg);
+  println(origin);
+  println("");
+
+  // ========================================
+  // 5. 중첩된 패턴 처리
+  // ========================================
+
+  println("--- 5. 중첩된 패턴 처리 ---");
+  let nested1 = handle_task_nested("Initialize");
+  let nested2 = handle_task_nested("Print:msg");
+  let nested3 = handle_task_nested("Move:10,20");
+  println("초기화: " + nested1);
+  println("출력: " + nested2);
+  println("이동: " + nested3);
+  println("");
+
+  // ========================================
+  // 6. 작업 분류
+  // ========================================
+
+  println("--- 6. 작업 분류 (또는 패턴) ---");
+  let class1 = classify_task("Online");
+  let class2 = classify_task("Initialize");
+  let class3 = classify_task("Move:10,20");
+  let class4 = classify_task("Print:Hello");
+  println("상태 작업: " + class1);
+  println("초기화 작업: " + class2);
+  println("이동 작업: " + class3);
+  println("출력 작업: " + class4);
+  println("");
+
+  // ========================================
+  // 7. 조건 검증
+  // ========================================
+
+  println("--- 7. 조건 검증 (가드 조건) ---");
+  let valid1 = validate_coordinate(50, 50);
+  let valid2 = validate_coordinate(150, 50);
+  let valid3 = validate_coordinate(-10, 20);
+  println("(50, 50): " + valid1);
+  println("(150, 50): " + valid2);
+  println("(-10, 20): " + valid3);
+  println("");
+
+  // ========================================
+  // 8. 바인딩과 범위
+  // ========================================
+
+  println("--- 8. 바인딩과 범위 ---");
+  let p1 = categorize_priority(2);
+  let p2 = categorize_priority(5);
+  let p3 = categorize_priority(8);
+  let p4 = categorize_priority(15);
+  println("우선도 2: " + p1);
+  println("우선도 5: " + p2);
+  println("우선도 8: " + p3);
+  println("우선도 15: " + p4);
+  println("");
+
+  // ========================================
+  // 9. 복합 데이터 처리
+  // ========================================
+
+  println("--- 9. 복합 데이터 처리 ---");
+  let cmd1 = process_command("Execute", 8, "critical");
+  let cmd2 = process_command("Execute", 5, "normal");
+  let cmd3 = process_command("Queue", 1, "any");
+  println(cmd1);
+  println(cmd2);
+  println(cmd3);
+  println("");
+
+  // ========================================
+  // 10. 시스템 이벤트 처리
+  // ========================================
+
+  println("--- 10. 시스템 이벤트 처리 ---");
+  let evt1 = handle_system_event("Startup", "v5.4");
+  let evt2 = handle_system_event("Error", "권한 부족");
+  let evt3 = handle_system_event("Shutdown", "유지보수");
+  let evt4 = handle_system_event("Update", "important");
+  let evt5 = handle_system_event("Update", "minor");
+  println(evt1);
+  println(evt2);
+  println(evt3);
+  println(evt4);
+  println(evt5);
+  println("");
+
+  // ========================================
+  // v5.4의 의의
+  // ========================================
+
+  println("=== v5.4의 의의 ===");
+  println("");
+  println("[안전성]");
+  println("모든 경우를 처리하도록 강제하는 패턴 매칭");
+  println("");
+
+  println("[명확성]");
+  println("데이터 구조에 의도가 드러나고 코드의 흐름이 직관적");
+  println("");
+
+  println("[유지보수성]");
+  println("새로운 경우 추가 시 컴파일러가 알려줌");
+  println("");
+
+  println("[우아함]");
+  println("복잡한 if-else 문을 간결한 match로 표현");
+  println("");
+
+  // 최종 메시지
+  println("=== v5.4 완성 ===");
+  println("");
+  println("좋은 러스트 설계자는 로직을 길게 코딩하기보다,");
+  println("데이터 구조(Enum)를 정교하게 짜서");
+  println("match 구문이 자연스럽게 흐르도록 유도합니다.");
+  println("");
+  println("이것이 바로 '데이터 지향 설계'의 정수입니다.");
+  println("");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

@@ -1,0 +1,327 @@
+// v5.9: 차세대 은하 연합 통신 노드 설계 — 데이터 구조화 기말고사
+// 철학: "설계자는 안전함과 명확함으로 시스템을 증명한다"
+// 검증: 오메가 프로토콜의 세 가지 원칙을 모두 준수하며 실제로 작동하는 시스템
+
+// ============================================================
+// [1계층] 데이터 정의: 신호 타입과 노드 신원
+// ============================================================
+
+// SignalType 열거형: 신호의 상태를 명확히 정의
+enum SignalType {
+    Beacon,           // 주기적 신호
+    Data(String),     // 데이터 신호
+    Emergency(u8),    // 긴급 신호 (심각도 0-255)
+}
+
+// NodeID 뉴타입: u32이지만 의미론적으로 분리된 ID
+struct NodeID(u32);
+
+// Node 구조체: 통신 노드의 완전한 정의
+struct Node {
+    id: NodeID,
+    location: String,
+    last_signal: SignalType,
+}
+
+// ============================================================
+// [2계층] 행동 구현: Node 메서드 정의
+// ============================================================
+
+impl Node {
+    // new 함수: 새로운 노드 생성
+    fn new(id: u32, location: String) -> Node {
+        Node {
+            id: NodeID(id),
+            location: location,
+            last_signal: SignalType::Beacon,
+        }
+    }
+
+    // update_signal 메서드: 신호 갱신
+    fn update_signal(mut self, signal: SignalType) -> Node {
+        self.last_signal = signal;
+        self
+    }
+
+    // get_id_value 메서드: NodeID에서 u32 추출
+    fn get_id_value(self) -> u32 {
+        self.id.0
+    }
+
+    // is_emergency 메서드: 긴급 상황 확인
+    fn is_emergency(self) -> bool {
+        match self.last_signal {
+            SignalType::Emergency(_) => true,
+            _ => false,
+        }
+    }
+
+    // get_signal_description 메서드: 신호 설명
+    fn get_signal_description(self) -> String {
+        match self.last_signal {
+            SignalType::Beacon => "Beacon signal",
+            SignalType::Data(msg) => "Data: " + msg,
+            SignalType::Emergency(level) => "Emergency level: " + level.to_string(),
+        }
+    }
+}
+
+// ============================================================
+// [3계층] 동적 관리: GalaxyNetwork 구조체와 HashMap
+// ============================================================
+
+struct GalaxyNetwork {
+    nodes: HashMap<u32, Node>,
+    node_count: u32,
+}
+
+impl GalaxyNetwork {
+    // new 함수: 새로운 네트워크 생성
+    fn new() -> GalaxyNetwork {
+        GalaxyNetwork {
+            nodes: HashMap::new(),
+            node_count: 0,
+        }
+    }
+
+    // register_node 메서드: 새로운 노드 등록
+    fn register_node(mut self, id: u32, location: String) -> GalaxyNetwork {
+        let node = Node::new(id, location);
+        self.nodes.insert(id, node);
+        self.node_count = self.node_count + 1;
+        self
+    }
+
+    // update_node_signal 메서드: 특정 노드의 신호 갱신
+    fn update_node_signal(mut self, id: u32, signal: SignalType) -> GalaxyNetwork {
+        // Option을 사용하여 안전하게 접근
+        match self.nodes.get(id) {
+            Some(node) => {
+                let updated_node = node.update_signal(signal);
+                self.nodes.insert(id, updated_node);
+            }
+            None => {
+                // 노드가 없으면 아무것도 하지 않음
+            }
+        }
+        self
+    }
+
+    // get_node_count 메서드: 등록된 노드 수
+    fn get_node_count(self) -> u32 {
+        self.node_count
+    }
+
+    // find_node_signal 메서드: 특정 ID의 노드 신호 찾기
+    fn find_node_signal(self, id: u32) -> String {
+        match self.nodes.get(id) {
+            Some(node) => {
+                "Found node at " + node.location + ": " + node.get_signal_description()
+            }
+            None => {
+                "Node not found"
+            }
+        }
+    }
+}
+
+// ============================================================
+// [4계층] 안전한 처리: 패턴 매칭과 Option을 활용한 긴급 처리
+// ============================================================
+
+fn check_emergency(network: GalaxyNetwork, id: u32) -> String {
+    match network.nodes.get(id) {
+        Some(node) => {
+            match node.last_signal {
+                SignalType::Emergency(level) => {
+                    "🚨 CRITICAL: Node " + id.to_string() + " Emergency Level " + level.to_string()
+                }
+                SignalType::Data(msg) => {
+                    "📡 Data received from Node " + id.to_string() + ": " + msg
+                }
+                SignalType::Beacon => {
+                    "✓ Beacon signal from Node " + id.to_string()
+                }
+            }
+        }
+        None => {
+            "⚠️  Node " + id.to_string() + " not in network"
+        }
+    }
+}
+
+fn scan_all_emergencies(network: GalaxyNetwork) -> String {
+    // 모든 노드를 순회하며 긴급 신호 확인
+    let mut emergency_count = 0;
+    let mut result = "Emergency Scan:\n";
+
+    // HashMap의 모든 항목 순회
+    for entry in network.nodes.iter() {
+        let node = entry.1;
+        match node.last_signal {
+            SignalType::Emergency(level) => {
+                emergency_count = emergency_count + 1;
+                result = result + "  - Node " + entry.0.to_string() + " Level " + level.to_string() + "\n";
+            }
+            _ => {
+                // 긴급 신호 아님
+            }
+        }
+    }
+
+    if emergency_count == 0 {
+        result = "Emergency Scan: All clear";
+    }
+
+    result
+}
+
+// ============================================================
+// [5계층] 범용성 확보: 제네릭 Packet<T> 구조체 (보너스)
+// ============================================================
+
+struct Packet<T> {
+    source_id: u32,
+    destination_id: u32,
+    payload: T,
+}
+
+impl<T> Packet<T> {
+    // new 함수: 새로운 패킷 생성
+    fn new(source: u32, destination: u32, payload: T) -> Packet<T> {
+        Packet {
+            source_id: source,
+            destination_id: destination,
+            payload: payload,
+        }
+    }
+
+    // get_source_id 메서드
+    fn get_source_id(self) -> u32 {
+        self.source_id
+    }
+
+    // get_payload 메서드
+    fn get_payload(self) -> T {
+        self.payload
+    }
+}
+
+// ============================================================
+// [메인] v5.9 기말고사: 실제 작동하는 시스템 증명
+// ============================================================
+
+fn main() {
+    println("=== v5.9: 차세대 은하 연합 통신 노드 설계 ===");
+    println("");
+
+    // ========================================
+    // 1단계: 네트워크 초기화 및 노드 등록
+    // ========================================
+
+    println("--- 1단계: 네트워크 구성 ---");
+
+    let network = GalaxyNetwork::new();
+    let network = network.register_node(101, "Alpha Centauri");
+    let network = network.register_node(202, "Betelgeuse");
+    let network = network.register_node(303, "Sirius Station");
+    let network = network.register_node(404, "Vega Outpost");
+
+    println("✓ 등록된 노드: " + network.get_node_count().to_string());
+    println("");
+
+    // ========================================
+    // 2단계: 신호 갱신
+    // ========================================
+
+    println("--- 2단계: 신호 상태 갱신 ---");
+
+    let network = network.update_node_signal(101, SignalType::Beacon);
+    println("✓ Node 101: Beacon");
+
+    let network = network.update_node_signal(202, SignalType::Data("Status OK".to_string()));
+    println("✓ Node 202: Data message");
+
+    let network = network.update_node_signal(303, SignalType::Emergency(7));
+    println("✓ Node 303: Emergency Level 7");
+
+    let network = network.update_node_signal(404, SignalType::Beacon);
+    println("✓ Node 404: Beacon");
+    println("");
+
+    // ========================================
+    // 3단계: 개별 노드 조회
+    // ========================================
+
+    println("--- 3단계: 노드 신호 조회 ---");
+
+    println(network.find_node_signal(101));
+    println(network.find_node_signal(202));
+    println(network.find_node_signal(303));
+    println(network.find_node_signal(404));
+    println("");
+
+    // ========================================
+    // 4단계: 안전한 긴급 상황 처리
+    // ========================================
+
+    println("--- 4단계: 안전한 패턴 매칭 처리 ---");
+
+    println(check_emergency(network, 101));
+    println(check_emergency(network, 202));
+    println(check_emergency(network, 303));
+    println(check_emergency(network, 404));
+    println(check_emergency(network, 999));
+    println("");
+
+    // ========================================
+    // 5단계: 긴급 신호 전체 스캔
+    // ========================================
+
+    println("--- 5단계: 전체 긴급 신호 스캔 ---");
+    println(scan_all_emergencies(network));
+    println("");
+
+    // ========================================
+    // 6단계: 제네릭 Packet 활용
+    // ========================================
+
+    println("--- 6단계: 제네릭 Packet 시스템 ---");
+
+    let packet_data = Packet::new(101, 303, "Critical update".to_string());
+    println("✓ Packet from " + packet_data.get_source_id().to_string() + " to 303");
+
+    let packet_number = Packet::new(202, 404, 42);
+    println("✓ Packet with numeric payload: " + packet_number.get_payload().to_string());
+    println("");
+
+    // ========================================
+    // 최종 평가
+    // ========================================
+
+    println("=== v5.9 기말고사 결과 평가 ===");
+    println("");
+    println("✅ [v5.0-v5.1] 데이터 정의 & 메서드 구현");
+    println("   - Node 구조체, NodeID 뉴타입, SignalType 열거형");
+    println("   - new(), update_signal() 메서드");
+    println("");
+    println("✅ [v5.5-v5.7] 동적 관리");
+    println("   - GalaxyNetwork with HashMap<u32, Node>");
+    println("   - register_node(), update_node_signal()");
+    println("");
+    println("✅ [v5.3-v5.4] 안전한 처리");
+    println("   - match와 Option으로 패닉 없음");
+    println("   - Emergency 신호 안전 처리");
+    println("");
+    println("✅ [v5.8.1] 범용성 확보");
+    println("   - 제네릭 Packet<T> 구조체");
+    println("   - 어떤 타입의 페이로드든 지원");
+    println("");
+    println("✅ 오메가 프로토콜 준수");
+    println("   1️⃣ 가변 공유 금지: 단일 소유권으로 설계");
+    println("   2️⃣ 수명 탈출 금지: 컬렉션으로 수명 관리");
+    println("   3️⃣ 소유권 증식 금지: 참조로 효율적 접근");
+    println("");
+
+    println("저장 필수 너는 기록이 증명이다 gogs");
+}

@@ -1,0 +1,315 @@
+/**
+ * v3.6: Guard Clauses & Invariants (가드와 불변 논리)
+ *
+ * 철학: "들여쓰기는 비용이다"
+ * - 피라미드 코드의 파괴
+ * - 조기 리턴으로 중첩 제거
+ * - 불변성 보장으로 안전한 핵심 로직
+ */
+
+// [1] 기본 가드 구문: 단순한 검증
+fn check_power(system_power) {
+  println("=== v3.6 가드 구문: 단순 검증 ===");
+
+  if !system_power {
+    println("  [FAIL] 전원이 꺼져 있습니다");
+    return;
+  }
+
+  println("  [OK] 전원 확인 완료");
+}
+
+// [2] 다중 가드: 순차적 검증
+fn process_order(order_id, user_role, inventory) {
+  println("=== v3.6 다중 가드: 순차적 검증 ===");
+
+  // 가드 1: 주문 ID 유효성
+  if order_id < 0 {
+    println("  [GUARD 1 FAIL] 잘못된 주문 ID");
+    return;
+  }
+  println("  [GUARD 1 OK] 주문 ID 검증");
+
+  // 가드 2: 사용자 권한
+  if user_role != "admin" {
+    println("  [GUARD 2 FAIL] 관리자 권한 필요");
+    return;
+  }
+  println("  [GUARD 2 OK] 권한 검증");
+
+  // 가드 3: 재고 확인
+  if !inventory {
+    println("  [GUARD 3 FAIL] 재고 부족");
+    return;
+  }
+  println("  [GUARD 3 OK] 재고 확인");
+
+  // [청정 구역] 모든 검증 완료 - 핵심 로직 (1단계 들여쓰기)
+  println("  [SUCCESS] 모든 가드 통과 - 주문 처리 시작");
+  println("    → 결제 처리...");
+  println("    → 배송 예약...");
+  println("    → 확인메일 전송...");
+}
+
+// [3] 루프의 가드: continue 사용
+fn process_items(items, count) {
+  println("=== v3.6 루프의 가드: continue ===");
+
+  let mut i = 0;
+  let mut valid_count = 0;
+
+  while i < count {
+    let item = items[i];
+
+    // 가드: null 체크 후 다음 반복으로
+    if item == null {
+      println("  [SKIP] item[" + i + "] = null (건너뜀)");
+      i = i + 1;
+      continue;
+    }
+
+    // 가드: 음수 체크 후 다음 반복으로
+    if item < 0 {
+      println("  [SKIP] item[" + i + "] = " + item + " (음수, 건너뜀)");
+      i = i + 1;
+      continue;
+    }
+
+    // [핵심 로직] 유효한 항목만 처리
+    println("  [PROCESS] item[" + i + "] = " + item);
+    valid_count = valid_count + 1;
+
+    i = i + 1;
+  }
+
+  println("  최종: " + valid_count + "개 항목 처리됨");
+}
+
+// [4] 루프의 가드: break 사용
+fn find_target(items, count, target) {
+  println("=== v3.6 루프의 가드: break ===");
+
+  let mut i = 0;
+  let mut found = false;
+
+  while i < count {
+    let item = items[i];
+
+    // 가드: 유효성 검증 실패 시 건너뜀
+    if item == null {
+      println("  [i=" + i + "] null - 건너뜀");
+      i = i + 1;
+      continue;
+    }
+
+    // 가드: 찾는 항목을 발견하면 루프 종료
+    if item == target {
+      println("  [i=" + i + "] 찾음! item = " + item);
+      found = true;
+      break;
+    }
+
+    println("  [i=" + i + "] item = " + item + " (계속 탐색...)");
+    i = i + 1;
+  }
+
+  if found {
+    println("  결과: 목표 항목을 찾았습니다");
+  } else {
+    println("  결과: 목표 항목을 찾지 못했습니다");
+  }
+}
+
+// [5] 중첩 제거 전후: 피라미드 vs 가드
+fn validate_transaction(amount, balance, account_active) {
+  println("=== v3.6 중첩 제거: 피라미드 vs 가드 ===");
+
+  println("  [이전 방식] 피라미드: 깊은 중첩");
+  // 만약 이전 방식이라면:
+  // if account_active {
+  //   if amount > 0 {
+  //     if balance > amount {
+  //       // 핵심 로직 (3단계 들여쓰기)
+  //     }
+  //   }
+  // }
+
+  println("  [v3.6 방식] 가드: 평탄한 구조");
+
+  // 가드 1: 계정 활성 상태
+  if !account_active {
+    println("    [FAIL] 계정이 비활성 상태");
+    return;
+  }
+
+  // 가드 2: 양수 금액
+  if amount <= 0 {
+    println("    [FAIL] 양수 금액만 가능");
+    return;
+  }
+
+  // 가드 3: 잔액 충분
+  if balance < amount {
+    println("    [FAIL] 잔액 부족 (필요: " + amount + ", 보유: " + balance + ")");
+    return;
+  }
+
+  // [청정 구역] 핵심 로직 (1단계 들여쓰기)
+  let new_balance = balance - amount;
+  println("    [SUCCESS] 거래 승인");
+  println("      - 금액: " + amount);
+  println("      - 기존 잔액: " + balance);
+  println("      - 새 잔액: " + new_balance);
+}
+
+// [6] 실무 사례: 사용자 인증 및 권한 확인
+fn authenticate_user(username, password, is_2fa_enabled) {
+  println("=== v3.6 실무 사례: 사용자 인증 ===");
+
+  // 가드 1: 사용자명 검증
+  if username == "" {
+    println("  [AUTH FAIL] 사용자명이 비어있습니다");
+    return;
+  }
+
+  // 가드 2: 비밀번호 검증
+  if password == "" {
+    println("  [AUTH FAIL] 비밀번호가 비어있습니다");
+    return;
+  }
+
+  // 가드 3: 비밀번호 길이 검증
+  if password == "123" {  // 간단한 데모용 검증
+    println("  [AUTH FAIL] 비밀번호가 너무 간단합니다");
+    return;
+  }
+
+  println("  [AUTH OK] 기본 인증 완료");
+
+  // 가드 4: 2FA 필요성 확인
+  if is_2fa_enabled {
+    println("  [2FA CHECK] 2단계 인증이 활성화되어 있습니다");
+    println("  → 추가 인증 코드 요청 필요");
+    return;  // 2FA 확인 후 재인증
+  }
+
+  println("  [SUCCESS] 완전한 인증 완료");
+  println("    사용자: " + username);
+  println("    세션 시작...");
+}
+
+// [7] 조기 종료의 명확성: Early Return의 신호
+fn process_critical_operation(is_safe, has_backup, can_rollback) {
+  println("=== v3.6 조기 종료: Early Return의 신호 ===");
+
+  // 각 return은 명확한 의도를 표현
+  if !is_safe {
+    println("  [CRITICAL] 안전하지 않습니다 - 즉시 중단");
+    return;  // 위험 상황
+  }
+
+  if !has_backup {
+    println("  [CRITICAL] 백업이 없습니다 - 즉시 중단");
+    return;  // 복구 불가능
+  }
+
+  if !can_rollback {
+    println("  [CRITICAL] 롤백이 불가능합니다 - 즉시 중단");
+    return;  // 롤백 불가
+  }
+
+  // [명확한 진입] 여기에 도달 = 모든 위험 요소 제거됨
+  println("  [PROCEED] 모든 안전 조건 만족 - 작업 시작");
+  println("    1. 데이터 처리");
+  println("    2. 상태 변경");
+  println("    3. 결과 저장");
+  println("  작업 완료");
+}
+
+// [8] 조건부 루프의 가드: 복잡한 조건의 명확화
+fn validate_user_profile(users, count) {
+  println("=== v3.6 복잡한 조건의 명확화 ===");
+
+  let mut i = 0;
+  let mut validated = 0;
+
+  while i < count {
+    let user = users[i];
+
+    // 가드들: 복잡한 조건을 단순하게 표현
+    if user == null {
+      println("  [SKIP " + i + "] null user");
+      i = i + 1;
+      continue;
+    }
+
+    if user == "" {
+      println("  [SKIP " + i + "] empty user");
+      i = i + 1;
+      continue;
+    }
+
+    if user == "ADMIN" {
+      println("  [SKIP " + i + "] admin account (별도 검증)");
+      i = i + 1;
+      continue;
+    }
+
+    if user == "DISABLED" {
+      println("  [SKIP " + i + "] disabled account");
+      i = i + 1;
+      continue;
+    }
+
+    // [핵심 로직] 모든 검증을 통과한 활성 사용자만 처리
+    println("  [VALIDATE " + i + "] " + user);
+    validated = validated + 1;
+
+    i = i + 1;
+  }
+
+  println("  총 " + validated + "명 검증 완료");
+}
+
+// 메인 실행
+fn main() {
+  println("=== FreeLang v3.6: Guard Clauses & Invariants ===\n");
+
+  // [1] 단순 가드
+  check_power(true);
+  println();
+
+  // [2] 다중 가드
+  process_order(123, "admin", true);
+  println();
+
+  // [3] 루프의 가드: continue
+  let items = vec![10, null, 20, -5, 30];
+  process_items(items, 5);
+  println();
+
+  // [4] 루프의 가드: break
+  let items2 = vec![1, 2, 3, 4, 5];
+  find_target(items2, 5, 3);
+  println();
+
+  // [5] 중첩 제거
+  validate_transaction(100, 500, true);
+  println();
+
+  // [6] 실무 사례: 인증
+  authenticate_user("user123", "secure_password", false);
+  println();
+
+  // [7] 조기 종료의 명확성
+  process_critical_operation(true, true, true);
+  println();
+
+  // [8] 복잡한 조건의 명확화
+  let users = vec!["john", null, "ADMIN", "jane", "DISABLED", "bob"];
+  validate_user_profile(users, 6);
+
+  println("\n=== v3.6 핵심: 조기 리턴은 명확한 의도의 신호 ===");
+  println("가드 구문을 통해 코드의 복잡성을 '깊이'에서 '폭'으로 전환함");
+  println("피라미드를 파괴하고 불변성을 보장하는 방어적 설계 완성");
+}

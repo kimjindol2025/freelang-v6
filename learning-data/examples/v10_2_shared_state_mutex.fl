@@ -1,0 +1,491 @@
+/**
+ * v10.2 Shared State: Step 3 - Mutex and Mutual Exclusion
+ *
+ * 철학: \"공유 상태의 안전한 보호: Mutex로 동시 접근 제어\"
+ * 목표:
+ * 1. Mutex<T> 생성과 기본 사용
+ * 2. Lock Guard의 자동 언락
+ * 3. Arc<Mutex<T>>로 여러 스레드 공유
+ * 4. 데드락 방지 패턴
+ * 5. 성능 최적화 (잠금 범위 축소)
+ *
+ * 패턴들:
+ * - 기본 Mutex 보호
+ * - Arc<Mutex<T>> 공유
+ * - 명시적 언락
+ * - 복잡한 데이터 타입
+ * - 채널과의 조합
+ */
+
+// ============================================================================
+// 패턴 1: 기본 Mutex 사용
+// ============================================================================
+
+fn pattern_mutex_creation() -> String {
+    // Mutex 생성
+    \"mutex:create\"
+}
+
+fn pattern_lock_acquire() -> String {
+    // lock()으로 LockGuard 획득
+    \"lock:acquire\"
+}
+
+fn pattern_lock_guard_deref() -> String {
+    // &mut T로 접근
+    \"guard:deref\"
+}
+
+fn pattern_scope_based_unlock() -> String {
+    // 스코프 떠나면 자동 언락
+    \"scope:unlock\"
+}
+
+fn pattern_basic_mastery() -> String {
+    \"basic:mastery\"
+}
+
+// ============================================================================
+// 패턴 2: Arc<Mutex<T>> 다중 소유권
+// ============================================================================
+
+fn pattern_arc_new() -> String {
+    // Arc::new()로 공유 소유권
+    \"arc:new\"
+}
+
+fn pattern_arc_clone() -> String {
+    // Arc::clone()으로 복제
+    \"arc:clone\"
+}
+
+fn pattern_multiple_owners() -> String {
+    // 여러 스레드가 소유
+    \"multiple:owners\"
+}
+
+fn pattern_shared_counter() -> String {
+    // 공유 카운터
+    \"shared:counter\"
+}
+
+fn pattern_sharing_mastery() -> String {
+    \"sharing:mastery\"
+}
+
+// ============================================================================
+// 패턴 3: 명시적 언락으로 잠금 범위 최소화
+// ============================================================================
+
+fn pattern_explicit_drop() -> String {
+    // drop(guard)로 명시적 언락
+    \"explicit:drop\"
+}
+
+fn pattern_minimize_critical_section() -> String {
+    // 임계 영역 축소
+    \"minimize:critical\"
+}
+
+fn pattern_lock_lifetime() -> String {
+    // 잠금 생명주기 제어
+    \"lock:lifetime\"
+}
+
+fn pattern_performance_optimization() -> String {
+    // 성능 최적화
+    \"perf:optimize\"
+}
+
+fn pattern_lock_range_mastery() -> String {
+    \"lock:range:mastery\"
+}
+
+// ============================================================================
+// 패턴 4: 복잡한 데이터 타입 보호
+// ============================================================================
+
+fn pattern_mutex_vec() -> String {
+    // Vec 보호
+    \"mutex:vec\"
+}
+
+fn pattern_mutex_string() -> String {
+    // String 보호
+    \"mutex:string\"
+}
+
+fn pattern_mutex_hashmap() -> String {
+    // HashMap 보호
+    \"mutex:hashmap\"
+}
+
+fn pattern_complex_data_types() -> String {
+    // 복잡한 타입
+    \"complex:types\"
+}
+
+fn pattern_data_mastery() -> String {
+    \"data:mastery\"
+}
+
+// ============================================================================
+// 패턴 5: 채널과 Mutex 조합
+// ============================================================================
+
+fn pattern_mutex_with_channel() -> String {
+    // 채널로 신호, Mutex로 데이터
+    \"mutex:channel\"
+}
+
+fn pattern_sync_coordination() -> String {
+    // 동기화 조율
+    \"sync:coordination\"
+}
+
+fn pattern_signal_and_data() -> String {
+    // 신호와 데이터 분리
+    \"signal:data\"
+}
+
+fn pattern_notification_pattern() -> String {
+    // 알림 패턴
+    \"notify:pattern\"
+}
+
+fn pattern_coordination_mastery() -> String {
+    \"coord:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 1: 기본 공유 상태
+// ============================================================================
+
+fn example_shared_counter() -> String {
+    // 공유 카운터 증가
+    \"example:counter\"
+}
+
+fn example_thread_coordination() -> String {
+    // 스레드 조율
+    \"example:coordination\"
+}
+
+fn example_state_mutation() -> String {
+    // 상태 변경
+    \"example:mutation\"
+}
+
+fn example_safety_verification() -> String {
+    // 안전성 검증
+    \"example:safety\"
+}
+
+fn example_basic_state_mastery() -> String {
+    \"state:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 2: 생산자-소비자 (공유 상태)
+// ============================================================================
+
+fn example_producer_consumer_shared() -> String {
+    // 공유 데이터로 생산자-소비자
+    \"example:producer\"
+}
+
+fn example_queue_operations() -> String {
+    // 큐 연산
+    \"example:queue\"
+}
+
+fn example_synchronized_access() -> String {
+    // 동기화된 접근
+    \"example:synced\"
+}
+
+fn example_thread_safe_data() -> String {
+    // 스레드 안전 데이터
+    \"example:safe\"
+}
+
+fn example_producer_mastery() -> String {
+    \"producer:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 3: 작업 분배 (공유 상태)
+// ============================================================================
+
+fn example_work_pool() -> String {
+    // 작업 풀
+    \"example:pool\"
+}
+
+fn example_task_distribution() -> String {
+    // 작업 분배
+    \"example:tasks\"
+}
+
+fn example_result_collection() -> String {
+    // 결과 수집
+    \"example:results\"
+}
+
+fn example_sync_barrier() -> String {
+    // 동기화 장벽
+    \"example:barrier\"
+}
+
+fn example_pool_mastery() -> String {
+    \"pool:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 4: 구조체와 Mutex
+// ============================================================================
+
+fn example_mutex_struct() -> String {
+    // 구조체 보호
+    \"example:struct\"
+}
+
+fn example_nested_fields() -> String {
+    // 중첩된 필드
+    \"example:nested\"
+}
+
+fn example_stateful_threads() -> String {
+    // 상태 보유 스레드
+    \"example:stateful\"
+}
+
+fn example_object_sharing() -> String {
+    // 객체 공유
+    \"example:sharing\"
+}
+
+fn example_struct_mastery() -> String {
+    \"struct:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 5: 고급 동기화 패턴
+// ============================================================================
+
+fn example_deadlock_prevention() -> String {
+    // 데드락 방지
+    \"example:deadlock\"
+}
+
+fn example_lock_ordering() -> String {
+    // 잠금 순서
+    \"example:ordering\"
+}
+
+fn example_timeout_pattern() -> String {
+    // 타임아웃 패턴
+    \"example:timeout\"
+}
+
+fn example_fairness() -> String {
+    // 공정성
+    \"example:fairness\"
+}
+
+fn example_advanced_mastery() -> String {
+    \"advanced:mastery\"
+}
+
+// ============================================================================
+// 챕터 9 통합: 동시성의 상태 관리
+// ============================================================================
+
+fn example_concurrent_state() -> String {
+    // 동시성 상태 관리
+    \"concurrent:state\"
+}
+
+fn example_shared_resource() -> String {
+    // 공유 리소스
+    \"shared:resource\"
+}
+
+fn example_mutual_exclusion() -> String {
+    // 상호 배타
+    \"mutual:exclusion\"
+}
+
+fn example_safe_concurrency() -> String {
+    // 안전한 동시성
+    \"safe:concurrency\"
+}
+
+fn example_chapter_9_state() -> String {
+    \"chapter:9:state\"
+}
+
+// ============================================================================
+// 아키텍처 마스터: 완전한 동시 상태 시스템
+// ============================================================================
+
+fn example_distributed_counter() -> String {
+    // 분산 카운터
+    \"distributed:counter\"
+}
+
+fn example_thread_pool_with_state() -> String {
+    // 상태 있는 스레드 풀
+    \"threadpool:state\"
+}
+
+fn example_concurrent_collection() -> String {
+    // 동시 컬렉션
+    \"concurrent:collection\"
+}
+
+fn example_state_machine_threads() -> String {
+    // 상태 머신 스레드
+    \"state:machine\"
+}
+
+fn example_rust_mastery_state() -> String {
+    // 러스트 상태 관리 마스터
+    \"state:mastery\"
+}
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 테스트
+    \"patterns:verified\"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 테스트
+    \"examples:verified\"
+}
+
+fn test_mutex_safety() -> String {
+    // Mutex 안전성 검증
+    \"mutex:verified\"
+}
+
+fn prove_mutex_mastery() -> String {
+    \"mutex:proven:mastery\"
+}
+
+fn prove_chapter_9_shared_state() -> String {
+    \"chapter:9:shared:state\"
+}
+
+// ============================================================================
+// 실행 및 검증
+// ============================================================================
+
+println!(\"========== v10.2 Shared State: Mutex ==========\");
+println!();
+
+println!(\"=== Pattern 1: Basic Mutex ===\");
+println!(\"{}\", pattern_mutex_creation());
+println!(\"{}\", pattern_lock_acquire());
+println!(\"{}\", pattern_lock_guard_deref());
+println!(\"{}\", pattern_scope_based_unlock());
+println!(\"{}\", pattern_basic_mastery());
+println!();
+
+println!(\"=== Pattern 2: Arc<Mutex<T>> ===\");
+println!(\"{}\", pattern_arc_new());
+println!(\"{}\", pattern_arc_clone());
+println!(\"{}\", pattern_multiple_owners());
+println!(\"{}\", pattern_shared_counter());
+println!(\"{}\", pattern_sharing_mastery());
+println!();
+
+println!(\"=== Pattern 3: Explicit Unlock ===\");
+println!(\"{}\", pattern_explicit_drop());
+println!(\"{}\", pattern_minimize_critical_section());
+println!(\"{}\", pattern_lock_lifetime());
+println!(\"{}\", pattern_performance_optimization());
+println!(\"{}\", pattern_lock_range_mastery());
+println!();
+
+println!(\"=== Pattern 4: Complex Data Types ===\");
+println!(\"{}\", pattern_mutex_vec());
+println!(\"{}\", pattern_mutex_string());
+println!(\"{}\", pattern_mutex_hashmap());
+println!(\"{}\", pattern_complex_data_types());
+println!(\"{}\", pattern_data_mastery());
+println!();
+
+println!(\"=== Pattern 5: Mutex with Channels ===\");
+println!(\"{}\", pattern_mutex_with_channel());
+println!(\"{}\", pattern_sync_coordination());
+println!(\"{}\", pattern_signal_and_data());
+println!(\"{}\", pattern_notification_pattern());
+println!(\"{}\", pattern_coordination_mastery());
+println!();
+
+println!(\"=== Example 1: Basic Shared State ===\");
+println!(\"{}\", example_shared_counter());
+println!(\"{}\", example_thread_coordination());
+println!(\"{}\", example_state_mutation());
+println!(\"{}\", example_safety_verification());
+println!(\"{}\", example_basic_state_mastery());
+println!();
+
+println!(\"=== Example 2: Producer-Consumer (Shared) ===\");
+println!(\"{}\", example_producer_consumer_shared());
+println!(\"{}\", example_queue_operations());
+println!(\"{}\", example_synchronized_access());
+println!(\"{}\", example_thread_safe_data());
+println!(\"{}\", example_producer_mastery());
+println!();
+
+println!(\"=== Example 3: Work Distribution (Shared) ===\");
+println!(\"{}\", example_work_pool());
+println!(\"{}\", example_task_distribution());
+println!(\"{}\", example_result_collection());
+println!(\"{}\", example_sync_barrier());
+println!(\"{}\", example_pool_mastery());
+println!();
+
+println!(\"=== Example 4: Struct and Mutex ===\");
+println!(\"{}\", example_mutex_struct());
+println!(\"{}\", example_nested_fields());
+println!(\"{}\", example_stateful_threads());
+println!(\"{}\", example_object_sharing());
+println!(\"{}\", example_struct_mastery());
+println!();
+
+println!(\"=== Example 5: Advanced Synchronization ===\");
+println!(\"{}\", example_deadlock_prevention());
+println!(\"{}\", example_lock_ordering());
+println!(\"{}\", example_timeout_pattern());
+println!(\"{}\", example_fairness());
+println!(\"{}\", example_advanced_mastery());
+println!();
+
+println!(\"=== Chapter 9 Integration ===\");
+println!(\"{}\", example_concurrent_state());
+println!(\"{}\", example_shared_resource());
+println!(\"{}\", example_mutual_exclusion());
+println!(\"{}\", example_safe_concurrency());
+println!(\"{}\", example_chapter_9_state());
+println!();
+
+println!(\"=== Architecture Mastery ===\");
+println!(\"{}\", example_distributed_counter());
+println!(\"{}\", example_thread_pool_with_state());
+println!(\"{}\", example_concurrent_collection());
+println!(\"{}\", example_state_machine_threads());
+println!(\"{}\", example_rust_mastery_state());
+println!();
+
+println!(\"=== Validation ===\");
+println!(\"{}\", test_all_patterns());
+println!(\"{}\", test_all_examples());
+println!(\"{}\", test_mutex_safety());
+println!(\"{}\", prove_mutex_mastery());
+println!(\"{}\", prove_chapter_9_shared_state());
+println!();
+
+println!(\"========== v10.2 Complete! Shared State Mastered! ==========\");

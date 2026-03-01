@@ -1,0 +1,407 @@
+// v7.0 확장: 수명 생략 규칙(Lifetime Elision) Step 2
+// 철학: "보이지 않는 규칙: 컴파일러가 자동 추론하는 수명"
+// 목표: 명시적 수명 표기 제거, 자동 추론 패턴 이해
+
+// ============================================================
+// [Step 2 패턴 1] 단일 입력 참조 - 완전 생략
+// ============================================================
+
+// 명시 형태 (생략 가능):
+// fn first_explicit<'a>(x: &'a str) -> &'a str { x }
+
+// 생략 형태 (권장):
+fn first(x: &str) -> &str {
+    x
+}
+
+// 사용 예:
+fn demo_pattern_1() {
+    println!("\n=== Pattern 1: 단일 입력 생략 ===");
+
+    let text = "Hello, World!";
+    let result = first(text);
+    println!("입력: {}", text);
+    println!("결과: {}", result);
+    println!("추론: 입력 하나 → 수명 자동 추론");
+}
+
+// ============================================================
+// [Step 2 패턴 2] 다중 입력 + 소유 반환 (생략)
+// ============================================================
+
+// 입력: 두 개의 &str
+// 출력: 새로운 String (소유)
+// → 반환이 소유 데이터이므로 수명 필수 없음
+
+fn concatenate(x: &str, y: &str) -> String {
+    format!("{} {}", x, y)
+}
+
+fn demo_pattern_2() {
+    println!("\n=== Pattern 2: 소유 반환은 수명 불필요 ===");
+
+    let greeting = "Hello";
+    let name = "Gogs";
+    let result = concatenate(greeting, name);
+    println!("입력: '{}', '{}'", greeting, name);
+    println!("반환: {} (String 소유)", result);
+    println!("추론: 반환이 String이므로 수명 명시 불필요");
+}
+
+// ============================================================
+// [Step 2 패턴 3] 다중 입력 + 참조 반환 (명시 필수)
+// ============================================================
+
+// 입력: 두 개의 &str, 조건
+// 출력: 어느 것을 반환할지 명시 필수!
+
+fn pick_longer<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() { x } else { y }
+}
+
+fn demo_pattern_3() {
+    println!("\n=== Pattern 3: 다중 입력 선택 (명시 필수) ===");
+
+    let short = "Hi";
+    let long = "Welcome";
+    let result = pick_longer(short, long);
+    println!("입력: '{}' ({}바이트), '{}' ({}바이트)",
+             short, short.len(), long, long.len());
+    println!("반환: {} (더 긴 것)", result);
+    println!("명시 필요: <'a> - 어느 것을 반환할지 분명히");
+}
+
+// ============================================================
+// [Step 2 패턴 4] 메서드 - &self로 자동 추론
+// ============================================================
+
+struct TextExtractor<'a> {
+    content: &'a str,
+}
+
+impl<'a> TextExtractor<'a> {
+    // 명시 불필요 (규칙 3):
+    // &self의 수명 → 반환값의 수명
+    fn get_content(&self) -> &str {
+        self.content
+    }
+
+    fn get_trimmed(&self) -> &str {
+        self.content.trim()
+    }
+
+    fn get_uppercase_ref(&self) -> &str {
+        self.content
+    }
+
+    fn count_words(&self) -> usize {
+        self.content.split_whitespace().count()
+    }
+}
+
+fn demo_pattern_4() {
+    println!("\n=== Pattern 4: 메서드 &self 추론 ===");
+
+    let text = "  Hello World  ";
+    let extractor = TextExtractor { content: text };
+
+    println!("원본: '{}' ({}바이트)", text, text.len());
+    println!("콘텐츠: '{}'", extractor.get_content());
+    println!("정돈됨: '{}'", extractor.get_trimmed());
+    println!("단어 수: {}", extractor.count_words());
+    println!("추론: &self → 자동으로 메서드 반환값 수명");
+}
+
+// ============================================================
+// [Step 2 패턴 5] 메서드 + 추가 입력 (명시 필수)
+// ============================================================
+
+struct SearchEngine<'a> {
+    index: &'a str,
+}
+
+impl<'a> SearchEngine<'a> {
+    // &self와 other 둘 다 입력
+    // 어느 것을 기준으로 반환할지 명시 필수!
+
+    fn search_in_index(&self, _query: &str) -> &'a str {
+        // index의 수명('a)으로 반환
+        self.index
+    }
+
+    fn find_first<'b>(&self, text: &'b str) -> &'b str {
+        // text의 수명('b)으로 반환
+        text
+    }
+}
+
+fn demo_pattern_5() {
+    println!("\n=== Pattern 5: 메서드 + 추가 입력 (명시) ===");
+
+    let index = "database:memory:optimization";
+    let query = "memory";
+    let engine = SearchEngine { index };
+
+    let result1 = engine.search_in_index(query);
+    println!("검색: '{}'", result1);
+    println!("수명: index의 'a로 반환");
+
+    let text = "external:data:source";
+    let result2 = engine.find_first(text);
+    println!("검색: '{}'", result2);
+    println!("수명: text의 'b로 반환");
+}
+
+// ============================================================
+// [Step 2 개념 1] 규칙 1: 각 입력은 자신의 수명
+// ============================================================
+
+fn rule_1_example(x: &str, y: &str) -> String {
+    println!("\n[규칙 1] 각 입력 참조는 자신의 수명을 받는다");
+    println!("  x: {} (고유한 수명)", x);
+    println!("  y: {} (고유한 수명)", y);
+    println!("  반환: String (소유, 수명 없음)");
+    format!("{} + {}", x, y)
+}
+
+fn demonstrate_rule_1() {
+    println!("\n=== 규칙 1: 각 입력은 자신의 수명 ===");
+
+    let s1 = "first";
+    let s2 = "second";
+    let result = rule_1_example(s1, s2);
+    println!("결과: {}", result);
+}
+
+// ============================================================
+// [Step 2 개념 2] 규칙 2: 단일 입력 반환 == 그 입력 수명
+// ============================================================
+
+fn get_first_word(text: &str) -> &str {
+    text.split_whitespace().next().unwrap_or("")
+}
+
+fn demonstrate_rule_2() {
+    println!("\n=== 규칙 2: 단일 입력 반환 → 그 수명 ===");
+
+    let sentence = "Rust is beautiful";
+    let first_word = get_first_word(sentence);
+    println!("문장: '{}'", sentence);
+    println!("첫 단어: '{}'", first_word);
+    println!("추론: 반환값은 자동으로 input의 수명");
+}
+
+// ============================================================
+// [Step 2 개념 3] 규칙 3: 메서드 &self == 반환 수명
+// ============================================================
+
+struct Document {
+    title: String,
+}
+
+impl Document {
+    // &self의 수명 → 반환값의 수명
+    // (실제로는 &str 때문에 조금 다르지만, 원칙은 동일)
+    fn get_title(&self) -> &str {
+        &self.title
+    }
+}
+
+fn demonstrate_rule_3() {
+    println!("\n=== 규칙 3: 메서드 &self → 반환 수명 ===");
+
+    let doc = Document {
+        title: "Lifetimes in Rust".to_string(),
+    };
+
+    let title = doc.get_title();
+    println!("문서 제목: '{}'", title);
+    println!("추론: &self의 수명 → 반환값의 수명");
+}
+
+// ============================================================
+// [Step 2 패턴 비교]
+// ============================================================
+
+fn compare_patterns() {
+    println!("\n╔═══════════════════════════════════════╗");
+    println!("║   Step 2 패턴: 5가지 생략 규칙        ║");
+    println!("╚═══════════════════════════════════════╝\n");
+
+    println!("[패턴 1] 단일 입력 직접 반환");
+    println!("  fn first(x: &str) -> &str {{ x }}");
+    println!("  생략: ✅ (규칙 1 + 2)");
+    println!("");
+
+    println!("[패턴 2] 소유 데이터 반환");
+    println!("  fn concat(x: &str, y: &str) -> String {{ ... }}");
+    println!("  생략: ✅ (반환이 String)");
+    println!("");
+
+    println!("[패턴 3] 다중 입력 선택");
+    println!("  fn pick<'a>(x: &'a str, y: &'a str) -> &'a str {{ ... }}");
+    println!("  생략: ❌ (명시 필수)");
+    println!("");
+
+    println!("[패턴 4] 메서드 - &self 반환");
+    println!("  fn get(&self) -> &str {{ self.text }}");
+    println!("  생략: ✅ (규칙 3)");
+    println!("");
+
+    println!("[패턴 5] 메서드 + 추가 입력");
+    println!("  fn compare<'b>(&self, other: &'b str) -> &'b str {{ ... }}");
+    println!("  생략: ❌ (명시 필수, 어느 쪽?)");
+}
+
+// ============================================================
+// [Step 2 의미] 명시는 의도, 생략은 자명함
+// ============================================================
+
+fn explain_philosophy() {
+    println!("\n╔═══════════════════════════════════════╗");
+    println!("║ Step 2의 의미: 명시와 생략의 균형    ║");
+    println!("╚═══════════════════════════════════════╝\n");
+
+    println!("과도한 명시:");
+    println!("  fn process<'a>(x: &'a str) -> &'a str {{ x }}");
+    println!("  → 정확하지만 피로함\n");
+
+    println!("불충분한 생략:");
+    println!("  fn pick(x: &str, y: &str) -> &str {{ ... }}");
+    println!("  → 간결하지만 모호함!\n");
+
+    println!("올바른 균형:");
+    println!("  명시가 필요한 곳: 명시");
+    println!("  자명한 곳: 생략\n");
+
+    println!("명시 = \"이건 특별해\" 신호");
+    println!("생략 = \"이건 자명해\" 신호");
+}
+
+// ============================================================
+// [Step 2 실전] 저지연 설계자의 지혜
+// ============================================================
+
+fn explain_low_latency_impact() {
+    println!("\n╔═══════════════════════════════════════╗");
+    println!("║ Step 2의 가치: 명확성 + 간결성       ║");
+    println!("╚═══════════════════════════════════════╝\n");
+
+    println!("명시를 제거할 때의 이점:\n");
+
+    println!("1. 코드 간결성");
+    println!("   fn first(x: &str) -> &str");
+    println!("   vs");
+    println!("   fn first<'a>(x: &'a str) -> &'a str");
+    println!("   → 5글자 vs 30글자\n");
+
+    println!("2. 의도 표현");
+    println!("   명시가 있다 = 복잡한 수명 관계");
+    println!("   생략되었다 = 자명한 패턴\n");
+
+    println!("3. 프로그래머 피로 감소");
+    println!("   필요한 곳만 생각 → 전체 복잡도 하락\n");
+
+    println!("4. 유지보수성");
+    println!("   간결한 코드 = 더 읽기 쉬움");
+    println!("   의도 명확함 = 버그 감소");
+}
+
+// ============================================================
+// [메인] v7.0 Step 2: 수명 생략 규칙
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v7.0 Step 2: 수명 생략 규칙             ║");
+    println!("║  철학: \"보이지 않는 규칙\"                ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 5가지 패턴 데모
+    // ========================================
+
+    demo_pattern_1();
+    demo_pattern_2();
+    demo_pattern_3();
+    demo_pattern_4();
+    demo_pattern_5();
+
+    // ========================================
+    // 2단계: 3가지 규칙 설명
+    // ========================================
+
+    demonstrate_rule_1();
+    demonstrate_rule_2();
+    demonstrate_rule_3();
+
+    // ========================================
+    // 3단계: 패턴 비교
+    // ========================================
+
+    compare_patterns();
+
+    // ========================================
+    // 4단계: 철학 설명
+    // ========================================
+
+    explain_philosophy();
+
+    // ========================================
+    // 5단계: 실전 가치
+    // ========================================
+
+    explain_low_latency_impact();
+
+    // ========================================
+    // 6단계: Step 2 설계 원칙
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v7.0 Step 2: 설계 원칙                 ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: 규칙 1 - 각 입력은 자신의 수명]");
+    println!("  fn process(x: &str, y: &str) {{ }}");
+    println!("  두 입력은 다른 수명을 가질 수 있다");
+    println!("");
+
+    println!("[원칙 2: 규칙 2 - 단일 입력 반환 = 그 수명]");
+    println!("  fn first(x: &str) -> &str {{ x }}");
+    println!("  반환값은 x의 수명을 따른다");
+    println!("");
+
+    println!("[원칙 3: 규칙 3 - 메서드의 &self]");
+    println!("  fn get(&self) -> &str {{ self.text }}");
+    println!("  반환값은 &self의 수명을 따른다");
+    println!("");
+
+    println!("[원칙 4: 명시의 의미]");
+    println!("  수명을 명시한다 = 규칙 1-3으로 추론 불가");
+    println!("  프로그래머의 의도를 명확히 하기 위함");
+    println!("");
+
+    println!("[원칙 5: 간결성의 미학]");
+    println!("  불필요한 수명 명시는 제거");
+    println!("  코드의 신호-잡음비 향상");
+    println!("");
+
+    // ========================================
+    // 7단계: Step 3 예고
+    // ========================================
+
+    println!("=== Step 3 예고: 고급 수명 패턴 ===");
+    println!("");
+    println!("Step 2에서는 기본 규칙을 배웠습니다.");
+    println!("Step 3에서는 더 복잡한 상황을 다룹니다:");
+    println!("");
+    println!("1. 수명 제약 (Lifetime Bounds): 'b: 'a");
+    println!("2. 클로저의 수명 (Closures)");
+    println!("3. 트레이트 객체의 수명");
+    println!("4. 고차 함수 (Higher-Rank Traits)");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

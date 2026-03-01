@@ -1,0 +1,14 @@
+node_modules/
+target/
+build/
+dist/
+.next/
+.env
+*.lock
+.DS_Store
+*.o
+*.a
+*.so
+bin/
+incremental/
+dep-graph.bin

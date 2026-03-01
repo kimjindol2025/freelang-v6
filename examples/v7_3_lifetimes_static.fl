@@ -1,0 +1,395 @@
+// v7.0 확장: 정적 수명('static) Step 3
+// 철학: "영원한 것: 프로그램 생명주기를 살아가는 데이터"
+// 목표: 'static 수명 이해 및 활용
+
+// ============================================================
+// [Step 3 패턴 1] 문자열 리터럴 반환
+// ============================================================
+
+// 문자열 리터럴은 프로그램 바이너리에 컴파일 타임에 포함됨
+fn get_welcome_message() -> &'static str {
+    "Welcome to GOGS System"
+}
+
+fn get_protocol() -> &'static str {
+    "GOGS-Protocol-v1"
+}
+
+fn get_system_name() -> &'static str {
+    "gogs"
+}
+
+fn demo_pattern_1() {
+    println!("\n=== Pattern 1: 문자열 리터럴 (절대 소멸 안 함) ===");
+
+    let welcome = get_welcome_message();
+    let protocol = get_protocol();
+    let system = get_system_name();
+
+    println!("환영: {}", welcome);
+    println!("프로토콜: {}", protocol);
+    println!("시스템: {}", system);
+    println!("추론: 모든 리터럴은 바이너리에 포함되어 있음");
+}
+
+// ============================================================
+// [Step 3 패턴 2] 조건부 반환 (모두 'static 리터럴)
+// ============================================================
+
+fn get_status_message(code: u32) -> &'static str {
+    match code {
+        200 => "OK",
+        201 => "Created",
+        400 => "Bad Request",
+        404 => "Not Found",
+        500 => "Internal Server Error",
+        _ => "Unknown Status",
+    }
+}
+
+fn get_error_description(error_code: u16) -> &'static str {
+    match error_code {
+        1001 => "Connection Lost",
+        1002 => "Protocol Error",
+        1003 => "Unsupported Data Type",
+        1004 => "Policy Violation",
+        _ => "Unknown Error",
+    }
+}
+
+fn demo_pattern_2() {
+    println!("\n=== Pattern 2: 조건부 'static 반환 ===");
+
+    let status_200 = get_status_message(200);
+    let status_404 = get_status_message(404);
+    let status_500 = get_status_message(500);
+
+    println!("상태 200: {}", status_200);
+    println!("상태 404: {}", status_404);
+    println!("상태 500: {}", status_500);
+
+    let error_1001 = get_error_description(1001);
+    let error_1003 = get_error_description(1003);
+
+    println!("에러 1001: {}", error_1001);
+    println!("에러 1003: {}", error_1003);
+    println!("추론: 모든 match 경로가 리터럴을 반환하므로 'static");
+}
+
+// ============================================================
+// [Step 3 패턴 3] 정적 배열 참조
+// ============================================================
+
+// 정적 배열: 프로그램 데이터 세그먼트에 저장됨
+static SUPPORTED_PROTOCOLS: &'static [&'static str] = &[
+    "HTTP/1.0",
+    "HTTP/1.1",
+    "HTTP/2.0",
+];
+
+static ERROR_CODES: &'static [u32] = &[
+    1001, 1002, 1003, 1004, 1005,
+];
+
+fn is_protocol_supported(protocol: &str) -> bool {
+    SUPPORTED_PROTOCOLS.contains(&protocol)
+}
+
+fn is_valid_error_code(code: u32) -> bool {
+    ERROR_CODES.contains(&code)
+}
+
+fn demo_pattern_3() {
+    println!("\n=== Pattern 3: 정적 배열 ===");
+
+    let test_protocols = ["HTTP/1.1", "HTTP/3.0", "FTP"];
+
+    for proto in test_protocols {
+        let supported = is_protocol_supported(proto);
+        println!("프로토콜 '{}': {}", proto, if supported { "지원" } else { "미지원" });
+    }
+
+    let test_codes = [1001, 1002, 9999];
+
+    for code in test_codes {
+        let valid = is_valid_error_code(code);
+        println!("에러 코드 {}: {}", code, if valid { "유효" } else { "무효" });
+    }
+
+    println!("추론: 배열은 'static, 참조도 'static");
+}
+
+// ============================================================
+// [Step 3 패턴 4] 싱글톤 구조체
+// ============================================================
+
+struct AppConfig {
+    version: &'static str,
+    name: &'static str,
+    author: &'static str,
+}
+
+// 정적 싱글톤: 프로그램당 한 번만 생성됨
+static APP_CONFIG: AppConfig = AppConfig {
+    version: "1.0.0",
+    name: "GOGS System",
+    author: "gogs",
+};
+
+fn get_app_config() -> &'static AppConfig {
+    &APP_CONFIG
+}
+
+fn demo_pattern_4() {
+    println!("\n=== Pattern 4: 정적 싱글톤 구조체 ===");
+
+    let config = get_app_config();
+
+    println!("버전: {}", config.version);
+    println!("이름: {}", config.name);
+    println!("작성자: {}", config.author);
+    println!("추론: 정적 변수는 프로그램 데이터 세그먼트에 저장됨");
+}
+
+// ============================================================
+// [Step 3 패턴 5] 메타데이터 레지스트리
+// ============================================================
+
+struct ServiceInfo {
+    name: &'static str,
+    port: u16,
+    protocol: &'static str,
+}
+
+static SERVICES: &'static [ServiceInfo] = &[
+    ServiceInfo {
+        name: "HTTP Server",
+        port: 80,
+        protocol: "HTTP/1.1",
+    },
+    ServiceInfo {
+        name: "HTTPS Server",
+        port: 443,
+        protocol: "HTTP/1.1",
+    },
+    ServiceInfo {
+        name: "SSH Server",
+        port: 22,
+        protocol: "SSH",
+    },
+];
+
+fn find_service(name: &str) -> Option<&'static ServiceInfo> {
+    SERVICES.iter().find(|s| s.name == name).map(|&s| s)
+}
+
+fn demo_pattern_5() {
+    println!("\n=== Pattern 5: 정적 메타데이터 레지스트리 ===");
+
+    let service_names = ["HTTP Server", "SSH Server", "DNS Server"];
+
+    for name in service_names {
+        if let Some(service) = find_service(name) {
+            println!("{}: 포트 {} ({})", service.name, service.port, service.protocol);
+        } else {
+            println!("{}: 등록되지 않음", name);
+        }
+    }
+
+    println!("추론: 배열의 참조도 'static이므로 안전");
+}
+
+// ============================================================
+// [Step 3 개념 1] 'static vs 다른 수명
+// ============================================================
+
+fn demonstrate_static_uniqueness() {
+    println!("\n=== 개념 1: 'static의 독특성 ===");
+
+    println!("'static 데이터:");
+    println!("  - 프로그램 시작: 존재");
+    println!("  - 프로그램 중: 항상 존재");
+    println!("  - 프로그램 종료: 함께 종료");
+    println!("  - 스코프: 없음 (전역)");
+    println!("");
+
+    println!("다른 수명('a, 'b, etc):");
+    println!("  - 생성: 스코프 진입");
+    println!("  - 유효: 스코프 범위 내");
+    println!("  - 종료: 스코프 탈출");
+    println!("  - 스코프: 있음 (블록 범위)");
+    println!("");
+
+    println!("결론: 'static은 범위가 없는 유일한 수명");
+}
+
+// ============================================================
+// [Step 3 개념 2] 메모리 관점
+// ============================================================
+
+fn explain_memory_segments() {
+    println!("\n=== 개념 2: 메모리 세그먼트와 'static ===");
+
+    println!("프로그램 메모리 구조:");
+    println!("");
+    println!("┌──────────────────────────┐");
+    println!("│ 코드 세그먼트            │");
+    println!("│  - 함수 코드             │");
+    println!("│  - 문자열 리터럴 ('static) │");
+    println!("├──────────────────────────┤");
+    println!("│ 데이터 세그먼트          │");
+    println!("│  - static 변수 ('static) │");
+    println!("│  - 전역 변수 ('static)   │");
+    println!("├──────────────────────────┤");
+    println!("│ 힙 세그먼트              │");
+    println!("│  - String ('a)           │");
+    println!("│  - Vec ('a)              │");
+    println!("│  - 동적 할당 ('a)        │");
+    println!("├──────────────────────────┤");
+    println!("│ 스택 세그먼트            │");
+    println!("│  - 지역 변수 ('a, 'b)    │");
+    println!("│  - 함수 인자 ('a, 'b)    │");
+    println!("└──────────────────────────┘");
+    println!("");
+    println!("특징: 'static 메모리는 프로그램 종료까지 절대 해제되지 않음");
+}
+
+// ============================================================
+// [Step 3 개념 3] 안전성의 보장
+// ============================================================
+
+fn explain_safety_guarantee() {
+    println!("\n=== 개념 3: 'static의 안전성 ===");
+
+    println!("다른 수명의 문제:");
+    println!("  let ptr = {");
+    println!("      let x = String::from(\"hello\");");
+    println!("      &x  // ← x가 블록 끝에서 소멸!");
+    println!("  };");
+    println!("  println!(\"{}\", ptr);  // ❌ 위험!");
+    println!("");
+
+    println!("'static의 해결:");
+    println!("  fn get_msg() -> &'static str {{");
+    println!("      \"hello\"  // ← 바이너리에 이미 존재");
+    println!("  }}");
+    println!("  let msg = get_msg();");
+    println!("  println!(\"{}\", msg);  // ✅ 100% 안전");
+    println!("");
+
+    println!("결론: 'static은 허상 참조를 물리적으로 불가능하게 만듦");
+}
+
+// ============================================================
+// [Step 3의 의미] 저지연 설계의 극치
+// ============================================================
+
+fn explain_significance() {
+    println!("\n╔═══════════════════════════════════╗");
+    println!("║ Step 3의 의미: 영원함의 약속     ║");
+    println!("╚═══════════════════════════════════╝\n");
+
+    println!("프로그래머 관점:");
+    println!("  \"이 데이터는 안전해. 언제 접근해도 돼.\"");
+    println!("  \"다른 스레드에서도 안전하게 참조할 수 있어.\"");
+    println!("  \"메모리 누수 걱정은 없어.\"");
+    println!("");
+
+    println!("시스템 관점:");
+    println!("  \"이 메모리는 프로그램 종료까지 사용 중.\"");
+    println!("  \"가상 메모리 관리자는 이를 절대 회수하지 않음.\"");
+    println!("  \"가장 안전한 메모리 위치.\"");
+    println!("");
+
+    println!("저지연 설계의 극치:");
+    println!("  v7.0: 범위 안의 안전성");
+    println!("  v7.1: 구조체 안의 안전성");
+    println!("  v7.2: 규칙으로 단순화");
+    println!("  v7.3: 절대적 안전성 ('static)");
+}
+
+// ============================================================
+// [메인] v7.0 Step 3: 정적 수명
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v7.0 Step 3: 정적 수명('static)         ║");
+    println!("║  철학: \"영원한 것\"                       ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 5가지 패턴 데모
+    // ========================================
+
+    demo_pattern_1();
+    demo_pattern_2();
+    demo_pattern_3();
+    demo_pattern_4();
+    demo_pattern_5();
+
+    // ========================================
+    // 2단계: 3가지 개념 설명
+    // ========================================
+
+    demonstrate_static_uniqueness();
+    explain_memory_segments();
+    explain_safety_guarantee();
+
+    // ========================================
+    // 3단계: 의미 설명
+    // ========================================
+
+    explain_significance();
+
+    // ========================================
+    // 4단계: Step 3 설계 원칙
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v7.0 Step 3: 설계 원칙                 ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: 문자열 리터럴은 'static]");
+    println!("  모든 리터럴은 바이너리에 포함됨");
+    println!("  런타임 할당 비용 없음");
+    println!("");
+
+    println!("[원칙 2: static 변수는 전역 싱글톤]");
+    println!("  프로그램당 한 번만 생성됨");
+    println!("  모든 스레드에서 접근 가능 (Sync 필요)");
+    println!("");
+
+    println!("[원칙 3: 'static은 수명 중 가장 김]");
+    println!("  'static >= 'a >= 'b >= 'c");
+    println!("  프로그램 생명주기와 같음");
+    println!("");
+
+    println!("[원칙 4: 'static 입력은 강한 제약]");
+    println!("  &'static str만 받을 수 있음");
+    println!("  일시적 데이터는 전달 불가능");
+    println!("");
+
+    println!("[원칙 5: 절대적 안전성의 보장]");
+    println!("  허상 참조는 컴파일 단계에서 불가능");
+    println!("  메모리 누수 걱정 없음");
+    println!("");
+
+    // ========================================
+    // 5단계: Step 4 예고
+    // ========================================
+
+    println!("=== Step 4 예고: 고급 수명 패턴 ===");
+    println!("");
+    println!("Step 3에서 'static을 배웠습니다.");
+    println!("Step 4에서는 더 복잡한 수명 관계를 다룹니다:");
+    println!("");
+    println!("1. 수명 제약 (Lifetime Bounds): 'b: 'a");
+    println!("2. 고차 함수 (Higher-Rank Traits): for<'a> F");
+    println!("3. 트레이트 객체의 수명 (Trait Objects): dyn T + 'static");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

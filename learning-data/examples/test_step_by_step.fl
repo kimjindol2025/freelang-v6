@@ -1,0 +1,19 @@
+// Step by step test
+
+println("Test 1: Basic ops")
+let a = 10
+let b = 20
+println("a + b = " + (a + b))
+
+println("")
+println("Test 2: Arrays")
+let numbers = [1, 2, 3, 4, 5]
+println("Array length: " + numbers.length)
+
+println("")
+println("Test 3: Map")
+let doubled = numbers.map(x => x * 2)
+println("Doubled: " + doubled)
+
+println("")
+println("Done!")

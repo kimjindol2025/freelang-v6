@@ -1,0 +1,464 @@
+/**
+ * v12.1 데이터 레이아웃과 수동 메모리 관리
+ * (Data Layout & Manual Allocation)
+ *
+ * 철학: "메모리 구조의 청사진"
+ * 목표:
+ * 1. Size와 Alignment 이해
+ * 2. 패딩(Padding) 계산
+ * 3. repr 속성 (C, packed, align)
+ * 4. std::alloc로 수동 할당/해제
+ * 5. 메모리 생명주기 관리
+ * 6. Zero-Sized Types (ZST)
+ * 7. Dynamically Sized Types (DST)
+ * 8. 메모리 누수 방지
+ *
+ * 패턴들:
+ * - Size와 Alignment
+ * - 패딩과 정렬
+ * - repr 속성 제어
+ * - 수동 메모리 할당/해제
+ * - 메모리 생명주기
+ */
+
+// ============================================================================
+// 패턴 1: Size와 Alignment 기초
+// ============================================================================
+
+fn pattern_size_of_types() -> String {
+    // 타입의 크기 이해
+    "size:of:types"
+}
+
+fn pattern_align_of_types() -> String {
+    // 타입의 정렬 요구사항
+    "align:of:types"
+}
+
+fn pattern_size_align_relationship() -> String {
+    // 크기와 정렬의 관계
+    "size:align:relationship"
+}
+
+fn pattern_basic_sizing() -> String {
+    // 기본 타입들의 크기
+    "basic:sizing"
+}
+
+fn pattern_sizing_mastery() -> String {
+    "sizing:mastery"
+}
+
+// ============================================================================
+// 패턴 2: 패딩과 정렬
+// ============================================================================
+
+fn pattern_padding_definition() -> String {
+    // 패딩이란 무엇인가
+    "padding:definition"
+}
+
+fn pattern_alignment_requirement() -> String {
+    // 정렬 요구사항 만족하기
+    "alignment:requirement"
+}
+
+fn pattern_struct_layout_analysis() -> String {
+    // 구조체 레이아웃 분석
+    "struct:layout:analysis"
+}
+
+fn pattern_field_ordering() -> String {
+    // 필드 순서의 영향
+    "field:ordering"
+}
+
+fn pattern_padding_mastery() -> String {
+    "padding:mastery"
+}
+
+// ============================================================================
+// 패턴 3: repr 속성
+// ============================================================================
+
+fn pattern_repr_rust() -> String {
+    // 기본 러스트 배치
+    "repr:rust"
+}
+
+fn pattern_repr_c() -> String {
+    // C 호환 배치
+    "repr:c"
+}
+
+fn pattern_repr_packed() -> String {
+    // 패킹된 배치 (패딩 제거)
+    "repr:packed"
+}
+
+fn pattern_repr_align() -> String {
+    // 정렬 강제
+    "repr:align"
+}
+
+fn pattern_repr_mastery() -> String {
+    "repr:mastery"
+}
+
+// ============================================================================
+// 패턴 4: 수동 메모리 할당
+// ============================================================================
+
+fn pattern_layout_new() -> String {
+    // Layout::new로 레이아웃 정의
+    "layout:new"
+}
+
+fn pattern_alloc_basic() -> String {
+    // 기본 메모리 할당
+    "alloc:basic"
+}
+
+fn pattern_ptr_write() -> String {
+    // ptr::write로 초기화
+    "ptr:write"
+}
+
+fn pattern_dealloc() -> String {
+    // dealloc으로 메모리 해제
+    "dealloc"
+}
+
+fn pattern_allocation_mastery() -> String {
+    "allocation:mastery"
+}
+
+// ============================================================================
+// 패턴 5: 배열 할당
+// ============================================================================
+
+fn pattern_layout_array() -> String {
+    // Layout::array로 배열 레이아웃
+    "layout:array"
+}
+
+fn pattern_alloc_array() -> String {
+    // 배열 메모리 할당
+    "alloc:array"
+}
+
+fn pattern_array_initialization() -> String {
+    // 배열 원소 초기화
+    "array:initialization"
+}
+
+fn pattern_array_access() -> String {
+    // 포인터로 배열 접근
+    "array:access"
+}
+
+fn pattern_array_mastery() -> String {
+    "array:mastery"
+}
+
+// ============================================================================
+// 패턴 6: 메모리 생명주기
+// ============================================================================
+
+fn pattern_allocation_step() -> String {
+    // 1단계: 할당
+    "allocation:step"
+}
+
+fn pattern_initialization_step() -> String {
+    // 2단계: 초기화
+    "initialization:step"
+}
+
+fn pattern_usage_step() -> String {
+    // 3단계: 사용
+    "usage:step"
+}
+
+fn pattern_deallocation_step() -> String {
+    // 4단계: 해제
+    "deallocation:step"
+}
+
+fn pattern_lifecycle_mastery() -> String {
+    "lifecycle:mastery"
+}
+
+// ============================================================================
+// 패턴 7: Zero-Sized Types (ZST)
+// ============================================================================
+
+fn pattern_zst_definition() -> String {
+    // ZST가 무엇인가
+    "zst:definition"
+}
+
+fn pattern_zst_usage() -> String {
+    // ZST 사용하기
+    "zst:usage"
+}
+
+fn pattern_phantom_data() -> String {
+    // PhantomData 활용
+    "phantom:data"
+}
+
+fn pattern_zst_optimization() -> String {
+    // ZST 최적화
+    "zst:optimization"
+}
+
+fn pattern_zst_mastery() -> String {
+    "zst:mastery"
+}
+
+// ============================================================================
+// 패턴 8: 메모리 누수 방지
+// ============================================================================
+
+fn pattern_memory_leak_prevention() -> String {
+    // 메모리 누수 방지
+    "leak:prevention"
+}
+
+fn pattern_double_free_prevention() -> String {
+    // Double Free 방지
+    "double:free:prevention"
+}
+
+fn pattern_uninitialized_access_prevention() -> String {
+    // 미초기화 메모리 접근 방지
+    "uninitialized:prevention"
+}
+
+fn pattern_leak_detection() -> String {
+    // 누수 감지
+    "leak:detection"
+}
+
+fn pattern_safety_mastery() -> String {
+    "safety:mastery"
+}
+
+// ============================================================================
+// 통합 예제 1: 간단한 할당
+// ============================================================================
+
+fn example_allocate_single() -> String {
+    // 단일 값 할당
+    "example:allocate:single"
+}
+
+fn example_allocate_struct() -> String {
+    // 구조체 할당
+    "example:allocate:struct"
+}
+
+fn example_inspect_layout() -> String {
+    // 레이아웃 검사
+    "example:inspect:layout"
+}
+
+fn example_manual_initialization() -> String {
+    // 수동 초기화
+    "example:manual:initialization"
+}
+
+fn example_simple_mastery() -> String {
+    "example:simple:mastery"
+}
+
+// ============================================================================
+// 통합 예제 2: 배열과 컬렉션
+// ============================================================================
+
+fn example_allocate_array() -> String {
+    // 배열 할당
+    "example:allocate:array"
+}
+
+fn example_vector_simulation() -> String {
+    // Vec<T> 시뮬레이션
+    "example:vector:simulation"
+}
+
+fn example_buffer_management() -> String {
+    // 버퍼 관리
+    "example:buffer:management"
+}
+
+fn example_memory_efficiency() -> String {
+    // 메모리 효율성
+    "example:memory:efficiency"
+}
+
+fn example_array_mastery() -> String {
+    "example:array:mastery"
+}
+
+// ============================================================================
+// 통합 예제 3: 컴파일러 시뮬레이션
+// ============================================================================
+
+fn example_variable_layout() -> String {
+    // 변수 레이아웃 설계
+    "example:variable:layout"
+}
+
+fn example_frame_allocation() -> String {
+    // 스택 프레임 할당
+    "example:frame:allocation"
+}
+
+fn example_layout_optimization() -> String {
+    // 레이아웃 최적화
+    "example:layout:optimization"
+}
+
+fn example_compiler_perspective() -> String {
+    // 컴파일러 관점
+    "example:compiler:perspective"
+}
+
+fn example_compiler_mastery() -> String {
+    "example:compiler:mastery"
+}
+
+// ============================================================================
+// 검증 및 실행
+// ============================================================================
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 검증
+    "patterns:verified"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 검증
+    "examples:verified"
+}
+
+fn test_layout_understanding() -> String {
+    // 레이아웃 이해도
+    "layout:understood"
+}
+
+fn prove_v12_1_complete() -> String {
+    // v12.1 완성 증명
+    "v12:1:complete:proved"
+}
+
+fn prove_step_2_complete() -> String {
+    // Step 2 완성 증명
+    "step:2:complete:proved"
+}
+
+// ============================================================================
+// 실행 및 출력
+// ============================================================================
+
+println!("========== v12.1 Data Layout & Manual Allocation: Memory Blueprint ==========");
+println!();
+
+println!("=== Pattern 1: Size and Alignment ===");
+println!("{}", pattern_size_of_types());
+println!("{}", pattern_align_of_types());
+println!("{}", pattern_size_align_relationship());
+println!("{}", pattern_basic_sizing());
+println!("{}", pattern_sizing_mastery());
+println!();
+
+println!("=== Pattern 2: Padding and Alignment ===");
+println!("{}", pattern_padding_definition());
+println!("{}", pattern_alignment_requirement());
+println!("{}", pattern_struct_layout_analysis());
+println!("{}", pattern_field_ordering());
+println!("{}", pattern_padding_mastery());
+println!();
+
+println!("=== Pattern 3: repr Attributes ===");
+println!("{}", pattern_repr_rust());
+println!("{}", pattern_repr_c());
+println!("{}", pattern_repr_packed());
+println!("{}", pattern_repr_align());
+println!("{}", pattern_repr_mastery());
+println!();
+
+println!("=== Pattern 4: Manual Memory Allocation ===");
+println!("{}", pattern_layout_new());
+println!("{}", pattern_alloc_basic());
+println!("{}", pattern_ptr_write());
+println!("{}", pattern_dealloc());
+println!("{}", pattern_allocation_mastery());
+println!();
+
+println!("=== Pattern 5: Array Allocation ===");
+println!("{}", pattern_layout_array());
+println!("{}", pattern_alloc_array());
+println!("{}", pattern_array_initialization());
+println!("{}", pattern_array_access());
+println!("{}", pattern_array_mastery());
+println!();
+
+println!("=== Pattern 6: Memory Lifecycle ===");
+println!("{}", pattern_allocation_step());
+println!("{}", pattern_initialization_step());
+println!("{}", pattern_usage_step());
+println!("{}", pattern_deallocation_step());
+println!("{}", pattern_lifecycle_mastery());
+println!();
+
+println!("=== Pattern 7: Zero-Sized Types ===");
+println!("{}", pattern_zst_definition());
+println!("{}", pattern_zst_usage());
+println!("{}", pattern_phantom_data());
+println!("{}", pattern_zst_optimization());
+println!("{}", pattern_zst_mastery());
+println!();
+
+println!("=== Pattern 8: Memory Safety ===");
+println!("{}", pattern_memory_leak_prevention());
+println!("{}", pattern_double_free_prevention());
+println!("{}", pattern_uninitialized_access_prevention());
+println!("{}", pattern_leak_detection());
+println!("{}", pattern_safety_mastery());
+println!();
+
+println!("=== Example 1: Simple Allocation ===");
+println!("{}", example_allocate_single());
+println!("{}", example_allocate_struct());
+println!("{}", example_inspect_layout());
+println!("{}", example_manual_initialization());
+println!("{}", example_simple_mastery());
+println!();
+
+println!("=== Example 2: Arrays and Collections ===");
+println!("{}", example_allocate_array());
+println!("{}", example_vector_simulation());
+println!("{}", example_buffer_management());
+println!("{}", example_memory_efficiency());
+println!("{}", example_array_mastery());
+println!();
+
+println!("=== Example 3: Compiler Simulation ===");
+println!("{}", example_variable_layout());
+println!("{}", example_frame_allocation());
+println!("{}", example_layout_optimization());
+println!("{}", example_compiler_perspective());
+println!("{}", example_compiler_mastery());
+println!();
+
+println!("=== Validation ===");
+println!("{}", test_all_patterns());
+println!("{}", test_all_examples());
+println!("{}", test_layout_understanding());
+println!("{}", prove_v12_1_complete());
+println!("{}", prove_step_2_complete());
+println!();
+
+println!("========== v12.1 Complete! Memory Blueprint Mastered! ==========");

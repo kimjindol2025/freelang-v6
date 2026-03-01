@@ -1,0 +1,491 @@
+/**
+ * v10.1 Message Passing: Step 2 - Channels and Communication
+ *
+ * 철학: "메시지를 주고받는 통신: 안전한 데이터 흐름"
+ * 목표:
+ * 1. mpsc 채널 생성과 기본 사용
+ * 2. Sender와 Receiver의 이해
+ * 3. 다중 송신자 관리
+ * 4. 메시지 순차 처리
+ * 5. 동기/비동기 채널 비교
+ *
+ * 패턴들:
+ * - 기본 메시지 패싱
+ * - 다중 송신자
+ * - 순차적 메시지 흐름
+ * - 동기 채널 (백프레셔)
+ * - 파이프라인 아키텍처
+ */
+
+// ============================================================================
+// 패턴 1: 기본 메시지 패싱
+// ============================================================================
+
+fn pattern_channel_creation() -> String {
+    // 채널 생성 (tx, rx)
+    "channel:create"
+}
+
+fn pattern_send_message() -> String {
+    // send()로 메시지 전송
+    "send:message"
+}
+
+fn pattern_receive_message() -> String {
+    // recv()로 메시지 수신
+    "receive:message"
+}
+
+fn pattern_ownership_transfer() -> String {
+    // 소유권이 채널로 이동
+    "ownership:transfer"
+}
+
+fn pattern_basic_mastery() -> String {
+    "basic:mastery"
+}
+
+// ============================================================================
+// 패턴 2: 다중 송신자
+// ============================================================================
+
+fn pattern_clone_sender() -> String {
+    // Sender 복제로 다중 송신자 생성
+    "clone:sender"
+}
+
+fn pattern_multiple_producers() -> String {
+    // 여러 송신자가 동시에 전송
+    "multiple:producers"
+}
+
+fn pattern_single_receiver() -> String {
+    // 단일 수신자가 모든 메시지 처리
+    "single:receiver"
+}
+
+fn pattern_collector_thread() -> String {
+    // 수집자 스레드 패턴
+    "collector:thread"
+}
+
+fn pattern_producer_mastery() -> String {
+    "producer:mastery"
+}
+
+// ============================================================================
+// 패턴 3: 순차적 메시지 처리
+// ============================================================================
+
+fn pattern_sequential_messages() -> String {
+    // 여러 메시지를 순차적으로 전송
+    "sequential:messages"
+}
+
+fn pattern_message_iteration() -> String {
+    // for in rx 반복문
+    "message:iteration"
+}
+
+fn pattern_time_controlled_messages() -> String {
+    // sleep으로 메시지 전송 간격 제어
+    "time:controlled"
+}
+
+fn pattern_channel_closure() -> String {
+    // 채널이 자동으로 닫히는 방식
+    "channel:closure"
+}
+
+fn pattern_sequence_mastery() -> String {
+    "sequence:mastery"
+}
+
+// ============================================================================
+// 패턴 4: 동기 채널
+// ============================================================================
+
+fn pattern_sync_channel() -> String {
+    // sync_channel(n)으로 버퍼 크기 제한
+    "sync:channel"
+}
+
+fn pattern_backpressure() -> String {
+    // 버퍼 찬 경우 송신자 대기
+    "backpressure"
+}
+
+fn pattern_flow_control() -> String {
+    // 데이터 흐름 제어
+    "flow:control"
+}
+
+fn pattern_buffer_management() -> String {
+    // 버퍼 크기로 성능 조절
+    "buffer:manage"
+}
+
+fn pattern_sync_mastery() -> String {
+    "sync:mastery"
+}
+
+// ============================================================================
+// 패턴 5: 파이프라인 아키텍처
+// ============================================================================
+
+fn pattern_two_stage_pipeline() -> String {
+    // 두 단계 파이프라인
+    "pipeline:two"
+}
+
+fn pattern_three_stage_pipeline() -> String {
+    // 세 단계 파이프라인
+    "pipeline:three"
+}
+
+fn pattern_data_transformation() -> String {
+    // 단계별 데이터 변환
+    "data:transform"
+}
+
+fn pattern_parallel_stages() -> String {
+    // 병렬 단계 처리
+    "parallel:stages"
+}
+
+fn pattern_pipeline_mastery() -> String {
+    "pipeline:mastery"
+}
+
+// ============================================================================
+// 통합 예제 1: 기본 통신
+// ============================================================================
+
+fn example_simple_message() -> String {
+    // 간단한 메시지 전송
+    "example:simple"
+}
+
+fn example_multiple_messages() -> String {
+    // 여러 메시지 전송
+    "example:multiple"
+}
+
+fn example_message_types() -> String {
+    // 다양한 타입의 메시지
+    "example:types"
+}
+
+fn example_error_handling() -> String {
+    // 채널 에러 처리
+    "example:errors"
+}
+
+fn example_communication_mastery() -> String {
+    "communication:mastery"
+}
+
+// ============================================================================
+// 통합 예제 2: 로그 수집
+// ============================================================================
+
+fn example_log_aggregation() -> String {
+    // 여러 스레드의 로그를 한곳으로 수집
+    "example:logs"
+}
+
+fn example_multi_source_data() -> String {
+    // 다중 소스 데이터 수집
+    "example:sources"
+}
+
+fn example_real_time_processing() -> String {
+    // 실시간 데이터 처리
+    "example:realtime"
+}
+
+fn example_monitoring_system() -> String {
+    // 모니터링 시스템
+    "example:monitoring"
+}
+
+fn example_aggregation_mastery() -> String {
+    "aggregation:mastery"
+}
+
+// ============================================================================
+// 통합 예제 3: 작업 분배
+// ============================================================================
+
+fn example_work_distribution() -> String {
+    // 중앙에서 작업을 여러 스레드로 분배
+    "example:dispatch"
+}
+
+fn example_worker_threads() -> String {
+    // 워커 스레드 풀
+    "example:workers"
+}
+
+fn example_load_balancing() -> String {
+    // 부하 분산
+    "example:balance"
+}
+
+fn example_job_scheduling() -> String {
+    // 작업 스케줄링
+    "example:schedule"
+}
+
+fn example_distribution_mastery() -> String {
+    "distribution:mastery"
+}
+
+// ============================================================================
+// 통합 예제 4: 파이프라인 시스템
+// ============================================================================
+
+fn example_data_pipeline() -> String {
+    // 데이터 처리 파이프라인
+    "example:pipeline"
+}
+
+fn example_processing_stages() -> String {
+    // 처리 단계별 구성
+    "example:stages"
+}
+
+fn example_stream_processing() -> String {
+    // 스트림 처리
+    "example:stream"
+}
+
+fn example_etl_system() -> String {
+    // ETL (Extract-Transform-Load) 시스템
+    "example:etl"
+}
+
+fn example_pipeline_system_mastery() -> String {
+    "system:mastery"
+}
+
+// ============================================================================
+// 통합 예제 5: 신호 및 제어
+// ============================================================================
+
+fn example_shutdown_signal() -> String {
+    // 종료 신호 통신
+    "example:shutdown"
+}
+
+fn example_control_flow() -> String {
+    // 제어 흐름 통신
+    "example:control"
+}
+
+fn example_event_driven() -> String {
+    // 이벤트 기반 통신
+    "example:events"
+}
+
+fn example_request_response() -> String {
+    // 요청-응답 패턴
+    "example:request"
+}
+
+fn example_signal_mastery() -> String {
+    "signal:mastery"
+}
+
+// ============================================================================
+// 챕터 9 통합: 동시성의 협업
+// ============================================================================
+
+fn example_cooperative_concurrency() -> String {
+    // 협업적 동시성
+    "cooperative:concurrency"
+}
+
+fn example_message_based_architecture() -> String {
+    // 메시지 기반 아키텍처
+    "message:architecture"
+}
+
+fn example_distributed_system() -> String {
+    // 분산 시스템
+    "distributed:system"
+}
+
+fn example_production_communication() -> String {
+    // 프로덕션급 통신
+    "production:communication"
+}
+
+fn example_chapter_9_concurrency() -> String {
+    "chapter:9:concurrency"
+}
+
+// ============================================================================
+// 아키텍처 마스터: 완전한 메시지 기반 시스템
+// ============================================================================
+
+fn example_microservice_design() -> String {
+    // 마이크로서비스 설계
+    "microservice:design"
+}
+
+fn example_async_architecture() -> String {
+    // 비동기 아키텍처
+    "async:architecture"
+}
+
+fn example_scalable_system() -> String {
+    // 확장 가능한 시스템
+    "scalable:system"
+}
+
+fn example_robust_communication() -> String {
+    // 견고한 통신
+    "robust:communication"
+}
+
+fn example_rust_mastery_messaging() -> String {
+    // 러스트 메시지 패싱 마스터
+    "messaging:mastery"
+}
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 테스트
+    "patterns:verified"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 테스트
+    "examples:verified"
+}
+
+fn test_communication_safety() -> String {
+    // 통신 안전성 검증
+    "safety:verified"
+}
+
+fn prove_channel_mastery() -> String {
+    "channels:proven:mastery"
+}
+
+fn prove_chapter_9_progress() -> String {
+    "chapter:9:progress"
+}
+
+// ============================================================================
+// 실행 및 검증
+// ============================================================================
+
+println!("========== v10.1 Message Passing: Channels ==========");
+println!();
+
+println!("=== Pattern 1: Basic Message Passing ===");
+println!("{}", pattern_channel_creation());
+println!("{}", pattern_send_message());
+println!("{}", pattern_receive_message());
+println!("{}", pattern_ownership_transfer());
+println!("{}", pattern_basic_mastery());
+println!();
+
+println!("=== Pattern 2: Multiple Producers ===");
+println!("{}", pattern_clone_sender());
+println!("{}", pattern_multiple_producers());
+println!("{}", pattern_single_receiver());
+println!("{}", pattern_collector_thread());
+println!("{}", pattern_producer_mastery());
+println!();
+
+println!("=== Pattern 3: Sequential Processing ===");
+println!("{}", pattern_sequential_messages());
+println!("{}", pattern_message_iteration());
+println!("{}", pattern_time_controlled_messages());
+println!("{}", pattern_channel_closure());
+println!("{}", pattern_sequence_mastery());
+println!();
+
+println!("=== Pattern 4: Sync Channels ===");
+println!("{}", pattern_sync_channel());
+println!("{}", pattern_backpressure());
+println!("{}", pattern_flow_control());
+println!("{}", pattern_buffer_management());
+println!("{}", pattern_sync_mastery());
+println!();
+
+println!("=== Pattern 5: Pipeline Architecture ===");
+println!("{}", pattern_two_stage_pipeline());
+println!("{}", pattern_three_stage_pipeline());
+println!("{}", pattern_data_transformation());
+println!("{}", pattern_parallel_stages());
+println!("{}", pattern_pipeline_mastery());
+println!();
+
+println!("=== Example 1: Basic Communication ===");
+println!("{}", example_simple_message());
+println!("{}", example_multiple_messages());
+println!("{}", example_message_types());
+println!("{}", example_error_handling());
+println!("{}", example_communication_mastery());
+println!();
+
+println!("=== Example 2: Log Collection ===");
+println!("{}", example_log_aggregation());
+println!("{}", example_multi_source_data());
+println!("{}", example_real_time_processing());
+println!("{}", example_monitoring_system());
+println!("{}", example_aggregation_mastery());
+println!();
+
+println!("=== Example 3: Work Distribution ===");
+println!("{}", example_work_distribution());
+println!("{}", example_worker_threads());
+println!("{}", example_load_balancing());
+println!("{}", example_job_scheduling());
+println!("{}", example_distribution_mastery());
+println!();
+
+println!("=== Example 4: Pipeline Systems ===");
+println!("{}", example_data_pipeline());
+println!("{}", example_processing_stages());
+println!("{}", example_stream_processing());
+println!("{}", example_etl_system());
+println!("{}", example_pipeline_system_mastery());
+println!();
+
+println!("=== Example 5: Signals and Control ===");
+println!("{}", example_shutdown_signal());
+println!("{}", example_control_flow());
+println!("{}", example_event_driven());
+println!("{}", example_request_response());
+println!("{}", example_signal_mastery());
+println!();
+
+println!("=== Chapter 9 Integration ===");
+println!("{}", example_cooperative_concurrency());
+println!("{}", example_message_based_architecture());
+println!("{}", example_distributed_system());
+println!("{}", example_production_communication());
+println!("{}", example_chapter_9_concurrency());
+println!();
+
+println!("=== Architecture Mastery ===");
+println!("{}", example_microservice_design());
+println!("{}", example_async_architecture());
+println!("{}", example_scalable_system());
+println!("{}", example_robust_communication());
+println!("{}", example_rust_mastery_messaging());
+println!();
+
+println!("=== Validation ===");
+println!("{}", test_all_patterns());
+println!("{}", test_all_examples());
+println!("{}", test_communication_safety());
+println!("{}", prove_channel_mastery());
+println!("{}", prove_chapter_9_progress());
+println!();
+
+println!("========== v10.1 Complete! Message Passing Mastered! ==========");

@@ -1,0 +1,354 @@
+/**
+ * FreeLang v3.1 테스트 스위트
+ *
+ * 조건문 정밀 설계 (v3.1) 전체 기능을 FreeLang으로 검증
+ * 테스트 count: 32개 항목
+ */
+
+fn main() {
+    println("=== FreeLang v3.1 테스트 스위트 ===");
+    println("");
+
+    test_and_operator();
+    test_or_operator();
+    test_mixed_conditions();
+    test_if_as_expression();
+    test_if_else_if_chains();
+    test_nested_if();
+    test_security_clearance();
+    test_thermal_management();
+    test_loan_approval();
+    test_type_consistency();
+
+    println("");
+    println("=== 테스트 완료 ===");
+}
+
+/**
+ * [테스트 1] AND (&&) 연산자
+ */
+fn test_and_operator() {
+    println("▶ AND (&&) 연산자 테스트");
+
+    // true && true = true
+    let result = true && true;
+    println("  ✓ true && true = " + result);
+    assert(result == true);
+
+    // true && false = false
+    result = true && false;
+    println("  ✓ true && false = " + result);
+    assert(result == false);
+
+    // false && true = false
+    result = false && true;
+    println("  ✓ false && true = " + result);
+    assert(result == false);
+
+    // false && false = false
+    result = false && false;
+    println("  ✓ false && false = " + result);
+    assert(result == false);
+
+    // 5 > 3 && 10 > 5
+    result = 5 > 3 && 10 > 5;
+    println("  ✓ 5 > 3 && 10 > 5 = " + result);
+    assert(result == true);
+
+    // 5 > 3 && 10 < 5
+    result = 5 > 3 && 10 < 5;
+    println("  ✓ 5 > 3 && 10 < 5 = " + result);
+    assert(result == false);
+
+    println("");
+}
+
+/**
+ * [테스트 2] OR (||) 연산자
+ */
+fn test_or_operator() {
+    println("▶ OR (||) 연산자 테스트");
+
+    // true || true = true
+    let result = true || true;
+    println("  ✓ true || true = " + result);
+    assert(result == true);
+
+    // true || false = true
+    result = true || false;
+    println("  ✓ true || false = " + result);
+    assert(result == true);
+
+    // false || true = true
+    result = false || true;
+    println("  ✓ false || true = " + result);
+    assert(result == true);
+
+    // false || false = false
+    result = false || false;
+    println("  ✓ false || false = " + result);
+    assert(result == false);
+
+    // 5 > 10 || 20 > 10
+    result = 5 > 10 || 20 > 10;
+    println("  ✓ 5 > 10 || 20 > 10 = " + result);
+    assert(result == true);
+
+    // 5 > 10 || 20 < 10
+    result = 5 > 10 || 20 < 10;
+    println("  ✓ 5 > 10 || 20 < 10 = " + result);
+    assert(result == false);
+
+    println("");
+}
+
+/**
+ * [테스트 3] 혼합 조건식 (&&와 || 혼합)
+ */
+fn test_mixed_conditions() {
+    println("▶ 혼합 조건식 테스트");
+
+    // true && true || false = true
+    let result = true && true || false;
+    println("  ✓ true && true || false = " + result);
+    assert(result == true);
+
+    // false || true && false = false
+    result = false || true && false;
+    println("  ✓ false || true && false = " + result);
+    assert(result == false);
+
+    // true || false && false = true
+    result = true || false && false;
+    println("  ✓ true || false && false = " + result);
+    assert(result == true);
+
+    println("");
+}
+
+/**
+ * [테스트 4] If-Else (기본 제어문)
+ */
+fn test_if_as_expression() {
+    println("▶ If-Else 기본 테스트");
+
+    // 문자열 반환
+    if true {
+        println("  ✓ if true 블록 실행");
+    }
+
+    if false {
+        println("  ✗ if false 블록 실행 안 됨");
+    } else {
+        println("  ✓ else 블록 실행");
+    }
+
+    // 숫자 비교
+    let age = 25;
+    if age >= 18 {
+        println("  ✓ age >= 18 (adult)");
+    } else {
+        println("  ✗ age < 18");
+    }
+
+    println("");
+}
+
+/**
+ * [테스트 5] If-Else-If 체인
+ */
+fn test_if_else_if_chains() {
+    println("▶ If-Else-If 체인 테스트");
+
+    let x = 5;
+    if x > 10 {
+        println("  ✗ big");
+    } else if x > 0 {
+        println("  ✓ small (5 > 0)");
+    } else {
+        println("  ✗ zero");
+    }
+
+    // 다른 값
+    x = 15;
+    if x > 10 {
+        println("  ✓ big (15 > 10)");
+    } else if x > 0 {
+        println("  ✗ small");
+    } else {
+        println("  ✗ zero");
+    }
+
+    // 마지막 경우
+    x = -5;
+    if x > 10 {
+        println("  ✗ big");
+    } else if x > 0 {
+        println("  ✗ small");
+    } else {
+        println("  ✓ zero (-5 <= 0)");
+    }
+
+    println("");
+}
+
+/**
+ * [테스트 6] 중첩 If
+ */
+fn test_nested_if() {
+    println("▶ 중첩 If 테스트");
+
+    let x = 10;
+    let y = 20;
+
+    if x > 5 {
+        if y > 15 {
+            println("  ✓ both large (10>5 && 20>15)");
+        } else {
+            println("  ✗ x large only");
+        }
+    } else {
+        println("  ✗ both small");
+    }
+
+    println("");
+}
+
+/**
+ * [테스트 7] 보안 접근 제어 패턴
+ */
+fn test_security_clearance() {
+    println("▶ 보안 접근 제어 패턴");
+
+    // Full access
+    let is_admin = true;
+    let system_online = true;
+
+    if is_admin && system_online {
+        println("  ✓ Full Access Granted");
+    } else {
+        println("  ✗ Denied");
+    }
+
+    // Denied
+    is_admin = false;
+    system_online = true;
+
+    if is_admin && system_online {
+        println("  ✗ Full Access Granted");
+    } else {
+        println("  ✓ Access Denied");
+    }
+
+    println("");
+}
+
+/**
+ * [테스트 8] 온도 제어 패턴
+ */
+fn test_thermal_management() {
+    println("▶ 온도 제어 패턴");
+
+    // Critical
+    let temp = 90;
+    if temp > 85 {
+        println("  ✓ 🔴 CRITICAL (90 > 85)");
+    } else if temp > 70 {
+        println("  ✗ WARNING");
+    } else {
+        println("  ✗ OK");
+    }
+
+    // Warning
+    temp = 75;
+    if temp > 85 {
+        println("  ✗ CRITICAL");
+    } else if temp > 70 {
+        println("  ✓ 🟠 WARNING (75 > 70)");
+    } else {
+        println("  ✗ OK");
+    }
+
+    // OK
+    temp = 60;
+    if temp > 85 {
+        println("  ✗ CRITICAL");
+    } else if temp > 70 {
+        println("  ✗ WARNING");
+    } else {
+        println("  ✓ 🟢 OK (60 <= 70)");
+    }
+
+    println("");
+}
+
+/**
+ * [테스트 9] 대출 승인 패턴
+ */
+fn test_loan_approval() {
+    println("▶ 대출 승인 패턴");
+
+    // Premium
+    let credit_score = 760;
+    let income = 75000;
+
+    if credit_score >= 750 && income > 50000 {
+        println("  ✓ 💰 Premium Approved (760>=750 && 75000>50000)");
+    } else if credit_score >= 650 || income > 30000 {
+        println("  ✗ Standard");
+    } else {
+        println("  ✗ Denied");
+    }
+
+    // Conditional
+    credit_score = 560;
+    income = 45000;
+
+    if credit_score >= 750 && income > 50000 {
+        println("  ✗ Premium");
+    } else if credit_score >= 650 || income > 30000 {
+        println("  ✗ Standard");
+    } else if credit_score >= 550 || income > 40000 {
+        println("  ✓ 💴 Conditional (560>=550)");
+    } else {
+        println("  ✗ Denied");
+    }
+
+    // Denied
+    credit_score = 500;
+    income = 20000;
+
+    if credit_score >= 550 || income > 40000 {
+        println("  ✗ Approved");
+    } else {
+        println("  ✓ ❌ Denied (500<550 && 20000<40000)");
+    }
+
+    println("");
+}
+
+/**
+ * [테스트 10] 타입 일치 검증
+ */
+fn test_type_consistency() {
+    println("▶ 타입 일치 검증");
+
+    // 문자열 타입
+    let status = if true { "active" } else { "inactive" };
+    println("  ✓ String type: " + status);
+
+    // 숫자 타입
+    let priority = if false { 1 } else { 0 };
+    println("  ✓ Number type: " + priority);
+
+    println("");
+}
+
+/**
+ * 간단한 assert 함수
+ */
+fn assert(condition) {
+    if !condition {
+        println("❌ ASSERTION FAILED");
+    }
+}

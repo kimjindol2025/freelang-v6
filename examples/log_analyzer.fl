@@ -1,0 +1,87 @@
+// FreeLang v6: Simple Log Analyzer
+// 파일 I/O + 문자열 처리
+
+fn create_sample_log() {
+  let sample = "[2026-02-21 08:00:00] INFO: Application started\n"
+  sample = sample + "[2026-02-21 08:15:30] DEBUG: Database connected\n"
+  sample = sample + "[2026-02-21 08:30:45] ERROR: Connection timeout\n"
+  sample = sample + "[2026-02-21 09:00:00] WARN: High memory usage\n"
+  sample = sample + "[2026-02-21 09:15:20] ERROR: Failed to fetch\n"
+  sample = sample + "[2026-02-21 09:30:00] INFO: Cache cleared\n"
+  sample = sample + "[2026-02-21 10:00:00] DEBUG: Request processed\n"
+  sample = sample + "[2026-02-21 10:15:45] ERROR: Invalid token\n"
+  sample = sample + "[2026-02-21 10:30:00] INFO: Backup completed\n"
+
+  file_write("sample.log", sample)
+}
+
+fn count_level_in_content(content, level) {
+  let count = 0
+  let lines = split(content, "\n")
+  for line in lines {
+    if contains(line, level) {
+      count = count + 1
+    }
+  }
+  return count
+}
+
+fn analyze_logs(filename) {
+  let content = file_read(filename)
+
+  if len(content) == 0 {
+    return "ERROR: Empty or missing file"
+  }
+
+  let lines = split(content, "\n")
+  let valid = 0
+
+  for line in lines {
+    if len(line) > 0 {
+      valid = valid + 1
+    }
+  }
+
+  let output = ""
+  output = output + "=== Log Analysis Report ===\n"
+  output = output + "\n"
+  output = output + "Total entries: " + valid + "\n"
+  output = output + "\n"
+
+  let info_count = count_level_in_content(content, "INFO")
+  let debug_count = count_level_in_content(content, "DEBUG")
+  let warn_count = count_level_in_content(content, "WARN")
+  let error_count = count_level_in_content(content, "ERROR")
+
+  output = output + "Log levels found:\n"
+  output = output + "  INFO: " + info_count + "\n"
+  output = output + "  DEBUG: " + debug_count + "\n"
+  output = output + "  WARN: " + warn_count + "\n"
+  output = output + "  ERROR: " + error_count + "\n"
+  output = output + "\n"
+
+  output = output + "Critical issues (ERROR): " + error_count + "\n"
+  if error_count > 0 {
+    output = output + "  Action required!\n"
+  }
+
+  return output
+}
+
+fn main() {
+  println("=== FreeLang Log Analyzer ===")
+  println("")
+
+  // Create sample log
+  create_sample_log()
+  println("Created sample.log")
+  println("")
+
+  // Analyze
+  let report = analyze_logs("sample.log")
+  println(report)
+
+  println("=== Analysis complete ===")
+}
+
+main()

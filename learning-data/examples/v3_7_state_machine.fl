@@ -1,0 +1,364 @@
+// v3.7: State Machine Design - Finite State Machine
+// Philosophy: Make unapproved actions physically impossible
+
+// [Example 1] Traffic Light State Machine
+fn example_traffic_light() {
+  println("=== v3.7 State Machine: Traffic Light ===");
+
+  let mut state = "RED";
+  let mut time = 0;
+
+  while time < 4 {
+    println("Current: " + state);
+
+    match state {
+      "RED" => {
+        println("  Red -> Waiting for signal");
+        state = "GREEN";
+      }
+      "GREEN" => {
+        println("  Green -> Traffic allowed");
+        state = "YELLOW";
+      }
+      "YELLOW" => {
+        println("  Yellow -> Caution!");
+        state = "RED";
+      }
+    }
+
+    time = time + 1;
+  }
+}
+
+// [Example 2] Media Player State Machine
+fn example_player_state() {
+  println("=== v3.7 State Machine: Media Player ===");
+
+  let mut player_state = "IDLE";
+  let mut current_file = "";
+  let mut current_time = 0;
+
+  let commands = vec!["LOAD", "PLAY", "PAUSE", "RESUME", "STOP"];
+
+  let mut cmd_idx = 0;
+  while cmd_idx < 5 {
+    let cmd = commands[cmd_idx];
+
+    println("\nCommand: " + cmd);
+    println("State: " + player_state);
+
+    match player_state {
+      "IDLE" => {
+        if cmd == "LOAD" {
+          current_file = "music.mp3";
+          player_state = "LOADED";
+          println("  Transition: File loaded - " + current_file);
+        } else {
+          println("  [Ignored] Only LOAD allowed in IDLE");
+        }
+      }
+
+      "LOADED" => {
+        if cmd == "PLAY" {
+          player_state = "PLAYING";
+          println("  Transition: Playback started");
+        } else {
+          println("  [Ignored] Only PLAY allowed in LOADED");
+        }
+      }
+
+      "PLAYING" => {
+        if cmd == "PAUSE" {
+          current_time = 120;
+          player_state = "PAUSED";
+          println("  Transition: Paused at " + current_time + "s");
+        } else if cmd == "STOP" {
+          player_state = "IDLE";
+          current_time = 0;
+          println("  Transition: Stopped");
+        } else {
+          println("  [Ignored] Playing...");
+        }
+      }
+
+      "PAUSED" => {
+        if cmd == "RESUME" {
+          player_state = "PLAYING";
+          println("  Transition: Resumed from " + current_time + "s");
+        } else if cmd == "STOP" {
+          player_state = "IDLE";
+          current_time = 0;
+          println("  Transition: Stopped");
+        } else {
+          println("  [Ignored] Paused state maintained");
+        }
+      }
+    }
+
+    cmd_idx = cmd_idx + 1;
+  }
+}
+
+// [Example 3] Network Connection State Machine
+fn example_connection_state() {
+  println("=== v3.7 State Machine: Network Connection ===");
+
+  let mut conn_state = "DISCONNECTED";
+  let mut error_msg = "";
+  let mut retry_count = 0;
+
+  let events = vec![
+    "CONNECT",
+    "CONNECT",
+    "TIMEOUT",
+    "RETRY",
+    "SUCCESS",
+    "DATA",
+    "DATA",
+    "ERROR",
+    "RECONNECT",
+    "SUCCESS"
+  ];
+
+  let mut event_idx = 0;
+  while event_idx < 10 {
+    let event = events[event_idx];
+
+    println("\nEvent: " + event);
+    println("State: " + conn_state);
+
+    match conn_state {
+      "DISCONNECTED" => {
+        if event == "CONNECT" {
+          conn_state = "CONNECTING";
+          println("  Transition: Connection attempt...");
+        } else {
+          println("  [Ignored] Connection required");
+        }
+      }
+
+      "CONNECTING" => {
+        if event == "SUCCESS" {
+          conn_state = "CONNECTED";
+          println("  Transition: Connected!");
+        } else if event == "TIMEOUT" {
+          conn_state = "ERROR";
+          error_msg = "Connection timeout";
+          retry_count = 1;
+          println("  Transition: Connection failed");
+        } else if event == "CONNECT" {
+          println("  [Ignored] Already connecting");
+        }
+      }
+
+      "CONNECTED" => {
+        if event == "DATA" {
+          println("  Transition: Data transmitting");
+        } else if event == "ERROR" {
+          conn_state = "ERROR";
+          error_msg = "Communication error";
+          println("  Transition: Error occurred");
+        } else {
+          println("  [Ignored] Connection maintained");
+        }
+      }
+
+      "ERROR" => {
+        println("  Error: " + error_msg);
+        if event == "RETRY" {
+          if retry_count < 3 {
+            conn_state = "CONNECTING";
+            retry_count = retry_count + 1;
+            println("  Transition: Retry (" + retry_count + "/3)");
+          } else {
+            println("  [Failed] Max retries exceeded");
+          }
+        } else {
+          println("  [Waiting] Retry required");
+        }
+      }
+    }
+
+    event_idx = event_idx + 1;
+  }
+}
+
+// [Example 4] Authentication State Machine
+fn example_login_state() {
+  println("=== v3.7 State Machine: Authentication ===");
+
+  let mut auth_state = "LOGGED_OUT";
+  let mut user_id = "";
+  let mut attempt = 0;
+
+  let actions = vec![
+    "LOGIN_START",
+    "LOGIN_SUCCESS",
+    "LOGIN_SUCCESS",
+    "LOGOUT",
+    "LOGIN_FAILED"
+  ];
+
+  let mut action_idx = 0;
+  while action_idx < 5 {
+    let action = actions[action_idx];
+
+    println("\nAction: " + action);
+    println("State: " + auth_state);
+
+    match auth_state {
+      "LOGGED_OUT" => {
+        if action == "LOGIN_START" {
+          auth_state = "LOGGING_IN";
+          attempt = 1;
+          println("  Transition: Login in progress (Attempt " + attempt + ")");
+        } else {
+          println("  [Ignored] Already logged out");
+        }
+      }
+
+      "LOGGING_IN" => {
+        if action == "LOGIN_SUCCESS" {
+          auth_state = "LOGGED_IN";
+          user_id = "user123";
+          println("  Transition: Login successful!");
+          println("  User: " + user_id);
+        } else if action == "LOGIN_FAILED" {
+          attempt = attempt + 1;
+          if attempt <= 3 {
+            println("  Transition: Login failed (Attempt " + attempt + "/3)");
+          } else {
+            auth_state = "LOCKED";
+            println("  Transition: Account locked");
+          }
+        }
+      }
+
+      "LOGGED_IN" => {
+        println("  Current user: " + user_id);
+        if action == "LOGOUT" {
+          auth_state = "LOGGED_OUT";
+          user_id = "";
+          attempt = 0;
+          println("  Transition: Logout completed");
+        } else {
+          println("  [Action] " + action);
+        }
+      }
+
+      "LOCKED" => {
+        println("  Account is locked");
+        println("  [Note] Contact administrator");
+      }
+    }
+
+    action_idx = action_idx + 1;
+  }
+}
+
+// [Example 5] Order Processing State Machine
+fn example_order_state() {
+  println("=== v3.7 State Machine: Order Processing ===");
+
+  let mut order_state = "PENDING";
+  let mut order_id = "ORD-001";
+  let mut total_amount = 0;
+
+  let events = vec![
+    "CONFIRM",
+    "PAYMENT_OK",
+    "SHIP",
+    "DELIVERED",
+    "CANCEL"
+  ];
+
+  let mut event_idx = 0;
+  while event_idx < 5 {
+    let event = events[event_idx];
+
+    println("\nOrder " + order_id + " - Event: " + event);
+    println("State: " + order_state);
+
+    match order_state {
+      "PENDING" => {
+        if event == "CONFIRM" {
+          order_state = "CONFIRMED";
+          total_amount = 50000;
+          println("  Transition: Order confirmed (Amount: " + total_amount + ")");
+        } else if event == "CANCEL" {
+          order_state = "CANCELLED";
+          println("  Transition: Order cancelled");
+        } else {
+          println("  [Ignored] Awaiting confirmation");
+        }
+      }
+
+      "CONFIRMED" => {
+        if event == "PAYMENT_OK" {
+          order_state = "PAID";
+          println("  Transition: Payment completed");
+        } else if event == "CANCEL" {
+          order_state = "CANCELLED";
+          println("  Transition: Order cancelled");
+        } else {
+          println("  [Ignored] Awaiting payment");
+        }
+      }
+
+      "PAID" => {
+        if event == "SHIP" {
+          order_state = "SHIPPED";
+          println("  Transition: Shipment started");
+        } else {
+          println("  [Ignored] Preparing shipment");
+        }
+      }
+
+      "SHIPPED" => {
+        if event == "DELIVERED" {
+          order_state = "DELIVERED";
+          println("  Transition: Delivery completed!");
+        } else {
+          println("  [Progress] In transit...");
+        }
+      }
+
+      "DELIVERED" => {
+        println("  Order completed");
+        println("  [Blocked] No action after delivery");
+      }
+
+      "CANCELLED" => {
+        println("  Order cancelled");
+        println("  [Blocked] No further action");
+      }
+    }
+
+    event_idx = event_idx + 1;
+  }
+}
+
+// Main execution
+fn main() {
+  println("=== FreeLang v3.7: Finite State Machine Design ===\n");
+
+  example_traffic_light();
+  println("");
+
+  example_player_state();
+  println("");
+
+  example_connection_state();
+  println("");
+
+  example_login_state();
+  println("");
+
+  example_order_state();
+
+  println("\n=== v3.7 Core Principles ===");
+  println("1. Explicit state definition");
+  println("2. State-specific command handling");
+  println("3. Invalid transitions physically blocked");
+  println("4. Current state = complete system status");
+}

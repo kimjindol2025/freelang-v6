@@ -1,0 +1,332 @@
+// v4.1: Ownership & Parameters - 매개변수와 소유권의 이동
+// 철학: "메모리의 책임은 누가 가질 것인가"
+// 설계: 데이터 전달 방식을 통해 메모리 안전성을 구조화
+
+// [Category 1] Copy 타입: 정수와 불리언의 안전한 복사
+
+// Copy 타입 함수 1: 정수 값 계산
+fn calculate_double(x: i32) -> i32 {
+  x * 2
+}
+
+// Copy 타입 함수 2: 불리언 판단
+fn check_positive(x: i32) -> bool {
+  x > 0
+}
+
+// Copy 타입 함수 3: 여러 정수 조합
+fn sum_three(a: i32, b: i32, c: i32) -> i32 {
+  a + b + c
+}
+
+// Copy 타입 함수 4: 정수 범위 검사
+fn in_range(value: i32, min: i32, max: i32) -> bool {
+  value >= min && value <= max
+}
+
+// Copy 타입 함수 5: 조건부 정수 반환
+fn max_value(a: i32, b: i32) -> i32 {
+  if a > b { a } else { b }
+}
+
+// [Category 2] Move 타입: String 소유권 이동
+
+// Move 타입 함수 1: String 소비
+fn consume_string(message: String) -> i32 {
+  let len = message.len();
+  len
+}
+
+// Move 타입 함수 2: String 로깅
+fn log_message(data: String) {
+  println!("[LOG] {}", data);
+}
+
+// Move 타입 함수 3: String 포맷팅
+fn format_with_prefix(text: String) -> String {
+  "[PREFIX] " + text
+}
+
+// Move 타입 함수 4: String 유효성 검사
+fn validate_string(text: String) -> bool {
+  text != ""
+}
+
+// Move 타입 함수 5: String 변환
+fn to_uppercase(text: String) -> String {
+  text
+}
+
+// [Category 3] 반환값을 통한 소유권 이전
+
+// Return 함수 1: 새 String 생성 및 반환
+fn create_message() -> String {
+  "시스템 메시지"
+}
+
+// Return 함수 2: String 조합 및 반환
+fn combine_strings(a: String, b: String) -> String {
+  a + " " + b
+}
+
+// Return 함수 3: 조건부 String 반환
+fn conditional_string(flag: bool) -> String {
+  if flag {
+    "성공"
+  } else {
+    "실패"
+  }
+}
+
+// Return 함수 4: 반복 String 생성
+fn repeat_message(msg: String, count: i32) -> String {
+  if count == 1 {
+    msg
+  } else {
+    msg + " [반복됨]"
+  }
+}
+
+// Return 함수 5: 변환된 String 반환
+fn process_and_return(input: String) -> String {
+  "[처리됨] " + input
+}
+
+// [Category 4] 함수 조합과 소유권 흐름
+
+// Chain 함수 1: 함수 체인 - 정수 변환
+fn chain_calculate(x: i32) -> i32 {
+  let step1 = calculate_double(x);
+  let step2 = step1 + 10;
+  step2
+}
+
+// Chain 함수 2: 함수 체인 - 정수 검증
+fn chain_validate(value: i32) -> bool {
+  let is_positive = check_positive(value);
+  let is_in_range = in_range(value, 0, 100);
+  if is_positive {
+    is_in_range
+  } else {
+    false
+  }
+}
+
+// Chain 함수 3: 함수 체인 - String 처리
+fn chain_process(msg: String) -> String {
+  let logged_msg = format_with_prefix(msg);
+  logged_msg
+}
+
+// Chain 함수 4: 다중 소유권 이동
+fn multi_transfer(s1: String, s2: String) -> String {
+  s1 + " AND " + s2
+}
+
+// Chain 함수 5: Move와 Return의 조합
+fn create_and_process() -> String {
+  let created = create_message();
+  let processed = format_with_prefix(created);
+  processed
+}
+
+// [Category 5] 메모리 안전성의 증명
+
+// Safety 함수 1: Copy 타입은 재사용 가능
+fn proof_copy_reuse() {
+  let x = 10;
+  let y = calculate_double(x);
+  let z = calculate_double(x);
+  println!("Copy 안전성: x={}, double(x)={}, 또 한번={}", x, y, z);
+}
+
+// Safety 함수 2: Move 후 소유권 추적
+fn proof_move_safety(msg: String) -> String {
+  let processed = format_with_prefix(msg);
+  processed
+}
+
+// Safety 함수 3: 함수 반환으로 소유권 확보
+fn proof_ownership_return() -> String {
+  create_message()
+}
+
+// Safety 함수 4: 반환값 체인
+fn proof_chain_ownership(initial: String) -> String {
+  let step1 = process_and_return(initial);
+  let step2 = format_with_prefix(step1);
+  step2
+}
+
+// Safety 함수 5: 정수 기반 메모리 안전성
+fn proof_numeric_safety(values: i32) -> i32 {
+  let a = 10;
+  let b = 20;
+  let c = 30;
+  let sum = sum_three(a, b, c);
+  sum * values
+}
+
+// [Advanced Category] 소유권의 생명 주기 입증
+
+fn demonstrate_ownership_lifecycle() {
+  println!("=== v4.1 Ownership Lifecycle Demo ===\n");
+
+  // 1. Copy 타입의 안전성
+  println!("[1] Copy 타입 - 정수는 복사됨:");
+  let x = 100;
+  let y = calculate_double(x);
+  println!("원본 x={} 사용 가능, 계산 결과={}", x, y);
+
+  // 2. 함수 반환으로 String 소유
+  println!("\n[2] 함수 반환 - String 소유권 획득:");
+  let message = create_message();
+  println!("생성된 메시지: {}", message);
+
+  // 3. Move 후 새로운 String 생성
+  println!("\n[3] Move 타입 - String 소유권 이전:");
+  let data = "중요 데이터";
+  println!("데이터 처리 전: {}", data);
+
+  // 4. 함수 체인에서의 소유권 흐름
+  println!("\n[4] 함수 체인 - 소유권 흐름:");
+  let calc_result = chain_calculate(5);
+  println!("체인 계산 결과: {}", calc_result);
+
+  // 5. 정수 조합 계산
+  println!("\n[5] 정수 조합 - Copy의 편의성:");
+  let sum = sum_three(10, 20, 30);
+  println!("세 수의 합: {}", sum);
+
+  // 6. 유효성 검사
+  println!("\n[6] 유효성 검사 - Copy 타입 판단:");
+  let value = 50;
+  let valid = in_range(value, 0, 100);
+  if valid {
+    println!("값 {}은(는) 범위 내에 있습니다.", value);
+  }
+
+  // 7. 조건부 반환
+  println!("\n[7] 조건부 반환 - String 생성:");
+  let result = conditional_string(true);
+  println!("조건부 메시지: {}", result);
+
+  // 8. 최댓값 찾기
+  println!("\n[8] 최댓값 - Copy 타입 유연성:");
+  let max = max_value(30, 25);
+  println!("30과 25의 최댓값: {}", max);
+}
+
+// 메인 실행 함수
+
+fn main() {
+  println!("=== v4.1 Ownership & Parameters ===");
+  println!("철학: 메모리의 책임을 명확히 한다\n");
+
+  // Category 1: Copy 타입
+  println!("--- Category 1: Copy 타입 안전성 ---");
+  let x = 10;
+  let doubled = calculate_double(x);
+  println!("정수 {} → 2배 = {}", x, doubled);
+  println!("원본 {} 여전히 사용 가능", x);
+
+  let is_pos = check_positive(x);
+  println!("{}는 양수인가? {}", x, is_pos);
+
+  let total = sum_three(5, 10, 15);
+  println!("합계: {}", total);
+
+  let in_r = in_range(50, 0, 100);
+  println!("50이 [0, 100] 범위 내인가? {}", in_r);
+
+  let max_v = max_value(7, 3);
+  println!("7과 3의 최댓값: {}", max_v);
+
+  // Category 2: Move 타입
+  println!("\n--- Category 2: Move 타입 소유권 ---");
+  let msg1 = "처리할 데이터";
+  let len = consume_string(msg1);
+  println!("문자열 길이: {}", len);
+
+  let msg2 = "로깅 메시지";
+  log_message(msg2);
+
+  let msg3 = "포맷할 텍스트";
+  let formatted = format_with_prefix(msg3);
+  println!("포맷된 결과: {}", formatted);
+
+  let msg4 = "검증";
+  let valid = validate_string(msg4);
+  println!("문자열 유효한가? {}", valid);
+
+  let msg5 = "변환";
+  let upper = to_uppercase(msg5);
+  println!("변환됨: {}", upper);
+
+  // Category 3: Return으로 소유권 이전
+  println!("\n--- Category 3: Return으로 소유권 이전 ---");
+  let created = create_message();
+  println!("생성됨: {}", created);
+
+  let s1 = "안녕";
+  let s2 = "세계";
+  let combined = combine_strings(s1, s2);
+  println!("조합됨: {}", combined);
+
+  let success = conditional_string(true);
+  println!("조건부: {}", success);
+
+  let msg = "메시지";
+  let repeated = repeat_message(msg, 2);
+  println!("반복됨: {}", repeated);
+
+  let processed = process_and_return("입력");
+  println!("처리됨: {}", processed);
+
+  // Category 4: 함수 조합
+  println!("\n--- Category 4: 함수 조합과 소유권 ---");
+  let chain_result = chain_calculate(5);
+  println!("체인 결과: {}", chain_result);
+
+  let validation = chain_validate(50);
+  println!("체인 검증: {}", validation);
+
+  let proc_msg = "프로세싱";
+  let chain_proc = chain_process(proc_msg);
+  println!("체인 처리: {}", chain_proc);
+
+  let text1 = "첫번째";
+  let text2 = "두번째";
+  let multi = multi_transfer(text1, text2);
+  println!("다중 전달: {}", multi);
+
+  let final_msg = create_and_process();
+  println!("최종 메시지: {}", final_msg);
+
+  // Category 5: 안전성 증명
+  println!("\n--- Category 5: 메모리 안전성 증명 ---");
+  proof_copy_reuse();
+
+  let safety_msg = "안전";
+  let safety_result = proof_move_safety(safety_msg);
+  println!("Move 안전성: {}", safety_result);
+
+  let owned = proof_ownership_return();
+  println!("소유권 반환: {}", owned);
+
+  let initial = "시작";
+  let chained = proof_chain_ownership(initial);
+  println!("체인 소유권: {}", chained);
+
+  let numeric = proof_numeric_safety(2);
+  println!("숫자 안전성: {}", numeric);
+
+  // Advanced: 생명 주기 입증
+  println!("\n--- Advanced: 소유권 생명 주기 ---");
+  demonstrate_ownership_lifecycle();
+
+  // 최종 메시지
+  println!("\n=== v4.1 설계 완료 ===");
+  println!("기록: 소유권을 통해 메모리 안전성을 구조화함");
+  println!("다음: v4.2 참조와 빌림(Borrowing)으로 효율성 극대화");
+}

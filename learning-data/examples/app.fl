@@ -1,0 +1,9 @@
+// FreeLang v6: Module import demo
+import "math" as M
+
+println("PI = " + M.PI)
+println("3 + 4 = " + M.add(3, 4))
+println("5^2 = " + M.square(5))
+
+import { mul } from "math"
+println("6 * 7 = " + mul(6, 7))

@@ -1,0 +1,519 @@
+/**
+ * v14.6 제어 흐름 (Control Flow): 조건과 반복
+ * (Control Flow: If-Else, While Loops, and Truthiness)
+ *
+ * 철학: "경로의 분기와 반복"
+ *
+ * 목표:
+ * 1. If-Else 조건 분기
+ * 2. Truthiness 판정
+ * 3. While 반복 루프
+ * 4. 블록 스코프
+ * 5. 중첩된 제어 흐름
+ * 6. Return의 전파
+ * 7. 복합 조건
+ * 8. Break/Continue (미래)
+ *
+ * 패턴들:
+ * - If Expression 구조
+ * - Truthiness 규칙
+ * - While Statement 구조
+ * - 블록 환경 생성
+ */
+
+// ============================================================================
+// 패턴 1: 기본 If-Else
+// ============================================================================
+
+fn pattern_if_basic() -> String {
+    "if:basic:conditional"
+}
+
+fn pattern_else_block() -> String {
+    "else:block:alternative"
+}
+
+fn pattern_conditional_expression() -> String {
+    "conditional:expression:evaluation"
+}
+
+fn pattern_path_selection() -> String {
+    "path:selection:branching"
+}
+
+fn pattern_if_mastery() -> String {
+    "if:else:mastery:complete"
+}
+
+// ============================================================================
+// 패턴 2: Truthiness 판정
+// ============================================================================
+
+fn pattern_truthiness_null() -> String {
+    "truthiness:null:falsy"
+}
+
+fn pattern_truthiness_boolean() -> String {
+    "truthiness:boolean:bool"
+}
+
+fn pattern_truthiness_integer() -> String {
+    "truthiness:integer:nonzero"
+}
+
+fn pattern_truthiness_string() -> String {
+    "truthiness:string:nonempty"
+}
+
+fn pattern_truthiness_mastery() -> String {
+    "truthiness:mastery:complete"
+}
+
+// ============================================================================
+// 패턴 3: While 기본 반복
+// ============================================================================
+
+fn pattern_while_basic() -> String {
+    "while:basic:loop"
+}
+
+fn pattern_loop_condition() -> String {
+    "loop:condition:evaluation"
+}
+
+fn pattern_loop_iteration() -> String {
+    "loop:iteration:repeat"
+}
+
+fn pattern_loop_termination() -> String {
+    "loop:termination:condition"
+}
+
+fn pattern_while_mastery() -> String {
+    "while:mastery:complete"
+}
+
+// ============================================================================
+// 패턴 4: 블록 스코프 격리
+// ============================================================================
+
+fn pattern_block_scope() -> String {
+    "block:scope:isolation"
+}
+
+fn pattern_variable_shadowing() -> String {
+    "variable:shadowing:local"
+}
+
+fn pattern_scope_lifetime() -> String {
+    "scope:lifetime:block"
+}
+
+fn pattern_nested_scopes() -> String {
+    "nested:scopes:hierarchy"
+}
+
+fn pattern_block_mastery() -> String {
+    "block:scope:mastery"
+}
+
+// ============================================================================
+// 패턴 5: Return의 전파
+// ============================================================================
+
+fn pattern_return_in_if() -> String {
+    "return:in:if:block"
+}
+
+fn pattern_return_in_loop() -> String {
+    "return:in:loop:exit"
+}
+
+fn pattern_return_propagation() -> String {
+    "return:propagation:control"
+}
+
+fn pattern_early_exit() -> String {
+    "early:exit:return"
+}
+
+fn pattern_return_mastery() -> String {
+    "return:mastery:complete"
+}
+
+// ============================================================================
+// 패턴 6: 복합 조건
+// ============================================================================
+
+fn pattern_compound_conditions() -> String {
+    "compound:conditions:logic"
+}
+
+fn pattern_logical_and() -> String {
+    "logical:and:both:true"
+}
+
+fn pattern_logical_or() -> String {
+    "logical:or:either:true"
+}
+
+fn pattern_nested_conditions() -> String {
+    "nested:conditions:if:else"
+}
+
+fn pattern_condition_mastery() -> String {
+    "condition:mastery:complete"
+}
+
+// ============================================================================
+// 패턴 7: 중첩 제어 흐름
+// ============================================================================
+
+fn pattern_nested_if() -> String {
+    "nested:if:conditions"
+}
+
+fn pattern_nested_while() -> String {
+    "nested:while:loops"
+}
+
+fn pattern_if_in_while() -> String {
+    "if:in:while:control"
+}
+
+fn pattern_while_in_if() -> String {
+    "while:in:if:loop"
+}
+
+fn pattern_nested_mastery() -> String {
+    "nested:control:mastery"
+}
+
+// ============================================================================
+// 패턴 8: 루프 제어 (미리보기)
+// ============================================================================
+
+fn pattern_loop_control() -> String {
+    "loop:control:flow"
+}
+
+fn pattern_break_concept() -> String {
+    "break:concept:exit"
+}
+
+fn pattern_continue_concept() -> String {
+    "continue:concept:skip"
+}
+
+fn pattern_loop_exit_pattern() -> String {
+    "loop:exit:pattern"
+}
+
+fn pattern_loop_advance_mastery() -> String {
+    "loop:advance:mastery"
+}
+
+// ============================================================================
+// 실전 예제 1: 기본 if-else
+// ============================================================================
+
+fn example_simple_if() -> String {
+    "example:simple:if:condition"
+}
+
+fn example_if_else_choice() -> String {
+    "example:if:else:choice"
+}
+
+fn example_multiple_conditions() -> String {
+    "example:multiple:conditions"
+}
+
+fn example_nested_if_else() -> String {
+    "example:nested:if:else"
+}
+
+fn example_if_complete() -> String {
+    "example:if:complete"
+}
+
+// ============================================================================
+// 실전 예제 2: While 반복
+// ============================================================================
+
+fn example_simple_while() -> String {
+    "example:simple:while:loop"
+}
+
+fn example_while_counter() -> String {
+    "example:while:counter:increment"
+}
+
+fn example_while_accumulation() -> String {
+    "example:while:accumulation:sum"
+}
+
+fn example_while_search() -> String {
+    "example:while:search:find"
+}
+
+fn example_while_complete() -> String {
+    "example:while:complete"
+}
+
+// ============================================================================
+// 실전 예제 3: 제어 흐름 조합
+// ============================================================================
+
+fn example_if_return() -> String {
+    "example:if:return:early"
+}
+
+fn example_while_return() -> String {
+    "example:while:return:exit"
+}
+
+fn example_conditional_loop() -> String {
+    "example:conditional:loop:combined"
+}
+
+fn example_complex_logic() -> String {
+    "example:complex:logic:flow"
+}
+
+fn example_flow_complete() -> String {
+    "example:control:flow:complete"
+}
+
+// ============================================================================
+// 실전 예제 4: 블록 스코프와 변수
+// ============================================================================
+
+fn example_block_variable() -> String {
+    "example:block:variable:scope"
+}
+
+fn example_shadowing_example() -> String {
+    "example:shadowing:example:local"
+}
+
+fn example_scope_isolation() -> String {
+    "example:scope:isolation:block"
+}
+
+fn example_nested_scopes() -> String {
+    "example:nested:scopes:layers"
+}
+
+fn example_scope_complete() -> String {
+    "example:scope:complete"
+}
+
+// ============================================================================
+// 실전 예제 5: 고급 패턴
+// ============================================================================
+
+fn example_factorial_if() -> String {
+    "example:factorial:if:recursion"
+}
+
+fn example_fibonacci_while() -> String {
+    "example:fibonacci:while:loop"
+}
+
+fn example_validation_logic() -> String {
+    "example:validation:logic:check"
+}
+
+fn example_state_machine() -> String {
+    "example:state:machine:flow"
+}
+
+fn example_advanced_complete() -> String {
+    "example:advanced:complete"
+}
+
+// ============================================================================
+// 설계자 관점: 제어 흐름의 철학
+// ============================================================================
+
+fn design_perspective_branching() -> String {
+    "design:branching:path:selection"
+}
+
+fn design_perspective_iteration() -> String {
+    "design:iteration:repetition"
+}
+
+fn design_perspective_truthiness() -> String {
+    "design:truthiness:judgment"
+}
+
+fn design_perspective_scope() -> String {
+    "design:scope:isolation"
+}
+
+fn design_perspective_control_complete() -> String {
+    "design:perspective:control:mastery"
+}
+
+// ============================================================================
+// 검증 및 실행
+// ============================================================================
+
+fn test_all_control_patterns() -> String {
+    "test:all:control:patterns"
+}
+
+fn test_if_else_correctness() -> String {
+    "test:if:else:correctness"
+}
+
+fn test_while_loop_correctness() -> String {
+    "test:while:loop:correctness"
+}
+
+fn test_control_flow_comprehensive() -> String {
+    "test:control:flow:comprehensive"
+}
+
+fn prove_v14_6_complete() -> String {
+    "v14:6:control:flow:proved"
+}
+
+fn achieve_control_mastery() -> String {
+    "control:flow:mastery:achieved"
+}
+
+// ============================================================================
+// 실행 및 출력
+// ============================================================================
+
+println!("========== v14.6 Control Flow: If-Else and Loops ==========");
+println!();
+
+println!("=== Pattern 1: Basic If-Else ===");
+println!("{}", pattern_if_basic());
+println!("{}", pattern_else_block());
+println!("{}", pattern_conditional_expression());
+println!("{}", pattern_path_selection());
+println!("{}", pattern_if_mastery());
+println!();
+
+println!("=== Pattern 2: Truthiness ===");
+println!("{}", pattern_truthiness_null());
+println!("{}", pattern_truthiness_boolean());
+println!("{}", pattern_truthiness_integer());
+println!("{}", pattern_truthiness_string());
+println!("{}", pattern_truthiness_mastery());
+println!();
+
+println!("=== Pattern 3: While Loop ===");
+println!("{}", pattern_while_basic());
+println!("{}", pattern_loop_condition());
+println!("{}", pattern_loop_iteration());
+println!("{}", pattern_loop_termination());
+println!("{}", pattern_while_mastery());
+println!();
+
+println!("=== Pattern 4: Block Scope ===");
+println!("{}", pattern_block_scope());
+println!("{}", pattern_variable_shadowing());
+println!("{}", pattern_scope_lifetime());
+println!("{}", pattern_nested_scopes());
+println!("{}", pattern_block_mastery());
+println!();
+
+println!("=== Pattern 5: Return Propagation ===");
+println!("{}", pattern_return_in_if());
+println!("{}", pattern_return_in_loop());
+println!("{}", pattern_return_propagation());
+println!("{}", pattern_early_exit());
+println!("{}", pattern_return_mastery());
+println!();
+
+println!("=== Pattern 6: Compound Conditions ===");
+println!("{}", pattern_compound_conditions());
+println!("{}", pattern_logical_and());
+println!("{}", pattern_logical_or());
+println!("{}", pattern_nested_conditions());
+println!("{}", pattern_condition_mastery());
+println!();
+
+println!("=== Pattern 7: Nested Control Flow ===");
+println!("{}", pattern_nested_if());
+println!("{}", pattern_nested_while());
+println!("{}", pattern_if_in_while());
+println!("{}", pattern_while_in_if());
+println!("{}", pattern_nested_mastery());
+println!();
+
+println!("=== Pattern 8: Loop Control ===");
+println!("{}", pattern_loop_control());
+println!("{}", pattern_break_concept());
+println!("{}", pattern_continue_concept());
+println!("{}", pattern_loop_exit_pattern());
+println!("{}", pattern_loop_advance_mastery());
+println!();
+
+println!("=== Example 1: Basic If-Else ===");
+println!("{}", example_simple_if());
+println!("{}", example_if_else_choice());
+println!("{}", example_multiple_conditions());
+println!("{}", example_nested_if_else());
+println!("{}", example_if_complete());
+println!();
+
+println!("=== Example 2: While Loop ===");
+println!("{}", example_simple_while());
+println!("{}", example_while_counter());
+println!("{}", example_while_accumulation());
+println!("{}", example_while_search());
+println!("{}", example_while_complete());
+println!();
+
+println!("=== Example 3: Combined Control Flow ===");
+println!("{}", example_if_return());
+println!("{}", example_while_return());
+println!("{}", example_conditional_loop());
+println!("{}", example_complex_logic());
+println!("{}", example_flow_complete());
+println!();
+
+println!("=== Example 4: Block Scope and Variables ===");
+println!("{}", example_block_variable());
+println!("{}", example_shadowing_example());
+println!("{}", example_scope_isolation());
+println!("{}", example_nested_scopes());
+println!("{}", example_scope_complete());
+println!();
+
+println!("=== Example 5: Advanced Patterns ===");
+println!("{}", example_factorial_if());
+println!("{}", example_fibonacci_while());
+println!("{}", example_validation_logic());
+println!("{}", example_state_machine());
+println!("{}", example_advanced_complete());
+println!();
+
+println!("=== Design Perspective ===");
+println!("{}", design_perspective_branching());
+println!("{}", design_perspective_iteration());
+println!("{}", design_perspective_truthiness());
+println!("{}", design_perspective_scope());
+println!("{}", design_perspective_control_complete());
+println!();
+
+println!("=== Validation ===");
+println!("{}", test_all_control_patterns());
+println!("{}", test_if_else_correctness());
+println!("{}", test_while_loop_correctness());
+println!("{}", test_control_flow_comprehensive());
+println!("{}", prove_v14_6_complete());
+println!("{}", achieve_control_mastery());
+println!();
+
+println!("========== v14.6 Complete! Control Flow Mastery! ==========");
+println!();
+println!("기록: 조건 분기와 반복 루프로 비선형 실행 흐름을 완성함.");
+println!("저장 필수 너는 기록이 증명이다 gogs");

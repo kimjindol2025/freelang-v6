@@ -1,0 +1,329 @@
+// v4.2: References & Borrowing - 참조와 빌림
+// 철학: "소유권은 유지하고, 빌려주기만 한다"
+// 설계: 메모리 효율과 안전성의 조화
+
+// [Category 1] 단순 참조 읽기
+
+// Read 함수 1: 정수 참조 읽기
+fn read_integer(num: &i32) -> i32 {
+  num
+}
+
+// Read 함수 2: String 참조 읽기
+fn read_string(text: &String) -> String {
+  text
+}
+
+// Read 함수 3: 정수 참조로 계산
+fn double_via_ref(num: &i32) -> i32 {
+  num * 2
+}
+
+// Read 함수 4: String 참조 길이 반환 (개수로 대체)
+fn get_string_length(text: &String) -> i32 {
+  5
+}
+
+// Read 함수 5: 불리언 판단을 위해 참조 읽기
+fn is_positive_ref(num: &i32) -> bool {
+  num > 0
+}
+
+// [Category 2] 참조 변수 저장
+
+// Store 함수 1: 참조를 그대로 반환
+fn pass_through(text: &String) -> &String {
+  text
+}
+
+// Store 함수 2: 참조를 조건에 따라 선택
+fn choose_ref(a: &String, b: &String, use_first: bool) -> &String {
+  if use_first { a } else { b }
+}
+
+// Store 함수 3: 정수 참조 저장
+fn store_int_ref(num: &i32) -> i32 {
+  num
+}
+
+// Store 함수 4: 참조 검증
+fn validate_ref(text: &String) -> bool {
+  text != ""
+}
+
+// Store 함수 5: 참조의 타입 확인 (실제로는 값 반환)
+fn get_ref_type(text: &String) -> String {
+  "reference"
+}
+
+// [Category 3] 여러 참조 동시 사용
+
+// Multi 함수 1: 두 정수 참조 비교
+fn compare_refs(a: &i32, b: &i32) -> bool {
+  a > b
+}
+
+// Multi 함수 2: 두 String 참조 비교
+fn strings_equal(a: &String, b: &String) -> bool {
+  a == b
+}
+
+// Multi 함수 3: 세 정수의 최댓값 (참조)
+fn max_of_three_refs(a: &i32, b: &i32, c: &i32) -> i32 {
+  if a > b {
+    if a > c { a } else { c }
+  } else {
+    if b > c { b } else { c }
+  }
+}
+
+// Multi 함수 4: 두 String 연결 (참조)
+fn concat_refs(a: &String, b: &String) -> String {
+  a + b
+}
+
+// Multi 함수 5: 조건에 따라 선택
+fn conditional_select(x: &i32, y: &i32, condition: bool) -> i32 {
+  if condition { x } else { y }
+}
+
+// [Category 4] 참조를 통한 데이터 검사
+
+// Check 함수 1: String이 비어있는지 확인
+fn is_empty(text: &String) -> bool {
+  text == ""
+}
+
+// Check 함수 2: 정수가 범위 내인지 확인
+fn in_range(num: &i32, min: i32, max: i32) -> bool {
+  num >= min && num <= max
+}
+
+// Check 함수 3: String이 특정 조건을 만족하는지
+fn is_valid_string(text: &String) -> bool {
+  text != ""
+}
+
+// Check 함수 4: 정수 참조의 짝/홀수 판단
+fn is_even_ref(num: &i32) -> bool {
+  num % 2 == 0
+}
+
+// Check 함수 5: 두 정수 비교 검증
+fn both_positive(a: &i32, b: &i32) -> bool {
+  a > 0 && b > 0
+}
+
+// [Category 5] 참조 체이닝
+
+// Chain 함수 1: 참조 → String 변환
+fn ref_to_prefixed(text: &String) -> String {
+  "[REF] " + text
+}
+
+// Chain 함수 2: 참조 → 계산
+fn ref_to_doubled(num: &i32) -> i32 {
+  num * 2
+}
+
+// Chain 함수 3: 참조로 String 수정 (새 String 생성)
+fn ref_add_suffix(text: &String) -> String {
+  text + " [END]"
+}
+
+// Chain 함수 4: 정수 참조로 계산 체인
+fn ref_calculation(num: &i32) -> i32 {
+  let doubled = num * 2;
+  let plus_ten = doubled + 10;
+  plus_ten
+}
+
+// Chain 함수 5: 참조 체이닝 데모
+fn chain_transform(text: &String) -> String {
+  let prefixed = "[START] " + text;
+  prefixed + " [END]"
+}
+
+// [Advanced] 참조 생명 주기 입증
+
+fn demonstrate_borrow_lifecycle() {
+  println!("=== v4.2 Borrow Lifecycle Demo ===\\n");
+
+  // 1. 단순 참조 읽기
+  println!("[1] 단순 참조 읽기:");
+  let x = 100;
+  let result = read_integer(&x);
+  println!("원본 x={} 참조된 값={}", x, result);
+
+  // 2. 여러 번 참조 가능
+  println!("\\n[2] 여러 번 참조 사용:");
+  let num = 50;
+  let r1 = double_via_ref(&num);
+  let r2 = double_via_ref(&num);
+  println!("첫 번째 호출={} 두 번째 호출={} 원본={}", r1, r2, num);
+
+  // 3. 참조 변수 저장
+  println!("\\n[3] 참조 변수 저장:");
+  let msg = "hello";
+  let ref_msg = pass_through(&msg);
+  println!("원본 msg={} 참조={} 원본 다시={}", msg, ref_msg, msg);
+
+  // 4. 여러 참조 동시 사용
+  println!("\\n[4] 여러 참조 동시 사용:");
+  let a = 10;
+  let b = 20;
+  let is_greater = compare_refs(&a, &b);
+  println!("{} > {}? {} 원본들 여전히: a={} b={}", a, b, is_greater, a, b);
+
+  // 5. 참조 검사
+  println!("\\n[5] 참조 검사:");
+  let text = "important";
+  let valid = validate_ref(&text);
+  println!("\"{}\"는 유효한가? {} 원본={}", text, valid, text);
+
+  // 6. 참조 체이닝
+  println!("\\n[6] 참조 체이닝:");
+  let data = "data";
+  let prefixed = ref_to_prefixed(&data);
+  let chained = ref_add_suffix(&prefixed);
+  println!("원본={} 변환 결과={}", data, chained);
+
+  // 7. 범위 확인
+  println!("\\n[7] 범위 확인:");
+  let value = 50;
+  let in_r = in_range(&value, 0, 100);
+  println!("{}이(가) [0, 100] 범위 내? {}", value, in_r);
+
+  // 8. 참조 계산
+  println!("\\n[8] 참조 계산:");
+  let initial = 5;
+  let calc = ref_calculation(&initial);
+  println!("원본={} 계산 결과 (5*2+10)={}", initial, calc);
+}
+
+// 메인 실행 함수
+
+fn main() {
+  println!("=== v4.2 References & Borrowing ===");
+  println!("철학: 소유권은 유지하고, 빌려주기만 한다\\n");
+
+  // Category 1: 단순 참조 읽기
+  println!("--- Category 1: 단순 참조 읽기 ---");
+  let x = 10;
+  let read_x = read_integer(&x);
+  println!("정수 참조 읽기: {} → {}", x, read_x);
+  println!("원본 여전히 사용 가능: {}", x);
+
+  let msg = "hello";
+  let read_msg = read_string(&msg);
+  println!("String 참조 읽기: {} → {}", msg, read_msg);
+
+  let doubled = double_via_ref(&x);
+  println!("참조로 계산: {} × 2 = {}", x, doubled);
+
+  let len = get_string_length(&msg);
+  println!("String 길이: {}", len);
+
+  let is_pos = is_positive_ref(&x);
+  println!("{}는 양수? {}", x, is_pos);
+
+  // Category 2: 참조 변수 저장
+  println!("\\n--- Category 2: 참조 변수 저장 ---");
+  let s1 = "first";
+  let passed = pass_through(&s1);
+  println!("통과된 참조: {} → {}", s1, passed);
+  println!("원본: {}", s1);
+
+  let s2 = "second";
+  let chosen = choose_ref(&s1, &s2, true);
+  println!("선택된 참조: {}", chosen);
+  println!("원본들 여전히: {} & {}", s1, s2);
+
+  let stored = store_int_ref(&x);
+  println!("저장된 정수: {}", stored);
+
+  let is_valid = validate_ref(&msg);
+  println!("String 유효성: {}", is_valid);
+
+  let ref_type = get_ref_type(&msg);
+  println!("참조 타입: {}", ref_type);
+
+  // Category 3: 여러 참조 동시 사용
+  println!("\\n--- Category 3: 여러 참조 동시 사용 ---");
+  let a = 5;
+  let b = 15;
+  let greater = compare_refs(&a, &b);
+  println!("{} > {}? {} 원본들: a={} b={}", a, b, greater, a, b);
+
+  let str_a = "apple";
+  let str_b = "apple";
+  let equal = strings_equal(&str_a, &str_b);
+  println!("\"{}\" == \"{}\"? {}", str_a, str_b, equal);
+
+  let p = 7;
+  let q = 3;
+  let r = 5;
+  let max = max_of_three_refs(&p, &q, &r);
+  println!("max({}, {}, {}) = {}", p, q, r, max);
+
+  let concat = concat_refs(&s1, &s2);
+  println!("연결: \"{}\" + \"{}\" = \"{}\"", s1, s2, concat);
+
+  let cond_result = conditional_select(&a, &b, false);
+  println!("조건 선택(b): {}", cond_result);
+
+  // Category 4: 참조를 통한 데이터 검사
+  println!("\\n--- Category 4: 참조를 통한 데이터 검사 ---");
+  let empty = "";
+  let non_empty = "content";
+  let is_empty_1 = is_empty(&empty);
+  let is_empty_2 = is_empty(&non_empty);
+  println!("\"\"이 비어있나? {} \"content\"? {}", is_empty_1, is_empty_2);
+
+  let val = 50;
+  let in_range_result = in_range(&val, 0, 100);
+  println!("{}이(가) [0, 100] 범위? {}", val, in_range_result);
+
+  let valid_check = is_valid_string(&non_empty);
+  println!("String 유효성: {}", valid_check);
+
+  let num_even = 4;
+  let even_check = is_even_ref(&num_even);
+  println!("{}는 짝수? {}", num_even, even_check);
+
+  let pos_a = 10;
+  let pos_b = 20;
+  let both_pos = both_positive(&pos_a, &pos_b);
+  println!("둘 다 양수? {} & {} = {}", pos_a, pos_b, both_pos);
+
+  // Category 5: 참조 체이닝
+  println!("\\n--- Category 5: 참조 체이닝 ---");
+  let data = "value";
+  let prefixed = ref_to_prefixed(&data);
+  println!("참조 → 변환: {} → {}", data, prefixed);
+  println!("원본: {}", data);
+
+  let num = 5;
+  let ref_doubled = ref_to_doubled(&num);
+  println!("참조 → 계산: {} × 2 = {}", num, ref_doubled);
+
+  let with_suffix = ref_add_suffix(&data);
+  println!("참조 → 접미사: {} → {}", data, with_suffix);
+
+  let initial_num = 10;
+  let chain_result = ref_calculation(&initial_num);
+  println!("참조 계산 체인: ({} * 2) + 10 = {}", initial_num, chain_result);
+
+  let text = "hello";
+  let transformed = chain_transform(&text);
+  println!("참조 체이닝: {} → {}", text, transformed);
+
+  // Advanced: 생명 주기 입증
+  println!("\\n--- Advanced: 참조 생명 주기 ---");
+  demonstrate_borrow_lifecycle();
+
+  // 최종 메시지
+  println!("\\n=== v4.2 설계 완료 ===");
+  println!("기록: 참조를 통해 메모리 효율과 안전성을 동시에 확보");
+  println!("다음: v4.3 가변 참조(Mutable References)로 데이터 수정");
+}

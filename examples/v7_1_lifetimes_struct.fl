@@ -1,0 +1,379 @@
+// v7.0 확장: 수명(Lifetimes) Step 1 — 구조체의 수명 명시
+// 철학: "빌려온 데이터로 만든 도구"
+// 목표: 구조체가 참조자를 필드로 가질 때 안전하게 관리
+
+// ============================================================
+// [Step 1 패턴 1] 단일 참조 필드 (기본)
+// ============================================================
+
+struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+
+impl<'a> ImportantExcerpt<'a> {
+    fn display(&self) {
+        println!("중요 부분: {}", self.part);
+    }
+
+    fn length(&self) -> usize {
+        self.part.len()
+    }
+}
+
+// ============================================================
+// [Step 1 패턴 2] GogsParser - 스마트 로그 파서
+// ============================================================
+
+struct GogsParser<'a> {
+    context: &'a str,
+    command: &'a str,
+}
+
+impl<'a> GogsParser<'a> {
+    fn new(context: &'a str, command: &'a str) -> Self {
+        GogsParser {
+            context,
+            command,
+        }
+    }
+
+    fn announce(&self) {
+        println!("문맥: {}, 명령: {}", self.context, self.command);
+    }
+
+    fn analyze(&self) -> String {
+        format!("분석 완료: {} | {}",
+                self.context.len(),
+                self.command.len())
+    }
+}
+
+// ============================================================
+// [Step 1 패턴 3] 보안 로그 (참조 + 소유 데이터)
+// ============================================================
+
+struct SecurityLog<'a> {
+    message: &'a str,    // 참조 (빌린 데이터)
+    timestamp: u64,      // 소유 (자신의 데이터)
+    level: u8,           // 소유
+}
+
+impl<'a> SecurityLog<'a> {
+    fn new(message: &'a str, timestamp: u64, level: u8) -> Self {
+        SecurityLog {
+            message,
+            timestamp,
+            level,
+        }
+    }
+
+    fn summary(&self) -> String {
+        format!("[{}] Level {}: {}", self.timestamp, self.level, self.message)
+    }
+
+    fn is_critical(&self) -> bool {
+        self.level > 7
+    }
+}
+
+// ============================================================
+// [Step 1 패턴 4] 메시지 추적기 (다중 필드)
+// ============================================================
+
+struct MessageTracker<'a> {
+    original: &'a str,
+    processed: &'a str,
+    status: &'a str,
+}
+
+impl<'a> MessageTracker<'a> {
+    fn track(&self) {
+        println!("원본: {} → 처리됨: {} (상태: {})",
+                 self.original,
+                 self.processed,
+                 self.status);
+    }
+
+    fn validity_check(&self) -> bool {
+        !self.original.is_empty() &&
+        !self.processed.is_empty() &&
+        !self.status.is_empty()
+    }
+}
+
+// ============================================================
+// [Step 1 패턴 5] 다중 수명 (독립적인 참조)
+// ============================================================
+
+struct DataBridge<'a, 'b> {
+    source: &'a str,     // 'a 수명
+    destination: &'b str, // 'b 수명 (독립적)
+}
+
+impl<'a, 'b> DataBridge<'a, 'b> {
+    fn connect(&self) -> String {
+        format!("{}에서 {}로 연결", self.source, self.destination)
+    }
+
+    fn validate(&self) -> bool {
+        !self.source.is_empty() && !self.destination.is_empty()
+    }
+}
+
+// ============================================================
+// [Step 1 개념 1] 구조체는 데이터보다 짧다
+// ============================================================
+
+fn demonstrate_lifetime_ownership() {
+    println!("\n=== Step 1 개념: 구조체의 운명 공동체 ===");
+
+    println!("\n[사례 1] 같은 블록에서 안전");
+    {
+        let data = "LEVEL:INFO | MSG:System_Active";
+        let parser = GogsParser {
+            context: &data[..10],  // data에서 부분 빌림
+            command: &data[13..],
+        };
+        parser.announce();
+        // data가 블록 끝까지 살아있으므로 parser도 안전
+    }
+
+    println!("\n[사례 2] 다른 블록이면 컴파일 에러");
+    println!("let parser;");
+    println!("{{");
+    println!("    let data = String::from(\\\"hello\\\");");
+    println!("    parser = GogsParser {{ context: &data, command: \\\"x\\\" }};");
+    println!("}};  // ← data 소멸!");
+    println!("parser.announce();  // ❌ 컴파일 에러!");
+    println!("(data가 이미 사라졌는데 parser가 이를 참조하려 함)");
+}
+
+// ============================================================
+// [Step 1 개념 2] 수명이 전파된다
+// ============================================================
+
+fn demonstrate_lifetime_propagation() {
+    println!("\n=== Step 1 개념: 수명의 전파 ===");
+
+    println!("\n함수 정의:");
+    println!("fn process<'a>(parser: &GogsParser<'a>) -> String {{");
+    println!("    // parser와 그 필드들은 모두 'a 범위 내");
+    println!("    parser.analyze()");
+    println!("}}");
+
+    let data = "GOGS-Alpha-Protocol";
+    let parser = GogsParser {
+        context: data,
+        command: "parse",
+    };
+
+    let result = process_parser(&parser);
+    println!("처리 결과: {}", result);
+}
+
+fn process_parser<'a>(parser: &GogsParser<'a>) -> String {
+    parser.analyze()
+}
+
+// ============================================================
+// [Step 1 개념 3] 메모리 효율성
+// ============================================================
+
+fn demonstrate_memory_efficiency() {
+    println!("\n=== Step 1 개념: 메모리 절약 ===");
+
+    println!("\n❌ 비효율 (String 복사):");
+    println!("struct FullDocument {{");
+    println!("    title: String,      // 복사본");
+    println!("    content: String,    // 복사본");
+    println!("    metadata: String,   // 복사본");
+    println!("}}");
+    println!("→ 각 필드마다 메모리 할당");
+
+    println!("\n✅ 효율 (참조만):");
+    println!("struct SlimDocument<'a> {{");
+    println!("    title: &'a str,     // 참조만 (8바이트)");
+    println!("    content: &'a str,   // 참조만 (8바이트)");
+    println!("    metadata: &'a str,  // 참조만 (8바이트)");
+    println!("}}");
+    println!("→ 원본 데이터 한 번만 메모리에 로드");
+
+    // 실제 예제
+    let large_data = "This is a very large document with lots of content that we want to process efficiently without copying";
+
+    let log = SecurityLog {
+        message: large_data,
+        timestamp: 1708608000,
+        level: 5,
+    };
+
+    println!("\n실제 예: SecurityLog<'a>가 대용량 메시지를 참조");
+    println!("메시지 크기: {} 바이트", large_data.len());
+    println!("로그 크기: ~24 바이트 (timestamp + level + 참조)", );
+    println!("효율: {:.1}% 절약",
+             (1.0 - 24.0 / large_data.len() as f64) * 100.0);
+}
+
+// ============================================================
+// [Step 1 패턴 비교]
+// ============================================================
+
+fn compare_patterns() {
+    println!("\n=== Step 1 패턴: 5가지 유형 비교 ===");
+
+    println!("\n[패턴 1] 단일 참조");
+    let excerpt_data = "Important part";
+    let excerpt = ImportantExcerpt { part: excerpt_data };
+    excerpt.display();
+
+    println!("\n[패턴 2] 다중 참조 (같은 수명)");
+    let full_data = "context|command";
+    let parser = GogsParser {
+        context: &full_data[..7],
+        command: &full_data[8..],
+    };
+    parser.announce();
+
+    println!("\n[패턴 3] 참조 + 소유");
+    let log = SecurityLog {
+        message: "System Active",
+        timestamp: 1708608000,
+        level: 3,
+    };
+    println!("{}", log.summary());
+
+    println!("\n[패턴 4] 다중 필드");
+    let tracker = MessageTracker {
+        original: "raw data",
+        processed: "cleaned",
+        status: "OK",
+    };
+    tracker.track();
+
+    println!("\n[패턴 5] 다중 수명");
+    let source = "source_system";
+    let dest = "target_system";
+    let bridge = DataBridge {
+        source,
+        destination: dest,
+    };
+    println!("{}", bridge.connect());
+}
+
+// ============================================================
+// [Step 1의 의미] 저지연 설계자
+// ============================================================
+
+fn explain_low_latency_design() {
+    println!("\n╔═══════════════════════════════════╗");
+    println!("║ Step 1의 의미: 저지연 설계자     ║");
+    println!("╚═══════════════════════════════════╝");
+
+    println!("\n기존 접근 (높은 지연):");
+    println!("  입력 데이터");
+    println!("    ↓ (복사)");
+    println!("  String 생성 → 메모리 할당");
+    println!("    ↓");
+    println!("  구조체 필드 저장");
+    println!("    ↓");
+    println!("  처리 → 높은 메모리 사용");
+
+    println!("\n이제 (낮은 지연):");
+    println!("  입력 데이터");
+    println!("    ↓ (참조만)");
+    println!("  구조체 필드 저장 &'a str");
+    println!("    ↓");
+    println!("  처리 → 극히 미미한 메모리 사용");
+    println!("  처리 속도 극대화!");
+
+    println!("\n예: 1GB 로그 파일 분석");
+    println!("  기존: 1GB 메모리 × N개 구조체");
+    println!("  이제: 1GB + 참조 비용만 (극미량)");
+}
+
+// ============================================================
+// [메인] v7.0 확장: 구조체의 수명 명시
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v7.0 확장: 구조체의 수명 명시          ║");
+    println!("║  철학: \\\"빌려온 데이터로 만든 도구\\\"   ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 구조체의 운명 공동체
+    // ========================================
+
+    demonstrate_lifetime_ownership();
+
+    // ========================================
+    // 2단계: 수명의 전파
+    // ========================================
+
+    demonstrate_lifetime_propagation();
+
+    // ========================================
+    // 3단계: 메모리 효율성
+    // ========================================
+
+    demonstrate_memory_efficiency();
+
+    // ========================================
+    // 4단계: 패턴 비교
+    // ========================================
+
+    compare_patterns();
+
+    // ========================================
+    // 5단계: 저지연 설계
+    // ========================================
+
+    explain_low_latency_design();
+
+    // ========================================
+    // 6단계: Step 1의 설계 원칙
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v7.0 확장: 설계 원칙                    ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: 구조체는 데이터보다 짧다]");
+    println!("  'a는 \\\"내가 이것보다 오래 살 수 없다\\\"는 선언");
+    println!("");
+
+    println!("[원칙 2: 수명이 전파된다]");
+    println!("  impl<'a> 블록도, 메서드도 모두 'a를 명시");
+    println!("");
+
+    println!("[원칙 3: 메모리 절약의 대가]");
+    println!("  빠르고 효율적이지만, 복잡도 상승");
+    println!("");
+
+    println!("[원칙 4: 참조는 거절할 수 없다]");
+    println!("  구조체 필드는 참조를 소유할 수 없음");
+    println!("  항상 원본 데이터의 수명에 종속");
+    println!("");
+
+    println!("[원칙 5: 안전성의 증명]");
+    println!("  컴파일러가 모든 수명 관계를 검증");
+    println!("");
+
+    // ========================================
+    // 7단계: Step 2 예고
+    // ========================================
+
+    println!("=== Step 2 예고: 수명 생략 규칙 ===");
+    println!("");
+    println!("모든 수명을 명시해야 할까?");
+    println!("러스트 컴파일러는 뻔한 패턴을 알아서 계산합니다");
+    println!("");
+    println!("fn first(&self) -> &str {{ self.content }}");
+    println!("  → 컴파일러가 자동으로 'a를 추론");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

@@ -1,0 +1,100 @@
+// FreeLang v6: Simple Todo Manager
+// 파일 I/O + 배열 + 문자열 처리
+
+fn create_sample_todos() {
+  let todos = ""
+  todos = todos + "1. Learn FreeLang\n"
+  todos = todos + "2. Build a project\n"
+  todos = todos + "3. Deploy to production\n"
+
+  file_write("todos.txt", todos)
+}
+
+fn list_todos() {
+  let content = file_read("todos.txt")
+
+  if len(content) == 0 {
+    return "No todos found."
+  }
+
+  return content
+}
+
+fn add_todo(text) {
+  let content = file_read("todos.txt")
+  let count = 0
+  let lines = split(content, "\n")
+
+  for line in lines {
+    if len(line) > 0 {
+      count = count + 1
+    }
+  }
+
+  let next_id = count + 1
+  let new_todo = str(next_id) + ". " + text + "\n"
+
+  file_append("todos.txt", new_todo)
+  return "Added: " + text
+}
+
+fn count_todos() {
+  let content = file_read("todos.txt")
+  let count = 0
+  let lines = split(content, "\n")
+
+  for line in lines {
+    if len(line) > 0 {
+      count = count + 1
+    }
+  }
+
+  return count
+}
+
+fn show_stats() {
+  let count = count_todos()
+  let output = ""
+  output = output + "=== Todo Statistics ===\n"
+  output = output + "Total todos: " + count + "\n"
+  output = output + "\n"
+  return output
+}
+
+fn main() {
+  println("=== FreeLang Todo Manager ===")
+  println("")
+
+  // Create sample todos
+  create_sample_todos()
+  println("Initialized todos.txt")
+  println("")
+
+  // Show current todos
+  println("Current Todos:")
+  println("---")
+  let todos = list_todos()
+  println(todos)
+  println("---")
+  println("")
+
+  // Show stats
+  let stats = show_stats()
+  println(stats)
+
+  // Add new todo
+  add_todo("Read documentation")
+  println("Added: Read documentation")
+  println("")
+
+  // Show updated list
+  println("Updated Todos:")
+  println("---")
+  let updated = list_todos()
+  println(updated)
+  println("---")
+
+  println("Demo complete!")
+}
+
+main()

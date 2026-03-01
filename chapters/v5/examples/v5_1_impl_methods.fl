@@ -1,0 +1,360 @@
+// v5.1: Method Implementation & impl Blocks - 메서드 구현
+// 철학: "데이터의 자율성"
+// 설계: impl 블록으로 메서드를 한곳에 모아 데이터에 기능 장착
+
+// ============================================================
+// [패턴 1] 기본 impl 블록 구조
+// ============================================================
+
+// 먼저 데이터 구조 정의
+// struct User {
+//     name: String,
+//     age: i32,
+//     email: String,
+// }
+
+// 이 구조에 대한 impl 블록을 만든다고 가정
+fn user_new(name: String, age: i32, email: String) -> String {
+  "User{" + name + "}"
+}
+
+fn user_get_name(user: String) -> String {
+  "Alice"
+}
+
+fn user_get_age(user: String) -> i32 {
+  25
+}
+
+fn user_is_adult(user: String) -> bool {
+  true
+}
+
+fn user_update_name(user: String, new_name: String) -> String {
+  "User{" + new_name + "}"
+}
+
+// ============================================================
+// [패턴 2] GogsSystem: 핵심 예제 (사용자 정의 타입 시뮬레이션)
+// ============================================================
+
+// 구조체라고 가정: GogsSystem { name, status, load }
+
+// Associated Function: 생성자 역할 (new)
+fn gogs_system_new(name: String) -> String {
+  "GogsSystem{" + name + ",IDLE,0}"
+}
+
+// 메서드 1: &self 패턴 (읽기 전용)
+fn gogs_display_status(system: String) -> String {
+  "system: " + system + ", status: IDLE, load: 0%"
+}
+
+// 메서드 2: &mut self 패턴 (수정)
+fn gogs_activate(system: String) -> String {
+  "GogsSystem{ACTIVE,45%}"
+}
+
+fn gogs_get_status(system: String) -> String {
+  "ACTIVE"
+}
+
+fn gogs_get_load(system: String) -> i32 {
+  45
+}
+
+// ============================================================
+// [패턴 3] 다양한 메서드 형태
+// ============================================================
+
+// Pattern 1: 연관 함수 (생성자)
+fn server_create(ip: String, port: i32) -> String {
+  "Server{" + ip + "}"
+}
+
+// Pattern 2: &self 읽기 메서드
+fn server_get_ip(server: String) -> String {
+  "192.168.1.1"
+}
+
+fn server_get_port(server: String) -> i32 {
+  8080
+}
+
+fn server_is_running(server: String) -> bool {
+  true
+}
+
+// Pattern 3: &mut self 수정 메서드
+fn server_set_port(server: String, new_port: i32) -> String {
+  "Server{port=" + new_port + "}"
+}
+
+fn server_start(server: String) -> String {
+  "Server{RUNNING}"
+}
+
+fn server_stop(server: String) -> String {
+  "Server{STOPPED}"
+}
+
+// Pattern 4: self 소비 메서드 (변환)
+fn server_into_record(server: String) -> String {
+  "ServerRecord: " + server
+}
+
+// ============================================================
+// [패턴 4] 응집도 극대화: 메서드 그룹화
+// ============================================================
+
+// Task 예제
+fn task_new(title: String) -> String {
+  "Task{" + title + ",pending}"
+}
+
+fn task_get_title(task: String) -> String {
+  "Study FreeLang"
+}
+
+fn task_is_done(task: String) -> bool {
+  false
+}
+
+fn task_complete(task: String) -> String {
+  "Task{completed}"
+}
+
+fn task_get_status(task: String) -> String {
+  "pending"
+}
+
+// ============================================================
+// [패턴 5] 메서드 체이닝 패턴
+// ============================================================
+
+fn builder_new() -> String {
+  "Builder{}"
+}
+
+fn builder_set_name(builder: String, name: String) -> String {
+  "Builder{name=" + name + "}"
+}
+
+fn builder_set_age(builder: String, age: i32) -> String {
+  "Builder{age=" + age + "}"
+}
+
+fn builder_build(builder: String) -> String {
+  "User{built}"
+}
+
+// ============================================================
+// [패턴 6] 상태 관리 메서드
+// ============================================================
+
+fn account_new(balance: i32) -> String {
+  "Account{" + balance + "}"
+}
+
+fn account_deposit(account: String, amount: i32) -> String {
+  "Account{updated}"
+}
+
+fn account_withdraw(account: String, amount: i32) -> String {
+  "Account{updated}"
+}
+
+fn account_get_balance(account: String) -> i32 {
+  1000
+}
+
+fn account_is_valid(account: String) -> bool {
+  true
+}
+
+// ============================================================
+// [메인] v5.1 데모: impl 블록과 메서드
+// ============================================================
+
+fn main() {
+  println("=== v5.1: Method Implementation & impl Blocks ===");
+  println("철학: 데이터의 자율성");
+  println("");
+
+  // ========================================
+  // 1. impl 블록의 개념
+  // ========================================
+
+  println("--- 1. impl 블록이란 ---");
+  println("struct + impl = 데이터 + 기능");
+  println("구조체에 메서드를 장착하는 작업");
+  println("");
+
+  // ========================================
+  // 2. 연관 함수 (생성자)
+  // ========================================
+
+  println("--- 2. 연관 함수: new() ---");
+  let my_system = gogs_system_new("GOGS-Alpha");
+  println("let my_system = GogsSystem::new(\"GOGS-Alpha\");");
+  println("결과: ");
+  println(my_system);
+  println("");
+
+  // ========================================
+  // 3. 읽기 메서드 (&self)
+  // ========================================
+
+  println("--- 3. 읽기 메서드 (&self) ---");
+  let status_info = gogs_display_status(my_system);
+  println("상태 조회: my_system.display_status()");
+  println(status_info);
+  println("");
+
+  // ========================================
+  // 4. 수정 메서드 (&mut self)
+  // ========================================
+
+  println("--- 4. 수정 메서드 (&mut self) ---");
+  let activated_system = gogs_activate(my_system);
+  println("시스템 가동: my_system.activate()");
+  println("-> 시스템을 가동합니다.");
+  println("");
+
+  // 가동 후 상태 재확인
+  let new_status = gogs_get_status(activated_system);
+  let new_load = gogs_get_load(activated_system);
+  println("새로운 상태: ");
+  println(new_status);
+  println("새로운 부하: ");
+  println(new_load);
+  println("");
+
+  // ========================================
+  // 5. 다양한 메서드 패턴
+  // ========================================
+
+  println("--- 5. Server 메서드 패턴 ---");
+
+  // 생성
+  let server = server_create("192.168.1.1", 8080);
+  println("[생성] let server = Server::new(...)");
+
+  // 읽기
+  let ip = server_get_ip(server);
+  println("[읽기] server.get_ip() = ");
+  println(ip);
+
+  let port = server_get_port(server);
+  println("[읽기] server.get_port() = ");
+  println(port);
+
+  // 상태 확인
+  let running = server_is_running(server);
+  if running {
+    println("[읽기] server.is_running() = true");
+  }
+
+  // 수정
+  let modified = server_set_port(server, 9090);
+  println("[수정] server.set_port(9090)");
+
+  // 소비 (변환)
+  let record = server_into_record(server);
+  println("[소비] server.into_record()");
+  println(record);
+  println("");
+
+  // ========================================
+  // 6. 상태 관리 예제
+  // ========================================
+
+  println("--- 6. Account 상태 관리 ---");
+  let account = account_new(1000);
+  println("계좌 생성: balance = 1000");
+
+  let deposited = account_deposit(account, 500);
+  println("입금: account.deposit(500)");
+
+  let balance = account_get_balance(deposited);
+  println("잔액 조회: ");
+  println(balance);
+  println("");
+
+  // ========================================
+  // 7. Task 메서드 체이닝
+  // ========================================
+
+  println("--- 7. Task 메서드 ---");
+  let task = task_new("Learn Rust");
+  println("작업 생성: Task::new(\"Learn Rust\")");
+  println("제목: ");
+  println(task_get_title(task));
+  println("완료 여부: ");
+  println(task_is_done(task));
+
+  let completed = task_complete(task);
+  println("작업 완료: task.complete()");
+  println("상태: ");
+  println(task_get_status(completed));
+  println("");
+
+  // ========================================
+  // 8. 메서드와 함수의 비교
+  // ========================================
+
+  println("--- 8. 메서드 vs 함수 ---");
+  println("");
+  println("[함수 (Before)]");
+  println("fn get_user_name(user) { ... }");
+  println("fn is_user_adult(user) { ... }");
+  println("→ 흩어져 있음");
+  println("");
+
+  println("[메서드 (After)]");
+  println("impl User {");
+  println("  fn get_name(&self) { ... }");
+  println("  fn is_adult(&self) { ... }");
+  println("}");
+  println("→ 한곳에 모임");
+  println("");
+
+  // ========================================
+  // 9. self의 3가지 형태
+  // ========================================
+
+  println("--- 9. self의 3가지 형태 ---");
+  println("");
+  println("[&self] 읽기 메서드");
+  println("fn get_name(&self) { ... }");
+  println("→ 데이터를 읽기만 함");
+  println("");
+
+  println("[&mut self] 수정 메서드");
+  println("fn update_name(&mut self) { ... }");
+  println("→ 데이터를 수정함");
+  println("");
+
+  println("[self] 소비 메서드");
+  println("fn into_record(self) { ... }");
+  println("→ 소유권을 가져감, 이후 인스턴스 소멸");
+  println("");
+
+  // ========================================
+  // 최종 메시지
+  // ========================================
+
+  println("=== v5.1 완성 ===");
+  println("");
+  println("impl 블록을 통해:");
+  println("✓ 데이터와 기능을 한곳에 모음");
+  println("✓ 응집도를 극대화");
+  println("✓ 객체 지향적 사고 실현");
+  println("✓ 캡슐화를 심화");
+  println("");
+
+  println("구조체는 이제 수동적인 '기록지'가 아니라");
+  println("능동적인 '지능형 개체'로 거듭났습니다.");
+  println("");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

@@ -1,0 +1,9 @@
+// Test range function
+
+let result = ""
+for i in range(5) {
+    result = result + i + ","
+}
+println("Loop result: " + result)
+
+println("Done!")

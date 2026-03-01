@@ -1,0 +1,403 @@
+// v7.0 확장: 통합 수명 설계(Integrated Lifetime Design) Step 4
+// 철학: "삼위일체: 제네릭, 트레이트, 수명의 완벽한 조화"
+// 목표: 복잡한 제약을 안전하게 표현하고 활용
+
+// ============================================================
+// [Step 4 패턴 1] 단일 제네릭 + 단일 참조
+// ============================================================
+
+// 기본 감사 엔진: 어떤 타입이든 분석 가능
+// 'a: 참조 데이터의 수명
+// T: 분석할 데이터의 제네릭 타입
+// T: 'a: "T는 적어도 'a 수명만큼 살아있어야 함"
+trait Displayable {
+    fn display_content(&self) -> String;
+}
+
+struct SimpleAuditor<'a, T: Displayable + 'a> {
+    target: &'a T,
+    prefix: &'a str,
+}
+
+impl<'a, T: Displayable + 'a> SimpleAuditor<'a, T> {
+    fn audit(&self) {
+        println!("{}: [감사] {}", self.prefix, self.target.display_content());
+    }
+}
+
+// 구현체
+struct LogEntry {
+    message: String,
+    code: u32,
+}
+
+impl Displayable for LogEntry {
+    fn display_content(&self) -> String {
+        format!("[{}] {}", self.code, self.message)
+    }
+}
+
+fn demo_pattern_1() {
+    println!("\n=== Pattern 1: 단일 제네릭 + 단일 참조 ===");
+
+    let log = LogEntry {
+        message: "System Initialized".to_string(),
+        code: 1000,
+    };
+
+    let auditor = SimpleAuditor {
+        target: &log,
+        prefix: "AUDIT",
+    };
+
+    auditor.audit();
+    println!("추론: LogEntry 타입이 T, LogEntry의 수명이 'a");
+}
+
+// ============================================================
+// [Step 4 패턴 2] 다중 제네릭 + 다중 수명
+// ============================================================
+
+trait Comparable {
+    fn compare_to(&self, other: &str) -> String;
+}
+
+struct DualAuditor<'a, 'b, T: Comparable + 'a, U: Displayable + 'b> {
+    source: &'a T,
+    target: &'b U,
+    operator: &'a str,
+}
+
+impl<'a, 'b, T: Comparable + 'a, U: Displayable + 'b>
+    DualAuditor<'a, 'b, T, U>
+{
+    fn compare(&self) {
+        println!("{}: 비교 {}", self.operator, self.source.compare_to(&self.target.display_content()));
+    }
+}
+
+struct SecurityEvent {
+    event_type: String,
+}
+
+impl Comparable for SecurityEvent {
+    fn compare_to(&self, other: &str) -> String {
+        format!("{} vs {}", self.event_type, other)
+    }
+}
+
+impl Displayable for SecurityEvent {
+    fn display_content(&self) -> String {
+        format!("Event: {}", self.event_type)
+    }
+}
+
+fn demo_pattern_2() {
+    println!("\n=== Pattern 2: 다중 제네릭 + 다중 수명 ===");
+
+    let event = SecurityEvent {
+        event_type: "BreachAttempt".to_string(),
+    };
+
+    let log = LogEntry {
+        message: "Firewall Alert".to_string(),
+        code: 5001,
+    };
+
+    let auditor = DualAuditor {
+        source: &event,
+        target: &log,
+        operator: "COMPARE",
+    };
+
+    auditor.compare();
+    println!("추론: SecurityEvent 타입이 T, LogEntry 타입이 U");
+    println!("      'a와 'b는 독립적인 수명");
+}
+
+// ============================================================
+// [Step 4 패턴 3] 제네릭 메서드 + 통합 제약
+// ============================================================
+
+struct FlexibleAuditor<'a> {
+    prefix: &'a str,
+    level: u8,
+}
+
+impl<'a> FlexibleAuditor<'a> {
+    // 각 메서드에서 제네릭 타입을 지정
+    fn audit_single<T: Displayable + 'a>(&self, target: &'a T) {
+        println!("{}: [{}] {}", self.prefix, self.level, target.display_content());
+    }
+
+    fn audit_multiple<T: Displayable + 'a>(&self, targets: &'a [T]) {
+        for (i, target) in targets.iter().enumerate() {
+            println!("{}: [{}] item[{}] {}", self.prefix, self.level, i, target.display_content());
+        }
+    }
+
+    fn audit_with_context<T: Displayable + 'a>(&self, target: &'a T, context: &'a str) {
+        println!("{}: [{}] {} (context: {})",
+                 self.prefix,
+                 self.level,
+                 target.display_content(),
+                 context);
+    }
+}
+
+fn demo_pattern_3() {
+    println!("\n=== Pattern 3: 제네릭 메서드 + 통합 제약 ===");
+
+    let log1 = LogEntry {
+        message: "Connection Established".to_string(),
+        code: 2001,
+    };
+
+    let log2 = LogEntry {
+        message: "Data Transmission Complete".to_string(),
+        code: 2002,
+    };
+
+    let auditor = FlexibleAuditor {
+        prefix: "FLEX-AUDIT",
+        level: 3,
+    };
+
+    auditor.audit_single(&log1);
+
+    let logs = [log1, log2];
+    auditor.audit_multiple(&logs);
+
+    println!("추론: 구조체는 단순 (수명만 'a 지정)");
+    println!("      메서드마다 제네릭 타입 T를 별도로 지정");
+}
+
+// ============================================================
+// [Step 4 개념 1] T: 'a의 진정한 의미
+// ============================================================
+
+fn demonstrate_subtyping() {
+    println!("\n=== 개념 1: T: 'a 제약의 의미 ===");
+
+    println!("T: 'a는 무엇인가?");
+    println!("");
+    println!("표면적: \"T는 'a보다 오래 살아야 한다\"");
+    println!("");
+    println!("심층적: \"T 안에 있는 모든 참조자들은");
+    println!("       최소한 'a보다 오래 살아야 한다\"");
+    println!("");
+    println!("예:");
+    println!("  struct Holder<'a, T: 'a> {{");
+    println!("      data: T,  // T 안의 모든 &를 'a 이상으로 제약");
+    println!("  }}");
+    println!("");
+    println!("결과: T: 'a는 T의 모든 참조자에 대한");
+    println!("     일괄 제약입니다.");
+}
+
+// ============================================================
+// [Step 4 개념 2] 제약의 계층
+// ============================================================
+
+fn explain_constraint_hierarchy() {
+    println!("\n=== 개념 2: 제약의 계층 ===");
+
+    println!("1단계: 제약 없음");
+    println!("   struct SimpleBox<T> {{ data: T }}");
+    println!("   → T는 뭐든 될 수 있음");
+    println!("");
+
+    println!("2단계: 트레이트 제약");
+    println!("   struct DisplayBox<T: Display> {{ data: T }}");
+    println!("   → T는 Display를 구현해야 함");
+    println!("");
+
+    println!("3단계: 수명 제약");
+    println!("   struct RefBox<'a> {{ data: &'a str }}");
+    println!("   → 참조자는 'a 범위 내여야 함");
+    println!("");
+
+    println!("4단계: 통합 제약");
+    println!("   struct CompleteBox<'a, T> where T: Display + 'a {{");
+    println!("       data: &'a T");
+    println!("   }}");
+    println!("   → T는 Display를 구현하고");
+    println!("     적어도 'a만큼 살아야 함");
+}
+
+// ============================================================
+// [Step 4 개념 3] 인터페이스 단순화
+// ============================================================
+
+struct ComplexAuditor<'a, T: Displayable + 'a, U: Comparable + 'a> {
+    target: &'a T,
+    context: &'a U,
+    prefix: &'a str,
+    timestamp: u64,
+    severity: u8,
+}
+
+impl<'a, T: Displayable + 'a, U: Comparable + 'a> ComplexAuditor<'a, T, U> {
+    fn audit(&self) {
+        println!("{}: [{}:{}] {} - {}",
+                 self.prefix,
+                 self.timestamp,
+                 self.severity,
+                 self.target.display_content(),
+                 self.context.compare_to(&self.target.display_content()));
+    }
+}
+
+fn demonstrate_interface_simplification() {
+    println!("\n=== 개념 3: 인터페이스 단순화 ===");
+
+    let log = LogEntry {
+        message: "Critical Alert".to_string(),
+        code: 9001,
+    };
+
+    let event = SecurityEvent {
+        event_type: "UnauthorizedAccess".to_string(),
+    };
+
+    let auditor = ComplexAuditor {
+        target: &log,
+        context: &event,
+        prefix: "CRITICAL",
+        timestamp: 1708608000,
+        severity: 10,
+    };
+
+    auditor.audit();
+    println!("");
+    println!("내부 복잡도: 여러 제네릭, 수명, 트레이트");
+    println!("사용자 인터페이스: 그냥 생성해서 사용!");
+}
+
+// ============================================================
+// [Step 4의 의미] 제약은 자유다
+// ============================================================
+
+fn explain_constraints_as_freedom() {
+    println!("\n╔═══════════════════════════════════╗");
+    println!("║ Step 4의 의미: 제약은 자유다      ║");
+    println!("╚═══════════════════════════════════╝\n");
+
+    println!("많은 제약처럼 보이지만:");
+    println!("  struct GogsAuditor<'a, T> where T: Display + 'a");
+    println!("");
+
+    println!("실제로는:");
+    println!("  - Display는 T를 출력 가능하게 함");
+    println!("  - T: 'a는 안전성을 보장함");
+    println!("  - 이 조건을 만족하면 뭐든지 쓸 수 있음");
+    println!("");
+
+    println!("역설:");
+    println!("  제약이 많을수록, 안전하게 사용할 수 있습니다.");
+    println!("");
+
+    println!("목표: 제약을 통해 무한한 유연성을 획득");
+}
+
+// ============================================================
+// [메인] v7.0 Step 4: 통합 수명 설계
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v7.0 Step 4: 통합 수명 설계             ║");
+    println!("║  철학: \"삼위일체\"                       ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 3가지 패턴 데모
+    // ========================================
+
+    demo_pattern_1();
+    demo_pattern_2();
+    demo_pattern_3();
+
+    // ========================================
+    // 2단계: 3가지 개념 설명
+    // ========================================
+
+    demonstrate_subtyping();
+    explain_constraint_hierarchy();
+    demonstrate_interface_simplification();
+
+    // ========================================
+    // 3단계: 의미 설명
+    // ========================================
+
+    explain_constraints_as_freedom();
+
+    // ========================================
+    // 4단계: Step 4 설계 원칙
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v7.0 Step 4: 설계 원칙                 ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: T: 'a의 의미]");
+    println!("  T 안의 모든 참조자가 'a 이상의 수명을 가짐");
+    println!("");
+
+    println!("[원칙 2: 제약의 순서]");
+    println!("  struct Name<'a, T> where T: Trait1 + Trait2 + 'a");
+    println!("  제네릭 → 트레이트 → 수명");
+    println!("");
+
+    println!("[원칙 3: where 절의 활용]");
+    println!("  선언부가 복잡하면 where로 분리");
+    println!("  가독성 극대화");
+    println!("");
+
+    println!("[원칙 4: 메서드의 제네릭]");
+    println!("  구조체와 메서드에서 각각 독립적으로 지정 가능");
+    println!("");
+
+    println!("[원칙 5: 컴파일 타임 다형성]");
+    println!("  트레이트 바운드로 컴파일 타임 타입 체크");
+    println!("  런타임 성능 극대화");
+    println!("");
+
+    // ========================================
+    // 5단계: 제6장 완성 선언
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  제6장 수명(Lifetimes) 완성             ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("v7.0: 함수의 수명 매개변수");
+    println!("  fn longest<'a>(x: &'a str, y: &'a str) -> &'a str");
+    println!("");
+
+    println!("v7.1: 구조체의 수명 명시");
+    println!("  struct Parser<'a> {{ text: &'a str }}");
+    println!("");
+
+    println!("v7.2: 수명 생략 규칙");
+    println!("  fn first(x: &str) -> &str {{ x }}");
+    println!("");
+
+    println!("v7.3: 정적 수명('static)");
+    println!("  fn get() -> &'static str {{ \"GOGS-v1\" }}");
+    println!("");
+
+    println!("v7.4: 통합 수명 설계");
+    println!("  struct GogsAuditor<'a, T> where T: Display + 'a");
+    println!("");
+
+    println!("────────────────────────────────────────────");
+    println!("제6장 완성도: 100%");
+    println!("다음: 제7장 신뢰의 구축 (자동화 테스트)");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

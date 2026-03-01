@@ -1,0 +1,417 @@
+// v9.0 확장: 스마트 포인터와 Box<T> Step 1
+// 철학: "메모리 위치의 최적화: 스택 vs 힙"
+// 목표: 힙 할당과 재귀적 데이터 구조의 안전한 관리
+
+// ============================================================
+// [Step 1 패턴 1] 기본 Box<T> 사용
+// ============================================================
+
+fn demo_pattern_1() {
+    println!("\n=== Pattern 1: 기본 Box<T> 사용 ===");
+
+    println!("스택에 저장:");
+    let stack_value = 42;
+    println!("  let x = 42");
+    println!("  메모리: 스택에 4바이트");
+    println!("  값: {}", stack_value);
+    println!("");
+
+    println!("힙에 저장:");
+    let boxed_value: i32 = 42;
+    println!("  let boxed = Box::new(42)");
+    println!("  메모리: 힙에 4바이트, 스택에 포인터(8바이트)");
+    println!("  값: {}", boxed_value);
+    println!("");
+
+    println!("역참조:");
+    println!("  *boxed = {} (역참조로 값 접근)", boxed_value);
+    println!("");
+
+    println!("추론: Box는 힙 메모리를 스택 포인터로 관리");
+}
+
+// ============================================================
+// [Step 1 패턴 2] 재귀적 데이터 구조
+// ============================================================
+
+enum GogsNode {
+    Data(i32, Box<GogsNode>),
+    Nil,
+}
+
+fn build_list(values: Vec<i32>) -> GogsNode {
+    if values.is_empty() {
+        GogsNode::Nil
+    } else {
+        GogsNode::Data(
+            values[0],
+            Box::new(build_list(values[1..].to_vec()))
+        )
+    }
+}
+
+fn demo_pattern_2() {
+    println!("\n=== Pattern 2: 재귀적 데이터 구조 ===");
+
+    println!("문제: Box가 없으면 컴파일 에러");
+    println!("  enum Node {{");
+    println!("      Data(i32, Node),  // ← 무한 크기!");
+    println!("      Nil,");
+    println!("  }}");
+    println!("");
+
+    println!("해결: Box로 포인터 저장");
+    println!("  enum Node {{");
+    println!("      Data(i32, Box<Node>),  // ← 고정 크기!");
+    println!("      Nil,");
+    println!("  }}");
+    println!("");
+
+    println!("사용:");
+    let list = build_list(vec![1, 2, 3]);
+    println!("  연결 리스트 생성: 1 → 2 → 3 → Nil");
+    println!("  메모리: 각 노드가 힙에 저장됨");
+
+    println!("추론: 재귀적 구조는 Box 없이 불가능");
+}
+
+// ============================================================
+// [Step 1 패턴 3] 큰 데이터 효율화
+// ============================================================
+
+fn process_vector_stack(data: Vec<i32>) {
+    println!("  벡터 수신 (전체 데이터 복사)");
+}
+
+fn process_vector_boxed(data: Box<Vec<i32>>) {
+    println!("  Box 수신 (포인터만 이동)");
+}
+
+fn demo_pattern_3() {
+    println!("\n=== Pattern 3: 큰 데이터 효율화 ===");
+
+    println!("작은 벡터 (스택에 직접):");
+    let small_vec = vec![1, 2, 3];
+    println!("  크기: 3개 요소");
+    println!("  전달 비용: 적음");
+    process_vector_stack(small_vec);
+    println!("");
+
+    println!("큰 벡터 (힙 포인터로):");
+    let large_vec = vec![0; 1000000];  // 100만 요소
+    println!("  크기: 1,000,000개 요소");
+    println!("  직접 전달: 매우 비쌈");
+    println!("  Box로 전달: 포인터만 이동 (효율적)");
+    let boxed_vec = Box::new(large_vec);
+    process_vector_boxed(boxed_vec);
+    println!("");
+
+    println!("추론: 큰 데이터는 Box로 효율화");
+}
+
+// ============================================================
+// [Step 1 패턴 4] 트레이트 객체 (미리보기)
+// ============================================================
+
+trait Displayable {
+    fn display(&self) -> String;
+}
+
+struct MessageNode {
+    text: String,
+}
+
+impl Displayable for MessageNode {
+    fn display(&self) -> String {
+        format!("[Message] {}", self.text)
+    }
+}
+
+struct ErrorNode {
+    code: i32,
+}
+
+impl Displayable for ErrorNode {
+    fn display(&self) -> String {
+        format!("[Error {}]", self.code)
+    }
+}
+
+fn demo_pattern_4() {
+    println!("\n=== Pattern 4: 트레이트 객체 (미리보기) ===");
+
+    println!("다른 타입, 하나의 인터페이스:");
+
+    let msg = MessageNode { text: "Hello".to_string() };
+    let err = ErrorNode { code: 404 };
+
+    println!("  메시지: {}", msg.display());
+    println!("  에러: {}", err.display());
+    println!("");
+
+    println!("Box<dyn Trait>를 사용하면:");
+    println!("  여러 타입을 하나의 컨테이너에 저장 가능");
+    println!("  런타임 다형성 구현");
+    println!("");
+
+    println!("추론: Box는 타입 이형성도 지원 (v9.1에서 자세히)");
+}
+
+// ============================================================
+// [Step 1 패턴 5] 메모리 생명주기
+// ============================================================
+
+fn demo_pattern_5() {
+    println!("\n=== Pattern 5: 메모리 생명주기 ===");
+
+    println!("자동 메모리 해제 (RAII):");
+    println!("");
+
+    {
+        println!("  스코프 시작");
+        let data = Box::new(vec![1, 2, 3, 4, 5]);
+        println!("    Box 생성: 힙에 메모리 할당");
+        println!("    데이터: {:?}", vec![1, 2, 3, 4, 5]);
+        println!("    사용 중...");
+    }  // 스코프 끝
+    println!("  스코프 종료");
+    println!("    Box 자동으로 메모리 해제");
+    println!("    메모리 누수 없음!");
+    println!("");
+
+    println!("명시적 해제:");
+    let data = Box::new(42);
+    println!("  Box 생성: {}", *data);
+    drop(data);
+    println!("  drop(data) 호출: 명시적 해제");
+    println!("  이후 data 사용 불가");
+    println!("");
+
+    println!("추론: 컴파일러가 메모리 해제를 보장");
+}
+
+// ============================================================
+// [Step 1 개념 1] 스택 vs 힙
+// ============================================================
+
+fn demonstrate_stack_vs_heap() {
+    println!("\n=== 개념 1: 스택 vs 힙 ===");
+
+    println!("스택 (Stack):");
+    println!("  - 컴파일 타임에 크기 결정");
+    println!("  - 매우 빠름");
+    println!("  - LIFO (Last In First Out)");
+    println!("  - 크기 제한 있음");
+    println!("  - 함수 반환 시 자동 정리");
+    println!("");
+
+    println!("힙 (Heap):");
+    println!("  - 런타임에 크기 결정");
+    println!("  - 약간 느림 (포인터 따라가야 함)");
+    println!("  - 크기 제한 없음 (메모리 허용하는 한)");
+    println!("  - 수동 관리 (또는 스마트 포인터)");
+    println!("  - 동적 메모리 할당 가능");
+    println!("");
+
+    println!("Box<T>:");
+    println!("  - 데이터는 힙에, 포인터는 스택에");
+    println!("  - 유연성과 안전성의 조합");
+    println!("  - 자동 메모리 해제 보장");
+}
+
+// ============================================================
+// [Step 1 개념 2] Box의 역참조
+// ============================================================
+
+fn explain_dereferencing() {
+    println!("\n=== 개념 2: Box의 역참조 ===");
+
+    println!("포인터와 값:");
+    println!("  let x = 42;      // 값: 42");
+    println!("  let boxed = Box::new(42);");
+    println!("  boxed             // 포인터 (주소: 0x1000)");
+    println!("  *boxed            // 값: 42 (역참조)");
+    println!("");
+
+    println!("역참조 연산자 (*):");
+    let boxed = Box::new(10);
+    println!("  let boxed = Box::new(10);");
+    println!("  boxed = 포인터");
+    println!("  *boxed = {}", *boxed);
+    println!("");
+
+    println!("메모리 접근:");
+    println!("  boxed.method()   // 자동 역참조 (메서드 호출)");
+    println!("  *boxed           // 명시적 역참조 (값 접근)");
+}
+
+// ============================================================
+// [Step 1 개념 3] 크기 문제와 해결책
+// ============================================================
+
+fn explain_size_problem() {
+    println!("\n=== 개념 3: 크기 문제와 해결책 ===");
+
+    println!("문제: 컴파일 타임 크기 미정");
+    println!("  enum Node {{");
+    println!("      Data(i32, Node),  // 몇 바이트?");
+    println!("      Nil,");
+    println!("  }}");
+    println!("");
+
+    println!("  Node의 크기 = 4 (i32) + ??? (Node) = ???");
+    println!("  재귀적으로 무한 크기!");
+    println!("  → 컴파일 에러");
+    println!("");
+
+    println!("해결: Box로 포인터 저장");
+    println!("  enum Node {{");
+    println!("      Data(i32, Box<Node>),  // 몇 바이트?");
+    println!("      Nil,");
+    println!("  }}");
+    println!("");
+
+    println!("  Node의 크기 = 4 (i32) + 8 (포인터) = 12 바이트");
+    println!("  포인터는 항상 고정 크기!");
+    println!("  → 컴파일 성공");
+}
+
+// ============================================================
+// [메인] v9.0 Step 1: 스마트 포인터 Box<T>
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v9.0 Step 1: 스마트 포인터 Box<T>       ║");
+    println!("║  철학: \"메모리 위치의 최적화\"            ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 5가지 패턴 데모
+    // ========================================
+
+    demo_pattern_1();
+    demo_pattern_2();
+    demo_pattern_3();
+    demo_pattern_4();
+    demo_pattern_5();
+
+    // ========================================
+    // 2단계: 3가지 개념 설명
+    // ========================================
+
+    demonstrate_stack_vs_heap();
+    explain_dereferencing();
+    explain_size_problem();
+
+    // ========================================
+    // 3단계: v9.0 설계 원칙
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v9.0 Step 1: 설계 원칙                  ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: 언제 Box를 사용하는가]");
+    println!("  1. 컴파일 타임에 크기를 모를 때");
+    println!("  2. 재귀적 데이터 구조");
+    println!("  3. 매우 큰 데이터 (스택 오버플로우 방지)");
+    println!("  4. 트레이트 객체 (여러 타입)");
+    println!("");
+
+    println!("[원칙 2: Box의 역할]");
+    println!("  - 힙 메모리 할당 (큰 유연성)");
+    println!("  - 포인터 저장 (작은 크기)");
+    println!("  - 소유권 추적 (메모리 안전)");
+    println!("  - 자동 해제 (메모리 누수 방지)");
+    println!("");
+
+    println!("[원칙 3: 성능 고려]");
+    println!("  - 포인터는 항상 8바이트 (고정)");
+    println!("  - 역참조는 빠름 (캐시 주의)");
+    println!("  - 전체적으로 효율적 (큰 데이터 전달)");
+    println!("");
+
+    println!("[원칙 4: 메모리 안전성]");
+    println!("  - 소유권 규칙 적용");
+    println!("  - 자동 해제 (스코프 끝)");
+    println!("  - 컴파일러 검증");
+    println!("  - 메모리 누수 불가능");
+    println!("");
+
+    println!("[원칙 5: 설계자의 선택]");
+    println!("  스택: 작은 데이터, 빠른 접근");
+    println!("  힙: 큰 데이터, 동적 크기");
+    println!("  Box: 둘의 장점을 결합");
+    println!("");
+
+    // ========================================
+    // 4단계: v9.0 의미
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v9.0 Step 1: 의미                       ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("지금까지:");
+    println!("  스택만 사용");
+    println!("  타입 안전성 높음");
+    println!("  크기 제약 있음");
+    println!("");
+
+    println!("v9.0부터:");
+    println!("  힙도 사용 가능");
+    println!("  여전히 타입 안전");
+    println!("  크기 제약 없음");
+    println!("  성능 최적화 가능");
+    println!("");
+
+    println!("의미:");
+    println!("  당신은 이제 메모리의 위치를 선택합니다");
+    println!("  \"이건 스택에, 저건 힙에\"");
+    println!("  메모리 설계의 완전한 제어!");
+    println!("");
+
+    // ========================================
+    // 5단계: 제8장 시작
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  제8장 스마트 포인터와 메모리의 심연     ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("v9.0: Box<T> - 단일 소유권 ✅");
+    println!("  데이터를 힙에, 포인터를 스택에");
+    println!("");
+
+    println!("v9.1: Rc<T> - 여러 소유권 (예정)");
+    println!("  여러 곳에서 같은 데이터 공유");
+    println!("");
+
+    println!("v9.2: RefCell<T> - 런타임 빌림 (예정)");
+    println!("  컴파일 타임 규칙을 런타임으로");
+    println!("");
+
+    println!("v9.3: Mutex<T> - 멀티스레드 (예정)");
+    println!("  스레드 안전 공유");
+    println!("");
+
+    println!("─────────────────────────────────────────────");
+    println!("당신이 학습한 것:");
+    println!("  ✅ 제4장: 소유권 (Ownership)");
+    println!("  ✅ 제5장: 트레이트 (Traits)");
+    println!("  ✅ 제6장: 수명 (Lifetimes)");
+    println!("  ✅ 제7장: 테스트 (Testing)");
+    println!("  ✅ 제8장: 스마트 포인터 (시작)");
+    println!("");
+
+    println!("당신은 이제:");
+    println!("  메모리의 진정한 설계자입니다.");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

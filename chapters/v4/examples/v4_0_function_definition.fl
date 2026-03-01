@@ -1,0 +1,310 @@
+// v4.0: Function Definition & Encapsulation - 함수의 정의와 캡슐화
+// 철학: "복잡성으로부터의 독립"
+// 설계: 제2장의 거대한 논리를 재사용 가능한 부품으로 조각냄
+
+// [Category 1] 단순 변환 함수
+// 특징: 한 가지 입력을 받아 변환하여 반환
+
+fn double(x: i32) -> i32 {
+  x * 2
+}
+
+fn triple(x: i32) -> i32 {
+  x * 3
+}
+
+fn negate(x: i32) -> i32 {
+  0 - x
+}
+
+fn square(x: i32) -> i32 {
+  x * x
+}
+
+fn absolute(x: i32) -> i32 {
+  if x < 0 {
+    0 - x
+  } else {
+    x
+  }
+}
+
+// [Category 2] 판단 함수
+// 특징: 조건을 검사하여 bool을 반환
+
+fn is_even(n: i32) -> bool {
+  n % 2 == 0
+}
+
+fn is_odd(n: i32) -> bool {
+  n % 2 == 1
+}
+
+fn is_positive(x: i32) -> bool {
+  x > 0
+}
+
+fn is_negative(x: i32) -> bool {
+  x < 0
+}
+
+fn is_zero(x: i32) -> bool {
+  x == 0
+}
+
+fn is_in_range(value: i32, min: i32, max: i32) -> bool {
+  value >= min && value <= max
+}
+
+// [Category 3] 분류 함수
+// 특징: 조건에 따라 다른 값을 반환
+
+fn grade_letter(score: i32) -> String {
+  if score >= 90 {
+    "A"
+  } else if score >= 80 {
+    "B"
+  } else if score >= 70 {
+    "C"
+  } else if score >= 60 {
+    "D"
+  } else {
+    "F"
+  }
+}
+
+fn status_level(value: i32) -> String {
+  if value >= 100 {
+    "CRITICAL"
+  } else if value >= 80 {
+    "WARNING"
+  } else if value >= 50 {
+    "CAUTION"
+  } else {
+    "NORMAL"
+  }
+}
+
+fn traffic_light(value: i32) -> String {
+  if value < 30 {
+    "GREEN"
+  } else if value < 60 {
+    "YELLOW"
+  } else {
+    "RED"
+  }
+}
+
+fn temperature_zone(celsius: i32) -> String {
+  if celsius < 0 {
+    "FREEZING"
+  } else if celsius < 15 {
+    "COLD"
+  } else if celsius < 25 {
+    "MODERATE"
+  } else if celsius < 35 {
+    "WARM"
+  } else {
+    "HOT"
+  }
+}
+
+// [Category 4] 축적 함수
+// 특징: 여러 입력을 받아 결합하여 반환
+
+fn add(a: i32, b: i32) -> i32 {
+  a + b
+}
+
+fn add_three(a: i32, b: i32, c: i32) -> i32 {
+  a + b + c
+}
+
+fn subtract(a: i32, b: i32) -> i32 {
+  a - b
+}
+
+fn multiply(a: i32, b: i32) -> i32 {
+  a * b
+}
+
+fn divide(a: i32, b: i32) -> i32 {
+  if b == 0 {
+    0
+  } else {
+    a / b
+  }
+}
+
+fn max_value(a: i32, b: i32) -> i32 {
+  if a > b {
+    a
+  } else {
+    b
+  }
+}
+
+fn min_value(a: i32, b: i32) -> i32 {
+  if a < b {
+    a
+  } else {
+    b
+  }
+}
+
+// [Category 5] 포맷 함수
+// 특징: 여러 입력을 받아 문자열로 조합하여 반환
+
+fn format_message(greeting: String, name: String) -> String {
+  greeting + ", " + name + "!"
+}
+
+fn format_result(label: String, value: i32) -> String {
+  label + ": " + value
+}
+
+fn format_status(device: String, status: String) -> String {
+  device + " is " + status
+}
+
+fn format_coordinate(x: i32, y: i32) -> String {
+  "(" + x + ", " + y + ")"
+}
+
+fn format_percentage(part: i32, total: i32) -> String {
+  if total == 0 {
+    "0%"
+  } else {
+    let percent = (part * 100) / total;
+    percent + "%"
+  }
+}
+
+// [Advanced Category] 제2장의 논리를 캡슐화한 함수
+
+fn analyze_sensor_reading(reading: i32) -> String {
+  if reading >= 100 {
+    "CRITICAL_ALERT"
+  } else if reading >= 80 {
+    "WARNING_ZONE"
+  } else if reading >= 50 {
+    "CAUTION_ZONE"
+  } else {
+    "SAFE_ZONE"
+  }
+}
+
+fn calculate_performance(score: i32, max_score: i32) -> String {
+  if max_score <= 0 {
+    "INVALID"
+  } else {
+    let percentage = (score * 100) / max_score;
+    if percentage >= 90 {
+      "EXCELLENT"
+    } else if percentage >= 70 {
+      "GOOD"
+    } else if percentage >= 50 {
+      "ACCEPTABLE"
+    } else {
+      "NEEDS_IMPROVEMENT"
+    }
+  }
+}
+
+fn validate_age(age: i32) -> bool {
+  age >= 0 && age <= 150
+}
+
+fn can_drive(age: i32) -> bool {
+  age >= 18
+}
+
+fn discount_rate(total_amount: i32) -> i32 {
+  if total_amount >= 1000 {
+    20
+  } else if total_amount >= 500 {
+    15
+  } else if total_amount >= 100 {
+    10
+  } else if total_amount >= 50 {
+    5
+  } else {
+    0
+  }
+}
+
+// 메인 실행 함수
+
+fn main() {
+  println("=== v4.0 Function Definition: Functional Foundations ===\n");
+
+  // [Category 1 Demo] 단순 변환 함수
+  println("--- Category 1: Simple Transformation ---");
+  println("double(5) = {}", double(5));
+  println("square(4) = {}", square(4));
+  println("negate(10) = {}", negate(10));
+  println("absolute(-7) = {}", absolute(-7));
+
+  // [Category 2 Demo] 판단 함수
+  println("\n--- Category 2: Predicate Functions ---");
+  if is_even(6) {
+    println("6 is even");
+  }
+
+  if is_positive(15) {
+    println("15 is positive");
+  }
+
+  if is_in_range(50, 0, 100) {
+    println("50 is in range [0, 100]");
+  }
+
+  // [Category 3 Demo] 분류 함수
+  println("\n--- Category 3: Classification ---");
+  println("Score 85 -> Grade: {}", grade_letter(85));
+  println("Value 95 -> Status: {}", status_level(95));
+  println("Speed 40 -> Light: {}", traffic_light(40));
+
+  // [Category 4 Demo] 축적 함수
+  println("\n--- Category 4: Accumulation ---");
+  println("add(10, 20) = {}", add(10, 20));
+  println("add_three(5, 10, 15) = {}", add_three(5, 10, 15));
+  println("max(7, 3) = {}", max_value(7, 3));
+  println("min(7, 3) = {}", min_value(7, 3));
+
+  // [Category 5 Demo] 포맷 함수
+  println("\n--- Category 5: Formatting ---");
+  println("{}", format_message("Hello", "Alice"));
+  println("{}", format_result("Temperature", 25));
+  println("{}", format_coordinate(10, 20));
+  println("{}", format_percentage(75, 100));
+
+  // [Advanced Demo] 제2장의 로직을 캡슐화
+  println("\n--- Advanced: Encapsulated Logic ---");
+
+  let sensor1 = 95;
+  let result1 = analyze_sensor_reading(sensor1);
+  println("Sensor reading {} -> {}", sensor1, result1);
+
+  let score = 85;
+  let max_score = 100;
+  let performance = calculate_performance(score, max_score);
+  println("Score {}/{} -> {}", score, max_score, performance);
+
+  let age = 25;
+  println("Age {}: Valid = {}, Can Drive = {}",
+    age,
+    validate_age(age),
+    can_drive(age)
+  );
+
+  let amount = 150;
+  let rate = discount_rate(amount);
+  println("Amount {} -> Discount {}%", amount, rate);
+
+  println("\n=== v4.0 Design Summary ===");
+  println("복잡한 로직은 함수 내부에 캡슐화되고");
+  println("사용자는 간단한 함수 호출로 결과를 얻습니다.");
+  println("이것이 '복잡성으로부터의 독립'입니다.");
+  println("\n기록: 함수화를 통해 코드의 가독성과 재사용성을 확보함.");
+}

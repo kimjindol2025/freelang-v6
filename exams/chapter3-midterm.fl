@@ -1,0 +1,146 @@
+// ============================================================
+// 제3장(v4.0~v4.5) 통합 중간고사: 보안 통신 모듈 설계
+// "모듈화의 초석" - 설계적 판단의 검증
+//
+// 목표: 메모리 효율성, 정밀한 부분 제어, 외부 라이브러리 활용
+// ============================================================
+
+// [v4.4] 모듈 패턴: 함수 네이밍 컨벤션
+// security_* 함수들로 보안 검증 모듈 구성
+
+fn security_validate_admin(msg: String) -> bool {
+  if msg == "ADMIN_MESSAGE" {
+    true
+  } else {
+    false
+  }
+}
+
+fn security_validate_user(msg: String) -> bool {
+  if msg == "USER_MESSAGE" {
+    true
+  } else {
+    false
+  }
+}
+
+fn security_check_length(msg: String) -> bool {
+  if msg.len() > 0 {
+    true
+  } else {
+    false
+  }
+}
+
+// [v4.5] 외부 크레이트 시뮬레이션
+// rand 크레이트: 보안 토큰 생성
+fn rand_generate_token(seed: i32) -> i32 {
+  (seed * 7 + 13) % 101
+}
+
+// serde 크레이트: 토큰 인코딩
+fn serde_encode_token(token: i32) -> String {
+  "token_encoded"
+}
+
+// chrono 크레이트: 시간 기반 검증
+fn chrono_get_timestamp() -> i32 {
+  2026
+}
+
+// [v4.2, v4.3] 참조와 부분 접근
+// 메시지는 String으로 전달되지만, 참조 개념을 활용
+fn security_full_validation(msg: String, seed: i32) -> bool {
+  let is_admin = security_validate_admin(msg);
+  let is_valid = security_check_length(msg);
+
+  let token = rand_generate_token(seed);
+  let token_valid = if token > 5 {
+    true
+  } else {
+    false
+  };
+
+  if is_admin && is_valid && token_valid {
+    true
+  } else {
+    false
+  }
+}
+
+// [v4.0, v4.1] 메인: 소유권 유지
+fn main() {
+  println("=== 제3장 통합 중간고사: 보안 통신 모듈 ===");
+  println("");
+
+  // [v4.0, v4.1] String 생성: main이 소유
+  let admin_message = "ADMIN_MESSAGE";
+
+  println("--- 검증 단계 1: 메시지 확인 ---");
+  let is_admin = security_validate_admin(admin_message);
+  if is_admin {
+    println("✓ ADMIN 메시지 확인");
+  } else {
+    println("✗ 일반 메시지");
+  }
+  println("");
+
+  // [v4.3] 길이 검증
+  println("--- 검증 단계 2: 메시지 길이 검증 ---");
+  let is_valid = security_check_length(admin_message);
+  if is_valid {
+    println("✓ 메시지 길이 유효");
+  } else {
+    println("✗ 메시지 길이 부족");
+  }
+  println("");
+
+  // [v4.5] 외부 크레이트 활용: 보안 토큰 생성
+  println("--- 검증 단계 3: 보안 토큰 생성 (rand 크레이트) ---");
+  let token = rand_generate_token(42);
+  println("생성된 토큰: ");
+  println(token);
+
+  let token_level = token / 10;
+  println("토큰 수준: ");
+  println(token_level);
+  println("");
+
+  // [v4.5] serde 크레이트: 인코딩
+  println("--- 검증 단계 4: 토큰 인코딩 (serde 크레이트) ---");
+  let encoded = serde_encode_token(token);
+  println("인코딩된 토큰: ");
+  println(encoded);
+  println("");
+
+  // [v4.5] chrono 크레이트: 시간 기반 정보
+  println("--- 검증 단계 5: 시간 기반 정보 (chrono 크레이트) ---");
+  let timestamp = chrono_get_timestamp();
+  println("현재 연도: ");
+  println(timestamp);
+  println("");
+
+  // [v4.4] 종합 검증: 모듈의 통합 기능
+  println("--- 최종 검증: 전체 보안 검사 ---");
+  let full_result = security_full_validation(admin_message, 42);
+
+  if full_result {
+    println("✅ 보안 검증 성공");
+    println("🔓 접속 허가");
+  } else {
+    println("❌ 보안 검증 실패");
+    println("🔒 접속 거부");
+  }
+  println("");
+
+  // [v4.1, v4.2] 소유권 유지 확인
+  // admin_message는 여전히 유효함
+  println("--- 소유권 검증: 메시지 재사용 가능 ---");
+  println("원본 메시지 (재사용): ");
+  println(admin_message);
+  println("");
+
+  // 최종 결론
+  println("=== 최종 기록 ===");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

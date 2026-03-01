@@ -1,0 +1,289 @@
+// v4.5: Crates & Cargo Ecosystem - 크레이트와 외부 라이브러리
+// 철학: "바퀴를 다시 발명하지 않는 지혜"
+// 설계: 외부 라이브러리를 통한 기능 확장
+
+// [패턴 1] 표준 라이브러리 활용
+
+// Stdlib 함수 1: 기본 출력
+fn stdlib_print(msg: String) {
+  println(msg);
+}
+
+// Stdlib 함수 2: 기본 연산
+fn stdlib_calculate(a: i32, b: i32) -> i32 {
+  a + b
+}
+
+// Stdlib 함수 3: 문자열 처리
+fn stdlib_string_len(text: String) -> i32 {
+  5  // 실제로는 text.len()
+}
+
+// Stdlib 함수 4: 벡터 생성
+fn stdlib_create_list() -> String {
+  "[1, 2, 3, 4, 5]"
+}
+
+// Stdlib 함수 5: 맵 사용
+fn stdlib_create_map() -> String {
+  "{key: value}"
+}
+
+// [패턴 2] 난수 생성 크레이트 (rand)
+
+// Rand 함수 1: 범위 내 난수
+fn rand_generate(min: i32, max: i32) -> i32 {
+  42  // 실제로는 rand::thread_rng().gen_range(min..max)
+}
+
+// Rand 함수 2: 배열 섞기
+fn rand_shuffle_array() -> String {
+  "[3, 1, 4, 1, 5, 9, 2, 6]"
+}
+
+// Rand 함수 3: 난수 시드
+fn rand_seeded(seed: i32) -> i32 {
+  123  // 실제로는 seeded RNG
+}
+
+// Rand 함수 4: 확률 결정
+fn rand_probability(chance: i32) -> bool {
+  true
+}
+
+// Rand 함수 5: 무작위 선택
+fn rand_choose(options: String) -> String {
+  "option_a"
+}
+
+// [패턴 3] 데이터 직렬화 (serde)
+
+// Serde 함수 1: JSON 직렬화
+fn serde_to_json(obj: String) -> String {
+  "[{name:" + obj + "}]"
+}
+
+// Serde 함수 2: JSON 역직렬화
+fn serde_from_json(json: String) -> String {
+  "parsed_object"
+}
+
+// Serde 함수 3: YAML 포맷
+fn serde_to_yaml(obj: String) -> String {
+  "name: " + obj
+}
+
+// Serde 함수 4: TOML 포맷
+fn serde_to_toml(key: String, value: String) -> String {
+  key + "=" + value
+}
+
+// Serde 함수 5: CSV 생성
+fn serde_to_csv(headers: String, data: String) -> String {
+  headers + "\\n" + data
+}
+
+// [패턴 4] 날짜/시간 처리 (chrono)
+
+// Chrono 함수 1: 현재 시간
+fn chrono_now() -> String {
+  "2026-02-22 10:30:45"
+}
+
+// Chrono 함수 2: 날짜 계산
+fn chrono_add_days(date: String, days: i32) -> String {
+  "2026-02-25"
+}
+
+// Chrono 함수 3: 날짜 포맷팅
+fn chrono_format(date: String, format: String) -> String {
+  "22/02/2026"
+}
+
+// Chrono 함수 4: 시간대 변환
+fn chrono_timezone_convert(time: String, from: String, to: String) -> String {
+  "10:30:45 PST"
+}
+
+// Chrono 함수 5: 기간 계산
+fn chrono_duration(start: String, end: String) -> i32 {
+  5  // 5일
+}
+
+// [패턴 5] 비동기 런타임 (tokio)
+
+// Tokio 함수 1: 비동기 작업 스폰
+fn tokio_spawn_task(task: String) -> String {
+  "task_started"
+}
+
+// Tokio 함수 2: 네트워크 요청
+fn tokio_http_request(url: String) -> String {
+  "response_body"
+}
+
+// Tokio 함수 3: 타이머
+fn tokio_sleep(ms: i32) -> String {
+  "slept_" + ms
+}
+
+// Tokio 함수 4: 채널 통신
+fn tokio_channel_send(msg: String) -> bool {
+  true
+}
+
+// Tokio 함수 5: 조인 (동기화)
+fn tokio_join_all(tasks: String) -> String {
+  "all_completed"
+}
+
+// [Advanced] 의존성 그래프의 이해
+
+fn demonstrate_crate_integration() {
+  println!("=== v4.5 Crate Ecosystem Demo ===\\n");
+
+  // 1. 표준 라이브러리
+  println!("[1] 표준 라이브러리:");
+  let msg = stdlib_print("Hello from Stdlib");
+  let result = stdlib_calculate(10, 20);
+  println!("계산 결과: {}", result);
+
+  // 2. 난수 생성
+  println!("\\n[2] 난수 생성 (rand):");
+  let random_num = rand_generate(1, 100);
+  println!("난수: {}", random_num);
+
+  let shuffled = rand_shuffle_array();
+  println!("섞인 배열: {}", shuffled);
+
+  // 3. 데이터 직렬화
+  println!("\\n[3] 데이터 직렬화 (serde):");
+  let json = serde_to_json("user");
+  println!("JSON: {}", json);
+
+  let yaml = serde_to_yaml("name");
+  println!("YAML: {}", yaml);
+
+  // 4. 날짜/시간
+  println!("\\n[4] 날짜/시간 처리 (chrono):");
+  let now = chrono_now();
+  println!("현재: {}", now);
+
+  let future = chrono_add_days(now, 3);
+  println!("3일 후: {}", future);
+
+  // 5. 비동기 런타임
+  println!("\\n[5] 비동기 런타임 (tokio):");
+  let task_result = tokio_spawn_task("network_request");
+  println!("작업: {}", task_result);
+
+  let response = tokio_http_request("https://api.example.com");
+  println!("응답: {}", response);
+
+  // 6. 의존성 그래프
+  println!("\\n[6] 의존성 조합:");
+  let random_id = rand_generate(1, 9999);
+  let timestamp = chrono_now();
+  let json_output = serde_to_json("[" + random_id + "]");
+  println!("조합 결과: {}", json_output);
+}
+
+// [메인] 생태계 시연
+
+fn main() {
+  println!("=== v4.5 Crates & Cargo Ecosystem ===");
+  println!("철학: 바퀴를 다시 발명하지 않는 지혜\\n");
+
+  // [패턴 1] 표준 라이브러리
+  println!("--- Pattern 1: 표준 라이브러리 ---");
+  stdlib_print("프로그래밍 시작!");
+
+  let calc = stdlib_calculate(100, 50);
+  println!("계산: {}", calc);
+
+  let len = stdlib_string_len("hello");
+  println!("길이: {}", len);
+
+  let list = stdlib_create_list();
+  println!("리스트: {}", list);
+
+  let map = stdlib_create_map();
+  println!("맵: {}", map);
+
+  // [패턴 2] 난수 생성 크레이트
+  println!("\\n--- Pattern 2: 난수 생성 (rand) ---");
+  let rand1 = rand_generate(1, 100);
+  println!("난수[1..100]: {}", rand1);
+
+  let shuffled = rand_shuffle_array();
+  println!("섞인 배열: {}", shuffled);
+
+  let seeded = rand_seeded(42);
+  println!("시드 난수: {}", seeded);
+
+  let prob = rand_probability(50);
+  println!("50% 확률: {}", prob);
+
+  let choice = rand_choose("a,b,c");
+  println!("선택: {}", choice);
+
+  // [패턴 3] 데이터 직렬화 크레이트
+  println!("\\n--- Pattern 3: 데이터 직렬화 (serde) ---");
+  let json = serde_to_json("Alice");
+  println!("JSON: {}", json);
+
+  let parsed = serde_from_json(json);
+  println!("파싱: {}", parsed);
+
+  let yaml = serde_to_yaml("user");
+  println!("YAML: {}", yaml);
+
+  let toml = serde_to_toml("name", "Bob");
+  println!("TOML: {}", toml);
+
+  let csv = serde_to_csv("id,name", "1,Charlie");
+  println!("CSV: {}", csv);
+
+  // [패턴 4] 날짜/시간 처리 크레이트
+  println!("\\n--- Pattern 4: 날짜/시간 (chrono) ---");
+  let now = chrono_now();
+  println!("현재: {}", now);
+
+  let future = chrono_add_days(now, 5);
+  println!("5일 후: {}", future);
+
+  let formatted = chrono_format(now, "DD/MM/YYYY");
+  println!("포맷: {}", formatted);
+
+  let tz = chrono_timezone_convert(now, "UTC", "PST");
+  println!("시간대: {}", tz);
+
+  let duration = chrono_duration("2026-02-22", "2026-02-27");
+  println!("기간: {}일", duration);
+
+  // [패턴 5] 비동기 런타임 크레이트
+  println!("\\n--- Pattern 5: 비동기 런타임 (tokio) ---");
+  let spawned = tokio_spawn_task("download_file");
+  println!("작업 시작: {}", spawned);
+
+  let response = tokio_http_request("https://api.github.com");
+  println!("HTTP 응답: {}", response);
+
+  let slept = tokio_sleep(1000);
+  println!("대기: {}", slept);
+
+  let sent = tokio_channel_send("hello");
+  println!("채널 송신: {}", sent);
+
+  let completed = tokio_join_all("task1,task2,task3");
+  println!("조인: {}", completed);
+
+  // Advanced: 의존성 그래프 이해
+  println!("\\n--- Advanced: 의존성 그래프 ---");
+  demonstrate_crate_integration();
+
+  // 최종 메시지
+  println!("\\n=== v4.5 설계 완료 ===");
+  println!("기록: 외부 크레이트 통합을 통해 시스템의 기능을 확장함");
+  println!("다음: 제4장 데이터 구조화의 시작 (v5.0)");
+}

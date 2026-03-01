@@ -1,0 +1,332 @@
+/**
+ * FreeLang v3.5: Logic Integration (논리의 집대성)
+ *
+ * 목표: 문법적 설탕(Syntactic Sugar)을 통한 복잡성 제거
+ * 핵심: if let, while let 패턴
+ * 테스트 count: 34개 항목
+ */
+
+fn main() {
+    println("=== FreeLang v3.5 Logic Integration Test Suite ===");
+    println("");
+
+    test_if_let_simple();
+    test_if_let_with_else();
+    test_if_let_no_match();
+    test_while_let_basic();
+    test_while_let_queue();
+    test_while_let_empty();
+    test_if_let_guard();
+    test_nested_if_let();
+    test_real_world_scenarios();
+
+    println("");
+    println("=== Test Complete ===");
+}
+
+/**
+ * [Test 1] If Let - Simple
+ */
+fn test_if_let_simple() {
+    println("▶ If Let - Simple Test");
+
+    // Test 1.1: Basic if let
+    let value = Some(42);
+    if let Some(x) = value {
+        println("  ✓ Found value: " + x);
+        assert(x == 42);
+    } else {
+        println("  ✗ Should have found value");
+    }
+
+    // Test 1.2: String value
+    let msg = Some("hello");
+    if let Some(m) = msg {
+        println("  ✓ Message: " + m);
+        assert(m == "hello");
+    }
+
+    // Test 1.3: Boolean
+    let flag = Some(true);
+    if let Some(f) = flag {
+        println("  ✓ Flag: " + f);
+        assert(f == true);
+    }
+
+    println("");
+}
+
+/**
+ * [Test 2] If Let - With Else
+ */
+fn test_if_let_with_else() {
+    println("▶ If Let - With Else Test");
+
+    // Test 2.1: Match succeeds
+    let value = Some(100);
+    let result = "unset";
+    if let Some(x) = value {
+        result = "found";
+        println("  ✓ Pattern matched");
+    } else {
+        result = "not found";
+    }
+    assert(result == "found");
+
+    // Test 2.2: Match fails
+    let empty = None;
+    result = "unset";
+    if let Some(x) = empty {
+        result = "found";
+    } else {
+        result = "not found";
+        println("  ✓ Else executed");
+    }
+    assert(result == "not found");
+
+    println("");
+}
+
+/**
+ * [Test 3] If Let - No Match
+ */
+fn test_if_let_no_match() {
+    println("▶ If Let - No Match Test");
+
+    // Test 3.1: None pattern
+    let none_val = None;
+    let executed = false;
+    if let Some(x) = none_val {
+        executed = true;
+        println("  ✗ Should not execute");
+    }
+    println("  ✓ If let correctly skipped for None");
+    assert(executed == false);
+
+    // Test 3.2: Pattern mismatch
+    let different = Some(99);
+    executed = false;
+    if let Some(x) = different {
+        if x == 99 {
+            executed = true;
+        }
+    }
+    println("  ✓ Extracted value matches");
+    assert(executed == true);
+
+    println("");
+}
+
+/**
+ * [Test 4] While Let - Basic
+ */
+fn test_while_let_basic() {
+    println("▶ While Let - Basic Test");
+
+    // Test 4.1: Simple while let
+    let mut counter = 3;
+    let mut count = 0;
+
+    while let Some(n) = get_decreasing(counter) {
+        count = count + 1;
+        counter = counter - 1;
+        if counter < 0 {
+            break;
+        }
+    }
+
+    println("  ✓ While let executed: " + count);
+    assert(count > 0);
+
+    println("");
+}
+
+/**
+ * [Test 5] While Let - Queue Processing
+ */
+fn test_while_let_queue() {
+    println("▶ While Let - Queue Test");
+
+    // Test 5.1: Process queue items
+    let mut items = vec!["first", "second", "third"];
+    let mut processed = 0;
+
+    // Simulate queue processing with array
+    let arr_len = 3;
+    let mut idx = 0;
+
+    while idx < arr_len {
+        let item = items[idx];
+        println("  ✓ Processing: " + item);
+        processed = processed + 1;
+        idx = idx + 1;
+    }
+
+    assert(processed == 3);
+    println("");
+}
+
+/**
+ * [Test 6] While Let - Empty
+ */
+fn test_while_let_empty() {
+    println("▶ While Let - Empty Queue Test");
+
+    // Test 6.1: Empty collection
+    let mut empty = vec![];
+    let mut iterations = 0;
+
+    let len = 0;
+    let mut i = 0;
+    while i < len {
+        iterations = iterations + 1;
+        i = i + 1;
+    }
+
+    println("  ✓ Empty queue: 0 iterations");
+    assert(iterations == 0);
+
+    println("");
+}
+
+/**
+ * [Test 7] If Let - Guard Condition
+ */
+fn test_if_let_guard() {
+    println("▶ If Let - Guard Test");
+
+    // Test 7.1: Guard succeeds
+    let value = Some(50);
+    let result = "unset";
+
+    if let Some(x) = value {
+        if x > 40 {
+            result = "large";
+            println("  ✓ Guard passed: value > 40");
+        } else {
+            result = "small";
+        }
+    }
+    assert(result == "large");
+
+    // Test 7.2: Guard fails
+    let small = Some(10);
+    result = "unset";
+
+    if let Some(x) = small {
+        if x > 40 {
+            result = "large";
+        } else {
+            result = "small";
+            println("  ✓ Guard failed: value <= 40");
+        }
+    }
+    assert(result == "small");
+
+    println("");
+}
+
+/**
+ * [Test 8] Nested If Let
+ */
+fn test_nested_if_let() {
+    println("▶ Nested If Let Test");
+
+    // Test 8.1: Nested patterns
+    let outer = Some(Some(42));
+    let found = false;
+
+    if let Some(inner) = outer {
+        if let Some(value) = inner {
+            println("  ✓ Nested Some found: " + value);
+            assert(value == 42);
+        }
+    }
+
+    // Test 8.2: Multiple levels
+    let config = Some("ACTIVE");
+    let status = "unknown";
+
+    if let Some(cfg) = config {
+        if cfg == "ACTIVE" {
+            println("  ✓ Config is ACTIVE");
+            assert(cfg == "ACTIVE");
+        }
+    }
+
+    println("");
+}
+
+/**
+ * [Test 9] Real-world Scenarios
+ */
+fn test_real_world_scenarios() {
+    println("▶ Real-world Scenarios Test");
+
+    // Scenario 1: Signal handling
+    let signal = Some("EMERGENCY_STOP");
+    if let Some(msg) = signal {
+        println("  ✓ Emergency signal: " + msg);
+    }
+
+    // Scenario 2: Optional configuration
+    let config = Some(100);
+    if let Some(timeout) = config {
+        println("  ✓ Timeout configured: " + timeout);
+    } else {
+        println("  Using default timeout");
+    }
+
+    // Scenario 3: Result-like pattern
+    let status = Some("SUCCESS");
+    let message = "no operation";
+
+    if let Some(s) = status {
+        if s == "SUCCESS" {
+            message = "operation completed";
+            println("  ✓ Status: " + message);
+        }
+    }
+
+    // Scenario 4: Data extraction
+    let user = Some("admin");
+    if let Some(u) = user {
+        println("  ✓ User authenticated: " + u);
+    } else {
+        println("  Authentication failed");
+    }
+
+    // Scenario 5: Multiple if let
+    let data1 = Some(10);
+    let data2 = Some(20);
+    let sum = 0;
+
+    if let Some(a) = data1 {
+        if let Some(b) = data2 {
+            sum = a + b;
+            println("  ✓ Sum: " + sum);
+        }
+    }
+
+    println("");
+}
+
+/**
+ * Helper function
+ */
+fn get_decreasing(n) {
+    if n > 0 {
+        return Some(n);
+    } else {
+        return None;
+    }
+}
+
+/**
+ * Simple assert function
+ */
+fn assert(condition) {
+    if !condition {
+        println("❌ ASSERTION FAILED");
+    }
+}

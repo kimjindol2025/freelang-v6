@@ -1,0 +1,115 @@
+// FreeLang v6: Data Validation Tool
+// 정규표현식 + 검증 함수 활용
+
+fn validate_password(pwd) {
+  // 최소 8자, 대문자, 숫자 포함
+  if len(pwd) < 8 {
+    return false
+  }
+
+  let has_upper = regex_test("[A-Z]", pwd)
+  let has_number = regex_test("[0-9]", pwd)
+
+  return has_upper and has_number
+}
+
+fn validate_username(user) {
+  // 3-20자, 알파벳/숫자/언더스코어만
+  if len(user) < 3 or len(user) > 20 {
+    return false
+  }
+
+  return regex_test("^[a-zA-Z0-9_]+$", user)
+}
+
+fn validate_email_simple(email) {
+  // 간단한 이메일 검증
+  return contains(email, "@") and contains(email, ".")
+}
+
+fn validate_url_simple(url) {
+  // 간단한 URL 검증
+  return starts_with(url, "http://") or starts_with(url, "https://")
+}
+
+// 메인
+fn main() {
+  println("=== Data Validator Demo ===")
+  println("")
+
+  // 테스트 케이스
+  println("Test Cases:")
+  println("")
+
+  // Email validation
+  let email1 = "john@example.com"
+  if validate_email_simple(email1) {
+    println("OK: Email " + email1)
+  } else {
+    println("FAIL: Email " + email1)
+  }
+
+  // Username validation
+  let user1 = "john_doe"
+  if validate_username(user1) {
+    println("OK: Username " + user1)
+  } else {
+    println("FAIL: Username " + user1)
+  }
+
+  let user2 = "ab"
+  if validate_username(user2) {
+    println("OK: Username " + user2)
+  } else {
+    println("FAIL: Username " + user2)
+  }
+
+  // Password validation
+  let pwd1 = "SecurePass123"
+  if validate_password(pwd1) {
+    println("OK: Password " + pwd1)
+  } else {
+    println("FAIL: Password " + pwd1)
+  }
+
+  let pwd2 = "weak"
+  if validate_password(pwd2) {
+    println("OK: Password " + pwd2)
+  } else {
+    println("FAIL: Password " + pwd2)
+  }
+
+  // URL validation
+  let url1 = "https://example.com"
+  if validate_url_simple(url1) {
+    println("OK: URL " + url1)
+  } else {
+    println("FAIL: URL " + url1)
+  }
+
+  let url2 = "example.com"
+  if validate_url_simple(url2) {
+    println("OK: URL " + url2)
+  } else {
+    println("FAIL: URL " + url2)
+  }
+
+  println("")
+  println("=== Regex Tests ===")
+  println("")
+
+  // Regex pattern tests
+  let pattern1 = regex_test("[0-9]", "abc123")
+  println("Contains digit: " + pattern1)
+
+  let pattern2 = regex_test("^hello", "hello world")
+  println("Starts with hello: " + pattern2)
+
+  let pattern3 = regex_test("world$", "hello world")
+  println("Ends with world: " + pattern3)
+
+  println("")
+  println("Demo complete!")
+}
+
+main()

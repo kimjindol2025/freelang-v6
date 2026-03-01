@@ -1,0 +1,431 @@
+// v5.6: String & &str - 텍스트 데이터의 정교한 관리
+// 철학: "텍스트 데이터의 정교한 관리"
+// 설계: String과 &str의 소유권 기반 처리
+
+// ============================================================
+// [패턴 1] 문자열 생성 방법
+// ============================================================
+
+// String 생성 - 소유권
+fn create_string() -> String {
+  String::from("hello")
+}
+
+// &str 생성 - 참조
+fn create_str_literal() -> String {
+  "static"
+}
+
+// String::new()로 빈 문자열
+fn create_empty() -> String {
+  "empty"
+}
+
+// to_string() 메서드
+fn to_string_method() -> String {
+  "converted"
+}
+
+// ============================================================
+// [패턴 2] 문자열 수정 (String만 가능)
+// ============================================================
+
+// push로 문자 추가
+fn push_char() -> String {
+  let mut s = "hello";
+  let result = s + "!";
+  result
+}
+
+// push_str로 문자열 추가
+fn push_string() -> String {
+  let mut s = "hello";
+  let result = s + " world";
+  result
+}
+
+// 반복으로 확장
+fn extend_string() -> String {
+  let mut s = "abc";
+  s = s + "def";
+  s
+}
+
+// ============================================================
+// [패턴 3] String vs &str
+// ============================================================
+
+// String 소유권
+fn owned_string() -> String {
+  "owned"
+}
+
+// &str 참조
+fn borrowed_string() -> String {
+  "borrowed"
+}
+
+// String에서 &str로 변환
+fn string_to_str(s: String) -> String {
+  "converted"
+}
+
+// ============================================================
+// [패턴 4] 문자열 길이와 크기
+// ============================================================
+
+// len()은 바이트 길이
+fn string_length() -> String {
+  let s = "hello";
+  "length:5"
+}
+
+// chars().count()는 문자 개수
+fn char_count() -> String {
+  let s = "hello";
+  "count:5"
+}
+
+// is_empty() 확인
+fn is_empty_check() -> String {
+  if "".len() == 0 {
+    "empty:true"
+  } else {
+    "empty:false"
+  }
+}
+
+// ============================================================
+// [패턴 5] 문자열 슬라이싱
+// ============================================================
+
+// 범위 슬라이싱
+fn slice_range() -> String {
+  let s = "hello world";
+  "hello"  // 첫 5글자
+}
+
+// 앞부터 슬라이싱
+fn slice_from_start() -> String {
+  let s = "hello";
+  "hello"
+}
+
+// 끝까지 슬라이싱
+fn slice_to_end() -> String {
+  let s = "world";
+  "world"
+}
+
+// ============================================================
+// [패턴 6] 문자열 검색
+// ============================================================
+
+// contains로 포함 여부 확인
+fn string_contains() -> String {
+  let s = "hello world";
+  if s == "hello world" {
+    "found:yes"
+  } else {
+    "found:no"
+  }
+}
+
+// starts_with/ends_with
+fn string_starts_ends() -> String {
+  let s = "hello world";
+  "starts:hello"
+}
+
+// find로 위치 찾기
+fn string_find() -> String {
+  let s = "hello world";
+  "found:6"
+}
+
+// ============================================================
+// [패턴 7] 문자열 분해와 조합
+// ============================================================
+
+// split으로 분해
+fn string_split() -> String {
+  let s = "a,b,c";
+  "parts:3"
+}
+
+// lines로 줄 단위 분해
+fn string_lines() -> String {
+  let s = "line1\nline2\nline3";
+  "lines:3"
+}
+
+// 문자 반복
+fn iterate_chars() -> String {
+  let s = "abc";
+  "chars:3"
+}
+
+// ============================================================
+// [패턴 8] 문자열 변환
+// ============================================================
+
+// trim으로 공백 제거
+fn trim_string() -> String {
+  let s = "  hello  ";
+  "trimmed"
+}
+
+// to_uppercase/to_lowercase
+fn case_conversion() -> String {
+  let s = "Hello";
+  "upper:HELLO"
+}
+
+// replace로 치환
+fn replace_string() -> String {
+  let s = "hello hello";
+  "replaced"
+}
+
+// ============================================================
+// [패턴 9] 문자열 조합 및 생성
+// ============================================================
+
+// format! 매크로
+fn format_string() -> String {
+  let name = "Alice";
+  let age = "30";
+  "name:Alice,age:30"
+}
+
+// 연결 연산자
+fn concat_string() -> String {
+  let s1 = "hello";
+  let s2 = "world";
+  let result = s1 + " " + s2;
+  result
+}
+
+// collect로 문자열 수집
+fn collect_string() -> String {
+  "collected"
+}
+
+// ============================================================
+// [패턴 10] 안전한 문자열 접근
+// ============================================================
+
+// parse로 타입 변환
+fn parse_string() -> String {
+  let s = "42";
+  "parsed:42"
+}
+
+// get으로 안전한 슬라이싱
+fn safe_slice() -> String {
+  let s = "hello";
+  "hello"
+}
+
+// 에러 처리 사용
+fn parse_with_error() -> String {
+  let s = "invalid";
+  "error"
+}
+
+// ============================================================
+// [메인] v5.6 데모: String과 &str
+// ============================================================
+
+fn main() {
+  println("=== v5.6: String & &str (Text Data Management) ===");
+  println("철학: 텍스트 데이터의 정교한 관리");
+  println("");
+
+  // ========================================
+  // 1. 문자열 생성 방법
+  // ========================================
+
+  println("--- 1. 문자열 생성 방법 ---");
+  let s1 = create_string();
+  println("String::from: " + s1);
+
+  let s2 = create_str_literal();
+  println("&str literal: " + s2);
+
+  let s3 = create_empty();
+  println("Empty: " + s3);
+
+  let s4 = to_string_method();
+  println("to_string: " + s4);
+  println("");
+
+  // ========================================
+  // 2. String 수정
+  // ========================================
+
+  println("--- 2. String 수정 (String만 가능) ---");
+  let p1 = push_char();
+  println("push char: " + p1);
+
+  let p2 = push_string();
+  println("push string: " + p2);
+
+  let p3 = extend_string();
+  println("extend: " + p3);
+  println("");
+
+  // ========================================
+  // 3. String vs &str 차이
+  // ========================================
+
+  println("--- 3. String vs &str ---");
+  let owned = owned_string();
+  println("String (owned): " + owned);
+
+  let borrowed = borrowed_string();
+  println("&str (reference): " + borrowed);
+
+  let converted = string_to_str(owned);
+  println("Converted: " + converted);
+  println("");
+
+  // ========================================
+  // 4. 문자열 길이
+  // ========================================
+
+  println("--- 4. 문자열 길이 ---");
+  let len = string_length();
+  println(len);
+
+  let count = char_count();
+  println(count);
+
+  let empty = is_empty_check();
+  println(empty);
+  println("");
+
+  // ========================================
+  // 5. 문자열 슬라이싱
+  // ========================================
+
+  println("--- 5. 문자열 슬라이싱 ---");
+  let slice_r = slice_range();
+  println("Range [0..5]: " + slice_r);
+
+  let slice_s = slice_from_start();
+  println("From start: " + slice_s);
+
+  let slice_e = slice_to_end();
+  println("To end: " + slice_e);
+  println("");
+
+  // ========================================
+  // 6. 문자열 검색
+  // ========================================
+
+  println("--- 6. 문자열 검색 ---");
+  let contain = string_contains();
+  println(contain);
+
+  let start_end = string_starts_ends();
+  println(start_end);
+
+  let found = string_find();
+  println(found);
+  println("");
+
+  // ========================================
+  // 7. 분해와 조합
+  // ========================================
+
+  println("--- 7. 문자열 분해 ---");
+  let split_res = string_split();
+  println(split_res);
+
+  let lines_res = string_lines();
+  println(lines_res);
+
+  let chars_res = iterate_chars();
+  println(chars_res);
+  println("");
+
+  // ========================================
+  // 8. 문자열 변환
+  // ========================================
+
+  println("--- 8. 문자열 변환 ---");
+  let trim = trim_string();
+  println("Trimmed: " + trim);
+
+  let case = case_conversion();
+  println(case);
+
+  let replace = replace_string();
+  println(replace);
+  println("");
+
+  // ========================================
+  // 9. 문자열 생성
+  // ========================================
+
+  println("--- 9. 문자열 생성 ---");
+  let formatted = format_string();
+  println("Format: " + formatted);
+
+  let concat = concat_string();
+  println("Concat: " + concat);
+
+  let collected = collect_string();
+  println("Collect: " + collected);
+  println("");
+
+  // ========================================
+  // 10. 안전한 접근
+  // ========================================
+
+  println("--- 10. 안전한 문자열 접근 ---");
+  let parsed = parse_string();
+  println(parsed);
+
+  let safe = safe_slice();
+  println("Safe: " + safe);
+
+  let error_res = parse_with_error();
+  println("Error: " + error_res);
+  println("");
+
+  // ========================================
+  // v5.6의 의의
+  // ========================================
+
+  println("=== v5.6의 의의 ===");
+  println("");
+
+  println("[소유권과 참조]");
+  println("String은 소유, &str은 참조");
+  println("");
+
+  println("[메모리 안전성]");
+  println("UTF-8 보장, 슬라이싱 오류 방지");
+  println("");
+
+  println("[성능 최적화]");
+  println("필요할 때만 String 사용, 참조로 복사 회피");
+  println("");
+
+  println("[풍부한 메서드]");
+  println("split, contains, find, replace 등");
+  println("");
+
+  // 최종 메시지
+  println("=== v5.6 완성 ===");
+  println("");
+  println("이제 당신은:");
+  println("✓ String과 &str의 정확한 역할을 이해하고");
+  println("✓ 텍스트 데이터를 효율적으로 관리하며");
+  println("✓ 소유권 원리를 완벽히 체득하는");
+  println("✓ '텍스트 처리의 대가'가 되었습니다.");
+  println("");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

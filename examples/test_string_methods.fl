@@ -1,0 +1,6 @@
+// Test string methods
+
+let text = "Hello"
+println("Text created: " + text)
+let upper = text.toUpperCase()
+println("Upper: " + upper)

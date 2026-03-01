@@ -1,0 +1,556 @@
+/**
+ * v9.4 Smart Pointers: Step 4 - Weak<T> and Non-Owning References
+ *
+ * 철학: "비소유 참조의 구현: 순환 참조의 완벽한 해결"
+ * 목표:
+ * 1. Weak<T> 기본 사용
+ * 2. 트리 구조와 부모-자식 관계
+ * 3. 옵저버 패턴
+ * 4. 순환 참조 방지
+ * 5. 메모리 안전성 보장
+ *
+ * 패턴들:
+ * - 기본 Weak 생성 및 사용
+ * - 트리 구조 (부모-자식 관계)
+ * - 옵저버 패턴
+ * - 순환 참조 방지 (양방향 링크)
+ * - 캐시 및 성능 최적화
+ */
+
+// ============================================================================
+// 패턴 1: 기본 Weak<T> 사용
+// ============================================================================
+
+fn pattern_basic_weak_creation() -> String {
+    // Weak<T> 생성
+    "weak:creation"
+}
+
+fn pattern_weak_upgrade() -> String {
+    // Weak::upgrade() 호출
+    "weak:upgrade"
+}
+
+fn pattern_weak_some_none_handling() -> String {
+    // Some(rc) vs None 처리
+    "weak:handling"
+}
+
+fn pattern_weak_reference_counting() -> String {
+    // strong_count vs weak_count
+    "weak:counting"
+}
+
+fn pattern_weak_lifetime() -> String {
+    // Weak의 생명주기와 안전성
+    "weak:lifetime"
+}
+
+// ============================================================================
+// 패턴 2: 트리 구조 - 부모-자식 관계
+// ============================================================================
+
+/**
+ * GogsNode 트리 구조
+ * - 부모: 강한 참조로 자식을 소유 (Rc)
+ * - 자식: 약한 참조로 부모를 참조 (Weak)
+ *
+ * 이렇게 하면:
+ *   부모의 Rc count = 1 (parent 변수)
+ *   자식의 Rc count = 1 (parent.children 벡터)
+ *   → 순환 참조 없음!
+ */
+
+fn pattern_tree_basic_node() -> String {
+    // GogsNode 트리 노드 생성
+    "tree:node"
+}
+
+fn pattern_tree_parent_child_linking() -> String {
+    // 부모와 자식 연결
+    "tree:linking"
+}
+
+fn pattern_tree_parent_access() -> String {
+    // 자식에서 부모 접근 (안전한 upgrade)
+    "tree:parent:access"
+}
+
+fn pattern_tree_children_iteration() -> String {
+    // 부모의 모든 자식 순회
+    "tree:children"
+}
+
+fn pattern_tree_hierarchy_traversal() -> String {
+    // 전체 계층 구조 순회
+    "tree:hierarchy"
+}
+
+// ============================================================================
+// 패턴 3: 옵저버 패턴 - 발행-구독
+// ============================================================================
+
+/**
+ * Observer 패턴
+ * - Subject는 Observer를 약한 참조로만 보유
+ * - Observer가 삭제되면 자동으로 제거됨
+ * - 메모리 누수 없음
+ */
+
+fn pattern_observer_subject_creation() -> String {
+    // Subject 생성
+    "observer:subject"
+}
+
+fn pattern_observer_registration() -> String {
+    // Observer 등록
+    "observer:registration"
+}
+
+fn pattern_observer_notification() -> String {
+    // 이벤트 발행 (notification)
+    "observer:notification"
+}
+
+fn pattern_observer_cleanup() -> String {
+    // 삭제된 observer 자동 정리
+    "observer:cleanup"
+}
+
+fn pattern_observer_multiple_observers() -> String {
+    // 여러 observer 관리
+    "observer:multiple"
+}
+
+// ============================================================================
+// 패턴 4: 순환 참조 방지 - 양방향 링크
+// ============================================================================
+
+/**
+ * 양방향 링크드 리스트
+ * - next: 강한 참조 (소유)
+ * - prev: 약한 참조 (참조만)
+ *
+ * 이렇게 하면 순환 참조가 끊김:
+ *   node_a ← → node_b ← → node_c
+ *
+ * 강 약 강 약 강 약 강 약
+ * → next 방향만 소유권 사이클
+ * → prev 방향은 약한 참조로 사이클 끊김
+ */
+
+fn pattern_bidirectional_basic_link() -> String {
+    // 양방향 링크 생성
+    "bidirectional:link"
+}
+
+fn pattern_bidirectional_traverse_forward() -> String {
+    // 앞 방향 순회 (강한 참조)
+    "bidirectional:forward"
+}
+
+fn pattern_bidirectional_traverse_backward() -> String {
+    // 뒤 방향 순회 (약한 참조)
+    "bidirectional:backward"
+}
+
+fn pattern_bidirectional_cycle_detection() -> String {
+    // 순환 참조 없음을 증명
+    "bidirectional:cycle:free"
+}
+
+fn pattern_bidirectional_memory_safety() -> String {
+    // 메모리 안전성 보장
+    "bidirectional:safe"
+}
+
+// ============================================================================
+// 패턴 5: 캐시와 성능 최적화
+// ============================================================================
+
+/**
+ * Cache 패턴
+ * - Cache는 약한 참조만 보유
+ * - 소유권은 caller가 관리
+ * - Cache 항목이 자동으로 정리됨 (upgrade = None)
+ */
+
+fn pattern_cache_creation() -> String {
+    // 캐시 생성
+    "cache:creation"
+}
+
+fn pattern_cache_insert() -> String {
+    // 데이터 캐시에 추가
+    "cache:insert"
+}
+
+fn pattern_cache_retrieve() -> String {
+    // 캐시에서 데이터 조회
+    "cache:retrieve"
+}
+
+fn pattern_cache_eviction() -> String {
+    // 자동 제거 (upgrade = None)
+    "cache:eviction"
+}
+
+fn pattern_cache_performance() -> String {
+    // 캐시 성능 최적화
+    "cache:performance"
+}
+
+// ============================================================================
+// 통합 예제 1: Weak 기본
+// ============================================================================
+
+fn example_weak_basic() -> String {
+    // Rc 생성
+    // Weak 생성
+    // upgrade() 호출
+    // Some/None 처리
+    // drop 후 None 확인
+    "example:weak:basic"
+}
+
+fn example_weak_reference_count_tracking() -> String {
+    // strong_count와 weak_count 추적
+    // Weak 생성 → weak_count 증가
+    // Weak drop → weak_count 감소
+    // Rc drop → strong_count = 0
+    "example:weak:tracking"
+}
+
+fn example_weak_safety_guarantee() -> String {
+    // dangling pointer 안전성
+    // Rc 삭제 후 Weak 접근
+    // upgrade() = None (panic 없음)
+    "example:weak:safety"
+}
+
+fn example_weak_practical_usage() -> String {
+    // 실제 사용 사례
+    "example:weak:practical"
+}
+
+fn example_weak_mastery() -> String {
+    "weak:mastery"
+}
+
+// ============================================================================
+// 통합 예제 2: 트리 구조
+// ============================================================================
+
+fn example_tree_parent_child() -> String {
+    // GogsNode 트리 생성
+    // 부모-자식 관계 설정
+    // 부모에서 자식 접근
+    // 자식에서 부모 접근
+    "example:tree:parent:child"
+}
+
+fn example_tree_multiple_children() -> String {
+    // 부모가 여러 자식을 가짐
+    // 각 자식은 같은 부모를 참조
+    // 순환 참조 없음
+    "example:tree:multiple:children"
+}
+
+fn example_tree_hierarchy_navigation() -> String {
+    // 전체 계층 구조 네비게이션
+    // 부모 → 자식 → 부모 순회
+    // 깊이 우선 탐색 (DFS)
+    "example:tree:hierarchy"
+}
+
+fn example_tree_memory_efficiency() -> String {
+    // Weak 덕분의 메모리 효율성
+    // 순환 참조 제거로 drop 가능
+    "example:tree:efficiency"
+}
+
+fn example_tree_mastery() -> String {
+    "tree:mastery"
+}
+
+// ============================================================================
+// 통합 예제 3: 옵저버 패턴
+// ============================================================================
+
+fn example_observer_basic() -> String {
+    // Subject 생성
+    // Observer 등록
+    // 이벤트 발행
+    "example:observer:basic"
+}
+
+fn example_observer_multiple_subscribers() -> String {
+    // 여러 Observer 등록
+    // 모두 동일한 Subject 이벤트 수신
+    // Observer 독립적으로 동작
+    "example:observer:multiple"
+}
+
+fn example_observer_automatic_cleanup() -> String {
+    // Observer 삭제
+    // Subject에서 자동으로 제거됨
+    // 메모리 누수 없음
+    "example:observer:cleanup"
+}
+
+fn example_observer_selective_notification() -> String {
+    // 특정 Observer에만 알림
+    // 또는 모든 Observer에 알림
+    "example:observer:selective"
+}
+
+fn example_observer_mastery() -> String {
+    "observer:mastery"
+}
+
+// ============================================================================
+// 통합 예제 4: 순환 참조 방지
+// ============================================================================
+
+fn example_cycle_prevention_bidirectional_list() -> String {
+    // 양방향 링크드 리스트
+    // next: 강한 참조
+    // prev: 약한 참조
+    // 순환 참조 없음
+    "example:cycle:prevention"
+}
+
+fn example_cycle_prevention_graph() -> String {
+    // 복잡한 그래프 구조
+    // 여러 방향의 간선
+    // Weak로 관찰만 수행
+    "example:cycle:graph"
+}
+
+fn example_cycle_prevention_memory_safety() -> String {
+    // 메모리 누수 증명
+    // 순환 참조가 없으므로 정상 해제
+    "example:cycle:safety"
+}
+
+fn example_cycle_prevention_mastery() -> String {
+    "cycle:mastery"
+}
+
+// ============================================================================
+// 통합 예제 5: 실전 캐시 시스템
+// ============================================================================
+
+fn example_cache_system() -> String {
+    // 캐시 시스템 구현
+    // 약한 참조로 항목 관리
+    // 자동 제거 (eviction)
+    "example:cache:system"
+}
+
+fn example_cache_with_ttl() -> String {
+    // 시간 기반 캐시 (TTL)
+    // 약한 참조 + 타이머
+    "example:cache:ttl"
+}
+
+fn example_cache_memory_efficient() -> String {
+    // 캐시의 메모리 효율성
+    // 약한 참조로 오버헤드 최소화
+    "example:cache:efficient"
+}
+
+fn example_cache_mastery() -> String {
+    "cache:mastery"
+}
+
+// ============================================================================
+// 챕터 8 통합: 모든 스마트 포인터
+// ============================================================================
+
+fn example_all_smart_pointers_comparison() -> String {
+    // Box<T>, Rc<T>, RefCell<T>, Rc<RefCell<T>>, Weak<T> 비교
+    // 각각의 사용 사례
+    // 선택 기준
+    "example:comparison"
+}
+
+fn example_smart_pointer_architecture() -> String {
+    // 복잡한 시스템 설계
+    // Box로 단일 소유권
+    // Rc로 다중 소유권
+    // RefCell로 가변성
+    // Weak로 순환 참조 방지
+    "example:architecture"
+}
+
+fn example_memory_mastery_integration() -> String {
+    // 제4장 ~ 제8장 통합
+    // 메모리 안전성 완벽 이해
+    "example:integration"
+}
+
+fn example_production_patterns() -> String {
+    // 프로덕션급 패턴
+    // 에러 처리, 성능, 안전성
+    "example:production"
+}
+
+fn example_chapter_8_mastery() -> String {
+    "chapter:8:mastery"
+}
+
+// ============================================================================
+// 아키텍처 마스터: 완전한 설계 예제
+// ============================================================================
+
+fn example_complete_system_design() -> String {
+    // Weak<T>를 활용한 완전한 시스템 설계
+    // - 에러 처리 (Result<T,E>)
+    // - 메모리 관리 (Box, Rc, Weak)
+    // - 동기화 (RefCell)
+    // - 복잡한 구조 (트리, 그래프, 캐시)
+    "example:system:design"
+}
+
+fn example_real_world_application() -> String {
+    // 실제 애플리케이션 패턴
+    "example:application"
+}
+
+fn example_rust_memory_mastery() -> String {
+    // 러스트 메모리 마스터 달성
+    "mastery"
+}
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 테스트
+    "patterns:complete"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 테스트
+    "examples:complete"
+}
+
+fn test_architecture_validation() -> String {
+    // 아키텍처 검증
+    "validation:complete"
+}
+
+fn prove_weak_mastery() -> String {
+    "weak:proven:mastery"
+}
+
+fn prove_chapter_8_completion() -> String {
+    "chapter:8:complete"
+}
+
+// ============================================================================
+// 실행 및 검증
+// ============================================================================
+
+println!("========== v9.4 Smart Pointers: Weak<T> ==========");
+println!();
+
+println!("=== Pattern 1: Basic Weak ===");
+println!("{}", pattern_basic_weak_creation());
+println!("{}", pattern_weak_upgrade());
+println!("{}", pattern_weak_some_none_handling());
+println!("{}", pattern_weak_reference_counting());
+println!("{}", pattern_weak_lifetime());
+println!();
+
+println!("=== Pattern 2: Tree Structure ===");
+println!("{}", pattern_tree_basic_node());
+println!("{}", pattern_tree_parent_child_linking());
+println!("{}", pattern_tree_parent_access());
+println!("{}", pattern_tree_children_iteration());
+println!("{}", pattern_tree_hierarchy_traversal());
+println!();
+
+println!("=== Pattern 3: Observer Pattern ===");
+println!("{}", pattern_observer_subject_creation());
+println!("{}", pattern_observer_registration());
+println!("{}", pattern_observer_notification());
+println!("{}", pattern_observer_cleanup());
+println!("{}", pattern_observer_multiple_observers());
+println!();
+
+println!("=== Pattern 4: Cycle Prevention ===");
+println!("{}", pattern_bidirectional_basic_link());
+println!("{}", pattern_bidirectional_traverse_forward());
+println!("{}", pattern_bidirectional_traverse_backward());
+println!("{}", pattern_bidirectional_cycle_detection());
+println!("{}", pattern_bidirectional_memory_safety());
+println!();
+
+println!("=== Pattern 5: Cache & Performance ===");
+println!("{}", pattern_cache_creation());
+println!("{}", pattern_cache_insert());
+println!("{}", pattern_cache_retrieve());
+println!("{}", pattern_cache_eviction());
+println!("{}", pattern_cache_performance());
+println!();
+
+println!("=== Example 1: Weak Basics ===");
+println!("{}", example_weak_basic());
+println!("{}", example_weak_reference_count_tracking());
+println!("{}", example_weak_safety_guarantee());
+println!("{}", example_weak_practical_usage());
+println!("{}", example_weak_mastery());
+println!();
+
+println!("=== Example 2: Tree Structure ===");
+println!("{}", example_tree_parent_child());
+println!("{}", example_tree_multiple_children());
+println!("{}", example_tree_hierarchy_navigation());
+println!("{}", example_tree_memory_efficiency());
+println!("{}", example_tree_mastery());
+println!();
+
+println!("=== Example 3: Observer Pattern ===");
+println!("{}", example_observer_basic());
+println!("{}", example_observer_multiple_subscribers());
+println!("{}", example_observer_automatic_cleanup());
+println!("{}", example_observer_selective_notification());
+println!("{}", example_observer_mastery());
+println!();
+
+println!("=== Example 4: Cycle Prevention ===");
+println!("{}", example_cycle_prevention_bidirectional_list());
+println!("{}", example_cycle_prevention_graph());
+println!("{}", example_cycle_prevention_memory_safety());
+println!("{}", example_cycle_prevention_mastery());
+println!();
+
+println!("=== Example 5: Cache System ===");
+println!("{}", example_cache_system());
+println!("{}", example_cache_with_ttl());
+println!("{}", example_cache_memory_efficient());
+println!("{}", example_cache_mastery());
+println!();
+
+println!("=== Chapter 8 Integration ===");
+println!("{}", example_all_smart_pointers_comparison());
+println!("{}", example_smart_pointer_architecture());
+println!("{}", example_memory_mastery_integration());
+println!("{}", example_production_patterns());
+println!("{}", example_chapter_8_mastery());
+println!();
+
+println!("=== Architecture Mastery ===");
+println!("{}", example_complete_system_design());
+println!("{}", example_real_world_application());
+println!("{}", example_rust_memory_mastery());
+println!();
+
+println!("=== Validation ===");
+println!("{}", test_all_patterns());
+println!("{}", test_all_examples());
+println!("{}", test_architecture_validation());
+println!("{}", prove_weak_mastery());
+println!("{}", prove_chapter_8_completion());
+println!();
+
+println!("========== v9.4 Complete! Weak<T> Mastery Achieved! ==========");

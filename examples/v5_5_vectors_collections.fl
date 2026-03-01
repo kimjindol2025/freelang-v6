@@ -1,0 +1,489 @@
+// v5.5: Vectors & Collections - 동적 데이터 관리
+// 철학: "컬렉션과 소유권의 복잡한 상호작용"
+// 설계: 벡터를 통한 동적 데이터 관리와 생명주기
+
+// ============================================================
+// [패턴 1] 벡터 생성 방법
+// ============================================================
+
+// 매크로로 초기화
+fn create_with_macro() -> String {
+  let v = "vec![1,2,3]";
+  v
+}
+
+// new()로 빈 벡터
+fn create_empty() -> String {
+  let v_len = "0";
+  v_len
+}
+
+// with_capacity() 사전 할당
+fn create_with_capacity() -> String {
+  let v_cap = "10";
+  v_cap
+}
+
+// 범위로 생성
+fn create_from_range() -> String {
+  let v_range = "1to5";
+  v_range
+}
+
+// ============================================================
+// [패턴 2] 벡터 추가와 제거
+// ============================================================
+
+// push: 끝에 추가
+fn vector_push() -> String {
+  let mut v = "items:";
+  v = v + "1,";
+  v = v + "2,";
+  v = v + "3";
+  v
+}
+
+// pop: 끝에서 제거
+fn vector_pop() -> String {
+  let v = "removed";
+  v
+}
+
+// insert: 중간에 삽입
+fn vector_insert() -> String {
+  let v = "inserted:50";
+  v
+}
+
+// remove: 중간에서 제거
+fn vector_remove() -> String {
+  let v = "removed:100";
+  v
+}
+
+// ============================================================
+// [패턴 3] 벡터 접근
+// ============================================================
+
+// 인덱싱
+fn vector_index(idx: i32) -> String {
+  if idx == 0 {
+    "first"
+  } else if idx == 1 {
+    "second"
+  } else {
+    "other"
+  }
+}
+
+// 안전한 접근 (get)
+fn vector_get(idx: i32) -> String {
+  if idx >= 0 && idx < 5 {
+    "Some:value"
+  } else {
+    "None"
+  }
+}
+
+// first/last
+fn vector_first_last() -> String {
+  "first:1,last:5"
+}
+
+// ============================================================
+// [패턴 4] 벡터와 소유권
+// ============================================================
+
+// 소유권 이동
+fn ownership_move() -> String {
+  let v1 = "vec1";
+  let v2 = v1;  // 소유권 이동
+  v2
+}
+
+// 참조 차용
+fn borrowing_reference(borrowed: String) -> String {
+  "borrowed:" + borrowed
+}
+
+// 가변 참조
+fn mutable_reference() -> String {
+  let v = "modified";
+  v
+}
+
+// ============================================================
+// [패턴 5] 벡터 반복
+// ============================================================
+
+// 불변 루프
+fn iterate_immutable() -> String {
+  let mut result = "";
+  let items = "1,2,3";
+  result = result + items;
+  result
+}
+
+// 가변 루프 (수정)
+fn iterate_mutable() -> String {
+  let mut result = "";
+  result = result + "2,4,6";
+  result
+}
+
+// 소유권 이동 루프
+fn iterate_move() -> String {
+  let result = "consumed";
+  result
+}
+
+// ============================================================
+// [패턴 6] 벡터와 함수
+// ============================================================
+
+// 벡터 소유권을 받아서 처리
+fn consume_vector(count: i32) -> String {
+  if count == 3 {
+    "3items"
+  } else {
+    "other"
+  }
+}
+
+// 벡터 참조를 받아서 처리
+fn read_vector(size: i32) -> String {
+  if size > 0 {
+    "hasitems"
+  } else {
+    "empty"
+  }
+}
+
+// 벡터를 반환
+fn return_vector() -> String {
+  "vec![1,2,3]"
+}
+
+// ============================================================
+// [패턴 7] 벡터 변환과 필터
+// ============================================================
+
+// 변환: 각 원소를 2배로
+fn double_elements() -> String {
+  "2,4,6"
+}
+
+// 필터: 특정 조건의 원소만
+fn filter_elements() -> String {
+  "2,4"
+}
+
+// 매핑: 구조 변환
+fn map_structure() -> String {
+  "doubled"
+}
+
+// ============================================================
+// [패턴 8] 중첩 벡터 (2D 배열)
+// ============================================================
+
+// 벡터의 벡터
+fn nested_vectors() -> String {
+  let row1 = "1,2,3";
+  let row2 = "4,5,6";
+  "matrix:" + row1 + "|" + row2
+}
+
+// 불규칙한 크기
+fn irregular_vectors() -> String {
+  "vec1:1|vec2:1,2|vec3:1,2,3"
+}
+
+// 2D 접근
+fn access_2d(row: i32, col: i32) -> String {
+  if row == 0 && col == 0 {
+    "1"
+  } else if row == 1 && col == 1 {
+    "5"
+  } else {
+    "other"
+  }
+}
+
+// ============================================================
+// [패턴 9] 벡터와 열거형
+// ============================================================
+
+// 작업 열거형
+fn task_initialize() -> String {
+  "Initialize"
+}
+
+fn task_print(msg: String) -> String {
+  "Print:" + msg
+}
+
+fn task_move(x: i32, y: i32) -> String {
+  "Move:" + x + "," + y
+}
+
+// 벡터에 여러 작업 저장
+fn collect_tasks() -> String {
+  let t1 = task_initialize();
+  let t2 = task_print("시작");
+  let t3 = task_move(10, 20);
+  "tasks:" + t1 + "|" + t2 + "|" + t3
+}
+
+// 벡터의 작업 처리
+fn process_tasks(count: i32) -> String {
+  if count == 3 {
+    "processed:all"
+  } else {
+    "partial"
+  }
+}
+
+// ============================================================
+// [패턴 10] 안전한 벡터 접근
+// ============================================================
+
+// Option을 이용한 안전 접근
+fn safe_access(idx: i32) -> String {
+  if idx >= 0 && idx < 5 {
+    "Some:value"
+  } else {
+    "None"
+  }
+}
+
+// Result를 이용한 에러 처리
+fn access_with_error(idx: i32) -> String {
+  if idx >= 0 && idx < 5 {
+    "Ok:value"
+  } else {
+    "Err:범위초과"
+  }
+}
+
+// 벡터의 첫 번째 안전 접근
+fn get_first(size: i32) -> String {
+  if size > 0 {
+    "Some:first"
+  } else {
+    "None"
+  }
+}
+
+// ============================================================
+// [메인] v5.5 데모: 벡터와 동적 데이터 관리
+// ============================================================
+
+fn main() {
+  println("=== v5.5: Vectors & Collections ===");
+  println("철학: 컬렉션과 소유권의 복잡한 상호작용");
+  println("");
+
+  // ========================================
+  // 1. 벡터 생성 방법
+  // ========================================
+
+  println("--- 1. 벡터 생성 방법 ---");
+  let v1 = create_with_macro();
+  println("매크로: " + v1);
+
+  let v2 = create_empty();
+  println("빈 벡터 크기: " + v2);
+
+  let v3 = create_with_capacity();
+  println("사전 할당 용량: " + v3);
+
+  let v4 = create_from_range();
+  println("범위로 생성: " + v4);
+  println("");
+
+  // ========================================
+  // 2. 벡터 추가와 제거
+  // ========================================
+
+  println("--- 2. 벡터 추가와 제거 ---");
+  let push_result = vector_push();
+  println("push 결과: " + push_result);
+
+  let pop_result = vector_pop();
+  println("pop 결과: " + pop_result);
+
+  let insert_result = vector_insert();
+  println("insert 결과: " + insert_result);
+
+  let remove_result = vector_remove();
+  println("remove 결과: " + remove_result);
+  println("");
+
+  // ========================================
+  // 3. 벡터 접근
+  // ========================================
+
+  println("--- 3. 벡터 접근 ---");
+  let idx0 = vector_index(0);
+  println("인덱스 0: " + idx0);
+
+  let idx1 = vector_index(1);
+  println("인덱스 1: " + idx1);
+
+  let safe = vector_get(2);
+  println("안전한 접근: " + safe);
+
+  let first_last = vector_first_last();
+  println("첫과 끝: " + first_last);
+  println("");
+
+  // ========================================
+  // 4. 소유권 관리
+  // ========================================
+
+  println("--- 4. 소유권 관리 ---");
+  let moved = ownership_move();
+  println("소유권 이동: " + moved);
+
+  let borrowed_val = "data";
+  let borrowed_result = borrowing_reference(borrowed_val);
+  println("참조 차용: " + borrowed_result);
+
+  let mut_result = mutable_reference();
+  println("가변 참조: " + mut_result);
+  println("");
+
+  // ========================================
+  // 5. 벡터 반복
+  // ========================================
+
+  println("--- 5. 벡터 반복 ---");
+  let immut_loop = iterate_immutable();
+  println("불변 루프: " + immut_loop);
+
+  let mut_loop = iterate_mutable();
+  println("가변 루프: " + mut_loop);
+
+  let move_loop = iterate_move();
+  println("소유권 루프: " + move_loop);
+  println("");
+
+  // ========================================
+  // 6. 벡터와 함수
+  // ========================================
+
+  println("--- 6. 벡터와 함수 ---");
+  let consumed = consume_vector(3);
+  println("소비: " + consumed);
+
+  let read = read_vector(5);
+  println("읽기: " + read);
+
+  let returned = return_vector();
+  println("반환: " + returned);
+  println("");
+
+  // ========================================
+  // 7. 변환과 필터
+  // ========================================
+
+  println("--- 7. 변환과 필터 ---");
+  let doubled = double_elements();
+  println("2배 변환: " + doubled);
+
+  let filtered = filter_elements();
+  println("필터: " + filtered);
+
+  let mapped = map_structure();
+  println("매핑: " + mapped);
+  println("");
+
+  // ========================================
+  // 8. 중첩 벡터
+  // ========================================
+
+  println("--- 8. 중첩 벡터 (2D 배열) ---");
+  let nested = nested_vectors();
+  println(nested);
+
+  let irregular = irregular_vectors();
+  println("불규칙: " + irregular);
+
+  let elem = access_2d(1, 1);
+  println("(1,1) 접근: " + elem);
+  println("");
+
+  // ========================================
+  // 9. 벡터와 열거형
+  // ========================================
+
+  println("--- 9. 벡터와 열거형 ---");
+  let collected = collect_tasks();
+  println("작업 수집: " + collected);
+
+  let processed = process_tasks(3);
+  println("처리: " + processed);
+
+  let t1 = task_initialize();
+  println("작업 1: " + t1);
+
+  let t2 = task_print("보안");
+  println("작업 2: " + t2);
+  println("");
+
+  // ========================================
+  // 10. 안전한 접근
+  // ========================================
+
+  println("--- 10. 안전한 벡터 접근 ---");
+  let safe_ok = safe_access(2);
+  println("안전 접근 (2): " + safe_ok);
+
+  let safe_err = safe_access(10);
+  println("안전 접근 (10): " + safe_err);
+
+  let result_ok = access_with_error(1);
+  println("Result (1): " + result_ok);
+
+  let result_err = access_with_error(10);
+  println("Result (10): " + result_err);
+
+  let first = get_first(5);
+  println("첫 번째: " + first);
+  println("");
+
+  // ========================================
+  // v5.5의 의의
+  // ========================================
+
+  println("=== v5.5의 의의 ===");
+  println("");
+
+  println("[동적 관리]");
+  println("런타임에 크기가 결정되는 데이터 관리");
+  println("");
+
+  println("[소유권 안전성]");
+  println("벡터가 원소의 생명주기를 자동 관리");
+  println("");
+
+  println("[메모리 효율]");
+  println("자동 메모리 할당과 재할당");
+  println("");
+
+  println("[참조와 이동]");
+  println("소유권과 빌림으로 명확한 의도 표현");
+  println("");
+
+  // 최종 메시지
+  println("=== v5.5 완성 ===");
+  println("");
+  println("이제 당신은:");
+  println("✓ 동적 크기의 데이터를 관리하고");
+  println("✓ 여러 원소의 생명주기를 제어하며");
+  println("✓ 효율적인 반복과 변환을 수행하는");
+  println("✓ '동적 시스템'을 구축할 수 있습니다.");
+  println("");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

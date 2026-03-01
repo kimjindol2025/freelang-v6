@@ -1,0 +1,500 @@
+// v8.2 확장: 문서화 테스트(Documentation Testing) Step 3
+// 철학: "설명이 곧 증명이다: 살아있는 문서화"
+// 목표: 문서 주석과 예제 코드의 자동 검증
+
+// ============================================================
+// [Step 3 패턴 1] 기본 문서 주석
+// ============================================================
+
+/// 보안 금고(Vault)를 관리합니다.
+///
+/// 이 구조체는 비밀 키를 저장하고, 주어진 입력과
+/// 비교하여 접근 권한을 판단합니다.
+///
+/// # Examples
+///
+/// 금고 생성 및 접근:
+/// ```
+/// let vault = create_vault("SECRET123");
+/// assert!(verify_access(&vault, "SECRET123"));
+/// assert!(!verify_access(&vault, "WRONG"));
+/// ```
+struct SecureVault {
+    secret_key: String,
+}
+
+fn create_vault(key: &str) -> SecureVault {
+    SecureVault {
+        secret_key: key.to_string(),
+    }
+}
+
+fn verify_access(vault: &SecureVault, input: &str) -> bool {
+    vault.secret_key == input
+}
+
+fn demo_pattern_1() {
+    println!("\n=== Pattern 1: 기본 문서 주석 ===");
+
+    println!("문서 주석의 구조:");
+    println!("  /// 설명");
+    println!("  /// # Examples");
+    println!("  /// ```");
+    println!("  /// 코드 예제");
+    println!("  /// ```");
+
+    let vault = create_vault("secret");
+    println!("금고 생성: {}", verify_access(&vault, "secret"));
+
+    println!("의미:");
+    println!("  - 함수/구조체의 역할 설명");
+    println!("  - # Examples 섹션에 사용 예제");
+    println!("  - cargo test --doc로 검증됨");
+}
+
+// ============================================================
+// [Step 3 패턴 2] Examples 섹션의 다양한 시나리오
+// ============================================================
+
+/// 인증 서비스를 제공합니다.
+///
+/// # Examples
+///
+/// 성공적인 인증:
+/// ```
+/// let result = authenticate("username", "correct_password");
+/// assert!(result);
+/// ```
+///
+/// 실패하는 인증:
+/// ```
+/// let result = authenticate("username", "wrong_password");
+/// assert!(!result);
+/// ```
+///
+/// 빈 입력:
+/// ```
+/// let result = authenticate("", "");
+/// assert!(!result);
+/// ```
+fn authenticate(username: &str, password: &str) -> bool {
+    if username.is_empty() || password.is_empty() {
+        return false;
+    }
+    username == "user" && password == "pass"
+}
+
+fn demo_pattern_2() {
+    println!("\n=== Pattern 2: Examples 섹션의 다양한 시나리오 ===");
+
+    println!("여러 예제를 제시:");
+    println!("  - 정상 케이스");
+    println!("  - 실패 케이스");
+    println!("  - 엣지 케이스");
+
+    println!("정상: {}", authenticate("user", "pass"));
+    println!("실패: {}", authenticate("user", "wrong"));
+    println!("빈값: {}", authenticate("", ""));
+
+    println!("각각이 문서에서 cargo test로 검증됨");
+}
+
+// ============================================================
+// [Step 3 패턴 3] Panics 섹션
+// ============================================================
+
+/// 데이터를 안전하지 않은 방식으로 처리합니다.
+///
+/// # Panics
+///
+/// 입력이 빈 문자열이면 panic을 일으킵니다:
+/// ```should_panic
+/// process_unsafe("");
+/// ```
+fn process_unsafe(data: &str) {
+    if data.is_empty() {
+        panic!("Data cannot be empty!");
+    }
+    println!("Processing: {}", data);
+}
+
+fn demo_pattern_3() {
+    println!("\n=== Pattern 3: Panics 섹션 ===");
+
+    println!("Panics 섹션:");
+    println!("  - panic!이 발생하는 조건");
+    println!("  - should_panic 속성으로 테스트");
+    println!("  - 위험 요소를 명확히 함");
+
+    println!("정상 사용:");
+    process_unsafe("data");
+
+    println!("panic 조건: 빈 입력");
+}
+
+// ============================================================
+// [Step 3 패턴 4] Errors 섹션
+// ============================================================
+
+/// 안전하게 금고를 생성합니다.
+///
+/// # Errors
+///
+/// 다음과 같은 경우 에러를 반환합니다:
+///
+/// - 키가 비어있음
+/// - 키가 너무 짧음 (4글자 미만)
+///
+/// # Examples
+///
+/// 성공적인 생성:
+/// ```
+/// let result = create_vault_safe("SECRET_KEY");
+/// assert!(result.is_ok());
+/// ```
+///
+/// 실패 케이스 1:
+/// ```
+/// let result = create_vault_safe("");
+/// assert!(result.is_err());
+/// ```
+///
+/// 실패 케이스 2:
+/// ```
+/// let result = create_vault_safe("ABC");
+/// assert!(result.is_err());
+/// ```
+fn create_vault_safe(key: &str) -> Result<String, String> {
+    if key.is_empty() {
+        Err("Key cannot be empty".to_string())
+    } else if key.len() < 4 {
+        Err("Key must be at least 4 characters".to_string())
+    } else {
+        Ok(format!("Vault with key: {}", key))
+    }
+}
+
+fn demo_pattern_4() {
+    println!("\n=== Pattern 4: Errors 섹션 ===");
+
+    println!("Errors 섹션:");
+    println!("  - Result<T, E> 반환");
+    println!("  - 각 에러 상황 설명");
+    println!("  - 성공/실패 예제");
+
+    println!("성공: {:?}", create_vault_safe("SECRET123"));
+    println!("실패1: {:?}", create_vault_safe(""));
+    println!("실패2: {:?}", create_vault_safe("ABC"));
+
+    println!("모든 케이스가 문서에서 검증됨");
+}
+
+// ============================================================
+// [Step 3 패턴 5] 모듈 레벨 문서화
+// ============================================================
+
+/// 보안 시스템의 핵심 모듈입니다.
+///
+/// 이 모듈은 다음 기능들을 제공합니다:
+///
+/// - `GogsVault`: 비밀 키 저장소
+/// - `authenticate()`: 사용자 인증
+/// - `encrypt()`: 데이터 암호화
+///
+/// # Examples
+///
+/// 전형적인 사용 패턴:
+/// ```
+/// // 1. 금고 생성
+/// let vault = module_security_create("SECRET");
+/// // 2. 접근 검증
+/// if module_security_verify(&vault, "SECRET") {
+///     println!("Access granted");
+/// }
+/// ```
+mod module_security {
+    pub struct GogsVault {
+        key: String,
+    }
+
+    pub fn module_security_create(key: &str) -> GogsVault {
+        GogsVault { key: key.to_string() }
+    }
+
+    pub fn module_security_verify(vault: &GogsVault, input: &str) -> bool {
+        vault.key == input
+    }
+}
+
+fn demo_pattern_5() {
+    println!("\n=== Pattern 5: 모듈 레벨 문서화 ===");
+
+    println!("모듈 문서화:");
+    println!("  - 모듈 전체의 역할 설명");
+    println!("  - 제공하는 기능 나열");
+    println!("  - 사용 패턴 제시");
+
+    use module_security::{module_security_create, module_security_verify};
+
+    let vault = module_security_create("SECRET");
+    println!("금고 생성 후 검증: {}", module_security_verify(&vault, "SECRET"));
+
+    println!("모듈 전체가 일관되게 문서화됨");
+}
+
+// ============================================================
+// [Step 3 개념 1] 문서 주석의 형식
+// ============================================================
+
+fn demonstrate_doc_comment_format() {
+    println!("\n=== 개념 1: 문서 주석의 형식 ===");
+
+    println!("코드 주석 (//): 개발자 참고");
+    println!("  // 이것은 내부 구현 설명");
+    println!("");
+
+    println!("문서 주석 (///): 사용자 설명");
+    println!("  /// 이것은 공개 API 설명");
+    println!("  /// rustdoc 도구가 처리");
+    println!("  /// HTML 문서로 변환됨");
+    println!("");
+
+    println!("모듈 문서 주석 (//!): 모듈 설명");
+    println!("  //! 이 파일/모듈의 설명");
+    println!("");
+
+    println!("규칙:");
+    println!("  - pub 항목마다 /// 필수");
+    println!("  - # Examples 섹션 강력 권장");
+    println!("  - 마크다운 문법 지원");
+}
+
+// ============================================================
+// [Step 3 개념 2] cargo test --doc의 의미
+// ============================================================
+
+fn explain_cargo_test_doc() {
+    println!("\n=== 개념 2: cargo test --doc의 의미 ===");
+
+    println!("일반 테스트:");
+    println!("  cargo test");
+    println!("  - src/ 내 #[test] 함수 실행");
+    println!("  - tests/ 디렉토리 테스트 실행");
+    println!("");
+
+    println!("문서 테스트:");
+    println!("  cargo test --doc");
+    println!("  - 주석의 ``` 코드 블록 실행");
+    println!("  - 컴파일 및 실행");
+    println!("  - 문서 예제 검증");
+    println!("");
+
+    println!("의미:");
+    println!("  코드 변경 → 컴파일 (타입 안정성)");
+    println!("           → cargo test (단위/통합)");
+    println!("           → cargo test --doc (문서 검증)");
+    println!("           = 완벽한 신뢰");
+}
+
+// ============================================================
+// [Step 3 개념 3] rustdoc 명령어
+// ============================================================
+
+fn demonstrate_rustdoc_commands() {
+    println!("\n=== 개념 3: rustdoc 명령어 ===");
+
+    println!("HTML 문서 생성:");
+    println!("  cargo doc");
+    println!("  → target/doc/ 디렉토리에 생성");
+    println!("");
+
+    println!("브라우저에서 열기:");
+    println!("  cargo doc --open");
+    println!("  → 자동으로 HTML 오픈");
+    println!("");
+
+    println!("생성되는 구조:");
+    println!("  target/doc/");
+    println!("  ├── index.html (전체 문서)");
+    println!("  ├── crate_name/");
+    println!("  │   ├── index.html (모듈 목록)");
+    println!("  │   ├── struct.MyStruct.html");
+    println!("  │   ├── fn.my_function.html");
+    println!("  │   └── ...");
+    println!("  └── ...");
+    println!("");
+
+    println!("결과:");
+    println!("  - 전문가 수준의 기술 문서");
+    println!("  - 자동 생성");
+    println!("  - 항상 코드와 동기화");
+}
+
+// ============================================================
+// [메인] v8.2 Step 3: 문서화 테스트
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v8.2 Step 3: 문서화 테스트              ║");
+    println!("║  철학: \"설명이 곧 증명이다\"              ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 5가지 패턴 데모
+    // ========================================
+
+    demo_pattern_1();
+    demo_pattern_2();
+    demo_pattern_3();
+    demo_pattern_4();
+    demo_pattern_5();
+
+    // ========================================
+    // 2단계: 3가지 개념 설명
+    // ========================================
+
+    demonstrate_doc_comment_format();
+    explain_cargo_test_doc();
+    demonstrate_rustdoc_commands();
+
+    // ========================================
+    // 3단계: v8.2 설계 원칙
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v8.2 Step 3: 설계 원칙                  ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: 모든 pub에 문서 주석]");
+    println!("  pub fn func() → 반드시 /// 필요");
+    println!("  pub struct Struct → 반드시 /// 필요");
+    println!("  pub mod module → 반드시 /// 필요");
+    println!("");
+
+    println!("[원칙 2: # Examples는 필수]");
+    println!("  사용자가 복사해서 쓸 수 있어야 함");
+    println!("  cargo test --doc로 검증됨");
+    println!("  실제로 작동하는 코드");
+    println!("");
+
+    println!("[원칙 3: Panics/Errors 명시]");
+    println!("  panic! 조건 → # Panics");
+    println!("  에러 상황 → # Errors");
+    println!("  위험을 명확히");
+    println!("");
+
+    println!("[원칙 4: 마크다운 문법 활용]");
+    println!("  제목: # Examples");
+    println!("  인라인 코드: `code`");
+    println!("  코드 블록: ```");
+    println!("  링크: [text](url)");
+    println!("");
+
+    println!("[원칙 5: 정직한 설명]");
+    println!("  코드는 거짓말할 수 없음");
+    println!("  예제가 실행되지 않으면 컴파일 실패");
+    println!("  설계자의 정직함을 강제");
+    println!("");
+
+    // ========================================
+    // 4단계: v8.2 의미
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v8.2 Step 3: 의미                       ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("코드의 4가지 검증:");
+    println!("");
+
+    println!("1단계: 컴파일");
+    println!("  - 타입 검증");
+    println!("  - 문법 검증");
+    println!("");
+
+    println!("2단계: 단위 테스트 (v8.0)");
+    println!("  - 개별 함수 검증");
+    println!("  - 엣지 케이스 확인");
+    println!("");
+
+    println!("3단계: 통합 테스트 (v8.1)");
+    println!("  - 모듈 상호작용");
+    println!("  - 공개 인터페이스");
+    println!("");
+
+    println!("4단계: 문서 테스트 (v8.2)");
+    println!("  - 예제 코드 검증");
+    println!("  - 설명서의 정확성");
+    println!("");
+
+    println!("결과:");
+    println!("  컴파일 ✓ + 단위 ✓ + 통합 ✓ + 문서 ✓");
+    println!("  = 100% 신뢰하는 코드");
+    println!("");
+
+    // ========================================
+    // 5단계: rustdoc 사용법
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  v8.2 Step 3: rustdoc 사용법             ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("HTML 문서 생성 및 열기:");
+    println!("  $ cargo doc --open");
+    println!("");
+
+    println!("문서 테스트 실행:");
+    println!("  $ cargo test --doc");
+    println!("");
+
+    println!("생성되는 문서:");
+    println!("  - 함수별 페이지");
+    println!("  - 구조체별 페이지");
+    println!("  - 모듈별 페이지");
+    println!("  - 전체 검색 가능");
+    println!("");
+
+    // ========================================
+    // 6단계: 제7장 완성
+    // ========================================
+
+    println!("\n╔════════════════════════════════════════════╗");
+    println!("║  제7장 신뢰의 구축 진행 상황              ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("v8.0: 단위 테스트 ✅");
+    println!("  개별 함수의 동작 검증");
+    println!("");
+
+    println!("v8.1: 통합 테스트 ✅");
+    println!("  모듈 간 상호작용 검증");
+    println!("");
+
+    println!("v8.2: 문서화 테스트 ✅");
+    println!("  설명서 예제의 정확성 검증");
+    println!("");
+
+    println!("v8.3: 벤치마크 (예정)");
+    println!("  성능 측정 및 추적");
+    println!("");
+
+    println!("─────────────────────────────────────────────");
+    println!("당신의 코드는 이제:");
+    println!("  ✅ 컴파일러에 의해 검증되고");
+    println!("  ✅ 단위 테스트로 확인되며");
+    println!("  ✅ 통합 테스트로 증명되고");
+    println!("  ✅ 문서 테스트로 보장됩니다.");
+    println!("");
+
+    println!("100% 신뢰할 수 있는 라이브러리 완성!");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

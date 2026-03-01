@@ -1,0 +1,379 @@
+/**
+ * FreeLang v3.4: Pattern Matching (논리의 집약)
+ *
+ * 목표: 패턴 매칭을 통한 결정론적 설계 (상태 머신 완성)
+ * 테스트 count: 31개 항목
+ */
+
+fn main() {
+    println("=== FreeLang v3.4 Pattern Matching Test Suite ===");
+    println("");
+
+    test_literal_pattern();
+    test_range_pattern();
+    test_or_pattern();
+    test_guard_clause();
+    test_wildcard();
+    test_match_as_expression();
+    test_nested_match();
+    test_complex_patterns();
+    test_real_world_scenario();
+
+    println("");
+    println("=== Test Complete ===");
+}
+
+/**
+ * [Test 1] Literal Pattern
+ */
+fn test_literal_pattern() {
+    println("▶ Literal Pattern Test");
+
+    // Test 1.1: String literal
+    let result = match "online" {
+        "online" => "System UP",
+        "offline" => "System DOWN",
+        _ => "Unknown",
+    };
+    println("  ✓ String literal: " + result);
+    assert(result == "System UP");
+
+    // Test 1.2: Number literal
+    result = match 42 {
+        42 => "Answer",
+        0 => "Zero",
+        _ => "Other",
+    };
+    println("  ✓ Number literal: " + result);
+    assert(result == "Answer");
+
+    // Test 1.3: Boolean literal
+    result = match true {
+        true => "Yes",
+        false => "No",
+    };
+    println("  ✓ Boolean literal: " + result);
+    assert(result == "Yes");
+
+    println("");
+}
+
+/**
+ * [Test 2] Range Pattern
+ */
+fn test_range_pattern() {
+    println("▶ Range Pattern Test");
+
+    // Test 2.1: Simple range
+    let category = match 15 {
+        0..=10 => "Low",
+        11..=20 => "Medium",
+        21..=30 => "High",
+        _ => "Very High",
+    };
+    println("  ✓ Range 11..=20: " + category);
+    assert(category == "Medium");
+
+    // Test 2.2: Temperature classification
+    category = match 75 {
+        0..=10 => "Cold",
+        11..=20 => "Cool",
+        21..=30 => "Warm",
+        31..=100 => "Hot",
+        _ => "Invalid",
+    };
+    println("  ✓ Temperature 75: " + category);
+    assert(category == "Hot");
+
+    // Test 2.3: Edge case - boundary
+    category = match 20 {
+        0..=10 => "Low",
+        11..=20 => "Medium",
+        21..=30 => "High",
+        _ => "Very High",
+    };
+    println("  ✓ Boundary 20: " + category);
+    assert(category == "Medium");
+
+    // Test 2.4: Edge case - out of range
+    category = match 999 {
+        0..=100 => "In Range",
+        _ => "Out of Range",
+    };
+    println("  ✓ Out of range: " + category);
+    assert(category == "Out of Range");
+
+    println("");
+}
+
+/**
+ * [Test 3] Or Pattern
+ */
+fn test_or_pattern() {
+    println("▶ Or Pattern Test");
+
+    // Test 3.1: Number or pattern
+    let day_type = match 1 {
+        1 | 2 | 3 | 4 | 5 => "Weekday",
+        6 | 7 => "Weekend",
+        _ => "Invalid",
+    };
+    println("  ✓ Weekday (1): " + day_type);
+    assert(day_type == "Weekday");
+
+    // Test 3.2: String or pattern
+    day_type = match "Saturday" {
+        "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" => "Weekday",
+        "Saturday" | "Sunday" => "Weekend",
+        _ => "Unknown",
+    };
+    println("  ✓ Weekend (Saturday): " + day_type);
+    assert(day_type == "Weekend");
+
+    // Test 3.3: Another or pattern
+    let role_access = match "editor" {
+        "admin" | "super" => "Full Access",
+        "editor" | "moderator" => "Limited Access",
+        "viewer" => "Read Only",
+        _ => "No Access",
+    };
+    println("  ✓ Editor access: " + role_access);
+    assert(role_access == "Limited Access");
+
+    println("");
+}
+
+/**
+ * [Test 4] Guard Clause
+ */
+fn test_guard_clause() {
+    println("▶ Guard Clause Test");
+
+    // Test 4.1: Simple guard
+    let status = match 8 {
+        1..=10 if 1 < 2 => "Valid",
+        1..=10 => "Invalid",
+        _ => "Out of Range",
+    };
+    println("  ✓ Guard true: " + status);
+    assert(status == "Valid");
+
+    // Test 4.2: Guard false
+    status = match 15 {
+        1..=10 if 1 < 2 => "Low with Guard",
+        1..=20 => "Low",
+        _ => "High",
+    };
+    println("  ✓ Guard false: " + status);
+    assert(status == "Low");
+
+    // Test 4.3: Guard with variable
+    let value = 5;
+    status = match value {
+        1..=10 if value > 3 => "Above threshold",
+        1..=10 => "Below threshold",
+        _ => "Out of range",
+    };
+    println("  ✓ Guard with variable: " + status);
+    assert(status == "Above threshold");
+
+    println("");
+}
+
+/**
+ * [Test 5] Wildcard Pattern
+ */
+fn test_wildcard() {
+    println("▶ Wildcard Pattern Test");
+
+    // Test 5.1: Default case
+    let action = match "unknown_action" {
+        "create" => "Creating item",
+        "delete" => "Deleting item",
+        "update" => "Updating item",
+        _ => "Unknown action",
+    };
+    println("  ✓ Wildcard default: " + action);
+    assert(action == "Unknown action");
+
+    // Test 5.2: Wildcard catch-all
+    let permission = match 999 {
+        1 => "Admin",
+        2 => "User",
+        _ => "Guest",
+    };
+    println("  ✓ Wildcard catch-all: " + permission);
+    assert(permission == "Guest");
+
+    println("");
+}
+
+/**
+ * [Test 6] Match as Expression
+ */
+fn test_match_as_expression() {
+    println("▶ Match as Expression Test");
+
+    // Test 6.1: Assign to variable
+    let priority = match "high" {
+        "critical" => 5,
+        "high" => 4,
+        "medium" => 3,
+        "low" => 2,
+        _ => 1,
+    };
+    println("  ✓ Match expression (high): " + priority);
+    assert(priority == 4);
+
+    // Test 6.2: Use in function call
+    println("  ✓ Priority: " + priority);
+
+    // Test 6.3: Nested match in assignment
+    let result = match true {
+        true => "yes",
+        false => "no",
+    };
+    println("  ✓ Boolean match: " + result);
+    assert(result == "yes");
+
+    // Test 6.4: Match returning number
+    let code = match "ERROR" {
+        "OK" => 200,
+        "ERROR" => 500,
+        "NOT_FOUND" => 404,
+        _ => 0,
+    };
+    println("  ✓ Match returning code: " + code);
+    assert(code == 500);
+
+    println("");
+}
+
+/**
+ * [Test 7] Nested Match
+ */
+fn test_nested_match() {
+    println("▶ Nested Match Test");
+
+    // Test 7.1: Nested match
+    let status = match 5 {
+        1..=3 => match 5 {
+            _ => "Low-Other",
+        },
+        4..=6 => match 5 {
+            _ => "Mid-Range",
+        },
+        _ => "High",
+    };
+    println("  ✓ Nested match: " + status);
+    assert(status == "Mid-Range");
+
+    println("");
+}
+
+/**
+ * [Test 8] Complex Patterns
+ */
+fn test_complex_patterns() {
+    println("▶ Complex Patterns Test");
+
+    // Test 8.1: System state machine
+    let action = match 7 {
+        1 => "Core 1: Main",
+        2 | 3 | 4 => "Cores 2-4: Aux",
+        5..=10 => "Cores 5-10: Standby",
+        _ => "Unknown",
+    };
+    println("  ✓ Complex: " + action);
+    assert(action == "Cores 5-10: Standby");
+
+    // Test 8.2: HTTP status codes
+    let message = match 404 {
+        200 => "OK",
+        201..=299 => "Success",
+        400 => "Bad Request",
+        401 => "Unauthorized",
+        404 => "Not Found",
+        500..=599 => "Server Error",
+        _ => "Unknown Status",
+    };
+    println("  ✓ HTTP status: " + message);
+    assert(message == "Not Found");
+
+    // Test 8.3: User role permissions
+    let access = match "admin" {
+        "admin" | "super" => "Full Access",
+        "moderator" | "editor" => "Limited Access",
+        "user" => "User Access",
+        "guest" => "View Only",
+        _ => "No Access",
+    };
+    println("  ✓ Role-based access: " + access);
+    assert(access == "Full Access");
+
+    println("");
+}
+
+/**
+ * [Test 9] Real-world Scenario
+ */
+fn test_real_world_scenario() {
+    println("▶ Real-world Scenario Test");
+
+    // Scenario: System state machine
+    fn analyze_system(core_id, system_status) {
+        let action_plan = match core_id {
+            1 => "Monitor main processor",
+            2 | 3 | 4 => "Check auxiliary cores",
+            5..=10 if system_status == "OVERLOAD" => "CRITICAL: Activate cooling",
+            5..=10 => "Standby mode",
+            _ => "Unknown core ID",
+        };
+        return action_plan;
+    }
+
+    let plan1 = analyze_system(1, "STABLE");
+    println("  ✓ Core 1, STABLE: " + plan1);
+    assert(plan1 == "Monitor main processor");
+
+    let plan2 = analyze_system(7, "OVERLOAD");
+    println("  ✓ Core 7, OVERLOAD: " + plan2);
+    assert(plan2 == "CRITICAL: Activate cooling");
+
+    let plan3 = analyze_system(7, "STABLE");
+    println("  ✓ Core 7, STABLE: " + plan3);
+    assert(plan3 == "Standby mode");
+
+    // Scenario: API response handler
+    fn handle_response(status_code) {
+        return match status_code {
+            200 => "Success",
+            201 | 202 | 204 => "Accepted",
+            300 | 301 | 302 => "Redirect",
+            400 => "Bad Request",
+            401 | 403 => "Permission Denied",
+            404 => "Not Found",
+            500 => "Server Error",
+            _ => "Unknown Response",
+        };
+    }
+
+    let response1 = handle_response(200);
+    println("  ✓ Status 200: " + response1);
+    assert(response1 == "Success");
+
+    let response2 = handle_response(404);
+    println("  ✓ Status 404: " + response2);
+    assert(response2 == "Not Found");
+
+    println("");
+}
+
+/**
+ * Simple assert function
+ */
+fn assert(condition) {
+    if !condition {
+        println("❌ ASSERTION FAILED");
+    }
+}

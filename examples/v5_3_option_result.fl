@@ -1,0 +1,410 @@
+// v5.3: Option & Result - The Power of Enums
+// 철학: "예외의 명시화"
+// 설계: 부재(None)와 실패(Error)를 안전하게 다루기
+
+// ============================================================
+// [패턴 1] Option: 값이 있을 수도 없을 수도 있는 상황
+// ============================================================
+
+// 데이터베이스 조회 (사용자를 찾을 수도 못 찾을 수도)
+fn find_user(id: i32) -> String {
+  if id > 0 {
+    "Some:user_" + id
+  } else {
+    "None"
+  }
+}
+
+// 배열에서 인덱싱 (인덱스가 유효할 수도 없을 수도)
+fn get_at_index(index: i32, size: i32) -> String {
+  if index >= 0 && index < size {
+    "Some:item_" + index
+  } else {
+    "None"
+  }
+}
+
+// 딕셔너리 조회 (키가 있을 수도 없을 수도)
+fn get_config(key: String) -> String {
+  if key == "timeout" {
+    "Some:3000"
+  } else if key == "retries" {
+    "Some:5"
+  } else {
+    "None"
+  }
+}
+
+// Option 처리 (match)
+fn handle_option(opt: String) -> String {
+  if opt == "Some:value" {
+    "Found: " + "value"
+  } else if opt == "None" {
+    "Not found"
+  } else {
+    "Unknown"
+  }
+}
+
+// ============================================================
+// [패턴 2] Result: 성공할 수도 실패할 수도 있는 작업
+// ============================================================
+
+// 나눗셈 (0으로 나누면 실패)
+fn divide(a: i32, b: i32) -> String {
+  if b == 0 {
+    "Err:분모가 0입니다"
+  } else {
+    "Ok:" + (a / b)
+  }
+}
+
+// 시스템 리소스 분배
+fn divide_system_resource(total: i32, divisor: i32) -> String {
+  if divisor == 0 {
+    "Err:나누기 연산 중 분모가 0입니다. (연산 불가)"
+  } else if divisor > total {
+    "Err:분모가 전체보다 클 수 없습니다"
+  } else {
+    "Ok:" + (total / divisor)
+  }
+}
+
+// 파일 읽기 시뮬레이션 (파일이 없으면 실패)
+fn read_file(path: String) -> String {
+  if path == "valid.txt" {
+    "Ok:file_content"
+  } else {
+    "Err:파일을 찾을 수 없습니다"
+  }
+}
+
+// 이메일 유효성 검사
+fn validate_email(email: String) -> String {
+  if email == "valid@example.com" {
+    "Ok:" + email
+  } else {
+    "Err:이메일 형식이 올바르지 않습니다"
+  }
+}
+
+// Result 처리 (match)
+fn handle_result(res: String) -> String {
+  if res == "Ok:success" {
+    "Success"
+  } else if res == "Err:error" {
+    "Error occurred"
+  } else {
+    "Unknown result"
+  }
+}
+
+// ============================================================
+// [패턴 3] 안전한 데이터 추출
+// ============================================================
+
+// Option에서 안전하게 값 추출 (if-let 패턴)
+fn extract_from_option(opt: String) -> String {
+  if opt == "Some:data" {
+    "data"
+  } else {
+    "default"
+  }
+}
+
+// Result에서 안전하게 값 추출 (if-let 패턴)
+fn extract_from_result(res: String) -> String {
+  if res == "Ok:data" {
+    "data"
+  } else {
+    "error_default"
+  }
+}
+
+// ============================================================
+// [패턴 4] 에러 정보 전파
+// ============================================================
+
+// 첫 번째 작업
+fn step1(should_fail: bool) -> String {
+  if should_fail {
+    "Err:step1 failed"
+  } else {
+    "Ok:step1_result"
+  }
+}
+
+// 두 번째 작업 (첫 번째 결과에 의존)
+fn step2_with_propagation(step1_result: String) -> String {
+  if step1_result == "Ok:step1_result" {
+    "Ok:step2_result"
+  } else {
+    step1_result  // 에러 전파
+  }
+}
+
+// 최종 작업 (모든 작업 연쇄)
+fn process_pipeline(should_fail: bool) -> String {
+  let r1 = step1(should_fail);
+  let r2 = step2_with_propagation(r1);
+  r2
+}
+
+// ============================================================
+// [패턴 5] Option 연쇄 처리
+// ============================================================
+
+// 중첩된 Option 처리
+fn find_user_email(user_id: i32) -> String {
+  let user_opt = find_user(user_id);
+  if user_opt == "Some:user_1" {
+    "Some:user1@example.com"
+  } else {
+    "None"
+  }
+}
+
+// Option에서 값 추출 후 추가 작업
+fn get_and_validate_config(key: String) -> String {
+  let config = get_config(key);
+  if config == "Some:3000" {
+    config
+  } else if config == "Some:5" {
+    config
+  } else {
+    "None:default_config"
+  }
+}
+
+// ============================================================
+// [패턴 6] Result 연쇄 처리
+// ============================================================
+
+// 여러 단계의 Result 연쇄
+fn validate_and_process(email: String, resources: i32, divisor: i32) -> String {
+  let email_check = validate_email(email);
+
+  if email_check == "Ok:" + email {
+    let resource_check = divide_system_resource(resources, divisor);
+    resource_check
+  } else {
+    email_check
+  }
+}
+
+// ============================================================
+// [패턴 7] 안전한 시스템 상태 관리
+// ============================================================
+
+// 시스템 초기화 (실패할 수 있음)
+fn initialize_system(config_path: String) -> String {
+  let config_result = read_file(config_path);
+  if config_result == "Ok:file_content" {
+    "Ok:system_initialized"
+  } else {
+    "Err:초기화 실패: 설정 파일을 읽을 수 없습니다"
+  }
+}
+
+// ============================================================
+// [메인] v5.3 데모: Option과 Result
+// ============================================================
+
+fn main() {
+  println("=== v5.3: Option & Result (The Power of Enums) ===");
+  println("철학: 예외의 명시화");
+  println("");
+
+  // ========================================
+  // 1. Option의 개념
+  // ========================================
+
+  println("--- 1. Option: 값이 있을 수도 없을 수도 ---");
+  println("러스트에는 null이 없습니다. 대신 Option이 있습니다.");
+  println("");
+
+  // 존재하는 사용자 조회
+  let user_opt1 = find_user(1);
+  println("사용자 1 조회: ");
+  println(user_opt1);
+
+  // 존재하지 않는 사용자 조회
+  let user_opt2 = find_user(-1);
+  println("사용자 -1 조회: ");
+  println(user_opt2);
+  println("");
+
+  // ========================================
+  // 2. Option 처리 (match)
+  // ========================================
+
+  println("--- 2. Option 처리: match로 모든 경우 다루기 ---");
+  let result_opt = get_at_index(2, 5);
+  println("인덱스 2 조회 (배열 크기 5): ");
+  if result_opt == "Some:item_2" {
+    println("[SUCCESS] 데이터 발견");
+  } else if result_opt == "None" {
+    println("[NOTICE] 데이터 없음");
+  }
+  println("");
+
+  // ========================================
+  // 3. Result의 개념
+  // ========================================
+
+  println("--- 3. Result: 성공할 수도 실패할 수도 ---");
+  println("함수가 실패할 가능성을 반환값으로 표현합니다.");
+  println("");
+
+  // 성공하는 나눗셈
+  let div_ok = divide(10, 2);
+  println("10 / 2 결과: ");
+  println(div_ok);
+
+  // 실패하는 나눗셈
+  let div_err = divide(10, 0);
+  println("10 / 0 결과: ");
+  println(div_err);
+  println("");
+
+  // ========================================
+  // 4. Result 처리 (match)
+  // ========================================
+
+  println("--- 4. Result 처리: match로 성공/실패 다루기 ---");
+  let division_result = divide_system_resource(100, 5);
+  println("시스템 리소스 분배 (100 / 5): ");
+  if division_result == "Ok:20" {
+    println("[OK] 리소스 배분 완료");
+  } else if division_result == "Err:나누기 연산 중 분모가 0입니다. (연산 불가)" {
+    println("[ERROR] 계산 오류");
+  } else if division_result == "Err:분모가 전체보다 클 수 없습니다" {
+    println("[ERROR] 유효성 검사 오류");
+  }
+  println("");
+
+  // ========================================
+  // 5. Option 연쇄 처리
+  // ========================================
+
+  println("--- 5. Option 연쇄: 여러 단계의 조회 ---");
+  let email_opt = find_user_email(1);
+  println("사용자 1의 이메일 조회: ");
+  if email_opt == "Some:user1@example.com" {
+    println("[SUCCESS] 이메일 발견");
+  } else {
+    println("[NOTICE] 이메일 없음");
+  }
+  println("");
+
+  // ========================================
+  // 6. Result 연쇄 처리
+  // ========================================
+
+  println("--- 6. Result 연쇄: 여러 단계의 검증 ---");
+  let chain_result = validate_and_process("valid@example.com", 100, 4);
+  println("이메일 검증 + 리소스 분배:");
+  if chain_result == "Ok:25" {
+    println("[SUCCESS] 모든 검증 통과");
+  } else {
+    println("[ERROR] 검증 실패");
+  }
+  println("");
+
+  // ========================================
+  // 7. 파일 읽기 (실패 가능)
+  // ========================================
+
+  println("--- 7. 파일 읽기: 실패 처리 ---");
+  let file_ok = read_file("valid.txt");
+  let file_err = read_file("missing.txt");
+  println("유효한 파일: ");
+  if file_ok == "Ok:file_content" {
+    println("[SUCCESS] 파일 읽음");
+  }
+  println("없는 파일: ");
+  if file_err == "Err:파일을 찾을 수 없습니다" {
+    println("[ERROR] 파일 없음");
+  }
+  println("");
+
+  // ========================================
+  // 8. 유효성 검사 (Result)
+  // ========================================
+
+  println("--- 8. 유효성 검사: 형식 검증 ---");
+  let valid = validate_email("valid@example.com");
+  let invalid = validate_email("invalid");
+  println("유효한 이메일: ");
+  if valid == "Ok:valid@example.com" {
+    println("[SUCCESS] 형식 올바름");
+  }
+  println("잘못된 이메일: ");
+  if invalid == "Err:이메일 형식이 올바르지 않습니다" {
+    println("[ERROR] 형식 오류");
+  }
+  println("");
+
+  // ========================================
+  // 9. 에러 전파 (다단계 파이프라인)
+  // ========================================
+
+  println("--- 9. 에러 전파: 파이프라인 처리 ---");
+  let pipe_ok = process_pipeline(false);
+  let pipe_err = process_pipeline(true);
+  println("성공 케이스: ");
+  println(pipe_ok);
+  println("실패 케이스: ");
+  println(pipe_err);
+  println("");
+
+  // ========================================
+  // 10. 시스템 초기화
+  // ========================================
+
+  println("--- 10. 시스템 초기화: 종합 예제 ---");
+  let init_ok = initialize_system("valid.txt");
+  let init_err = initialize_system("missing.txt");
+  println("정상 초기화: ");
+  if init_ok == "Ok:system_initialized" {
+    println("[OK] 시스템 준비 완료");
+  }
+  println("실패 초기화: ");
+  if init_err == "Err:초기화 실패: 설정 파일을 읽을 수 없습니다" {
+    println("[ERROR] 초기화 실패");
+  }
+  println("");
+
+  // ========================================
+  // v5.3의 의의
+  // ========================================
+
+  println("=== v5.3의 의의 ===");
+  println("");
+  println("[안전성]");
+  println("부재(None)와 실패(Error)를 명시적으로 처리");
+  println("");
+
+  println("[명확성]");
+  println("함수의 반환값만 봐도 실패할 수 있는지 알 수 있음");
+  println("");
+
+  println("[완전성]");
+  println("모든 경우를 처리하도록 컴파일러가 강제");
+  println("");
+
+  println("[신뢰성]");
+  println("런타임 패닉(null 오류, 예외) 없음");
+  println("");
+
+  // 최종 메시지
+  println("=== v5.3 완성 ===");
+  println("");
+  println("이제 당신의 시스템은:");
+  println("✓ 값이 없을 때 안전하게 처리하고 (Option)");
+  println("✓ 작업이 실패해도 정해진 경로를 따르며 (Result)");
+  println("✓ 예기치 못한 상황에서도 무너지지 않는");
+  println("✓ '방탄 시스템'이 되었습니다.");
+  println("");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

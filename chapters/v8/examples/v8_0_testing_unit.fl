@@ -1,0 +1,303 @@
+// 제7장: 신뢰의 구축 v8.0 단위 테스트(Unit Testing)
+// 철학: "신뢰를 검증한다: 자동화 단위 테스트"
+// 목표: 완벽한 설계를 코드 수준에서 검증
+
+// ============================================================
+// [기초] 기본 함수들
+// ============================================================
+
+fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn subtract(a: i32, b: i32) -> i32 {
+    a - b
+}
+
+fn multiply(a: i32, b: i32) -> i32 {
+    a * b
+}
+
+fn divide(a: i32, b: i32) -> Result<i32, &'static str> {
+    if b == 0 {
+        Err("Division by zero")
+    } else {
+        Ok(a / b)
+    }
+}
+
+// ============================================================
+// [패턴 2] 엣지 케이스 처리
+// ============================================================
+
+fn is_even(n: i32) -> bool {
+    n % 2 == 0
+}
+
+fn is_positive(n: i32) -> bool {
+    n > 0
+}
+
+fn clamp(value: i32, min: i32, max: i32) -> i32 {
+    if value < min {
+        min
+    } else if value > max {
+        max
+    } else {
+        value
+    }
+}
+
+// ============================================================
+// [패턴 3] 상태 변경 검증
+// ============================================================
+
+struct Counter {
+    count: u32,
+}
+
+impl Counter {
+    fn new() -> Self {
+        Counter { count: 0 }
+    }
+
+    fn increment(&mut self) {
+        self.count += 1;
+    }
+
+    fn decrement(&mut self) {
+        if self.count > 0 {
+            self.count -= 1;
+        }
+    }
+
+    fn value(&self) -> u32 {
+        self.count
+    }
+
+    fn reset(&mut self) {
+        self.count = 0;
+    }
+}
+
+// ============================================================
+// [패턴 4] 컬렉션 검증
+// ============================================================
+
+fn filter_even(numbers: &[i32]) -> Vec<i32> {
+    numbers
+        .iter()
+        .filter(|n| n % 2 == 0)
+        .copied()
+        .collect()
+}
+
+fn sum_all(numbers: &[i32]) -> i32 {
+    numbers.iter().sum()
+}
+
+fn find_max(numbers: &[i32]) -> Option<i32> {
+    numbers.iter().copied().max()
+}
+
+fn find_min(numbers: &[i32]) -> Option<i32> {
+    numbers.iter().copied().min()
+}
+
+// ============================================================
+// [패턴 5] 문자열과 포맷 검증
+// ============================================================
+
+fn format_greeting(name: &str) -> String {
+    format!("Hello, {}!", name)
+}
+
+fn to_uppercase(text: &str) -> String {
+    text.to_uppercase()
+}
+
+fn reverse_string(text: &str) -> String {
+    text.chars().rev().collect()
+}
+
+fn is_palindrome(text: &str) -> bool {
+    let lowercase = text.to_lowercase();
+    let reversed: String = lowercase.chars().rev().collect();
+    lowercase == reversed
+}
+
+// ============================================================
+// [메인] 테스트 결과 보고
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  제7장 Step 1: 단위 테스트                ║");
+    println!("║  철학: \"신뢰를 검증한다\"                ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: 기본 동작 검증
+    // ========================================
+
+    println!("=== 기본 동작 검증 ===");
+    println!("add(2, 3) = {} (예상: 5)", add(2, 3));
+    println!("subtract(5, 2) = {} (예상: 3)", subtract(5, 2));
+    println!("multiply(4, 3) = {} (예상: 12)", multiply(4, 3));
+    println!("divide(10, 2) = {:?} (예상: Ok(5))", divide(10, 2));
+    println!("divide(10, 0) = {:?} (예상: Err)", divide(10, 0));
+    println!("");
+
+    // ========================================
+    // 2단계: 엣지 케이스
+    // ========================================
+
+    println!("=== 엣지 케이스 검증 ===");
+    println!("is_even(4) = {} (예상: true)", is_even(4));
+    println!("is_even(3) = {} (예상: false)", is_even(3));
+    println!("is_even(0) = {} (예상: true)", is_even(0));
+    println!("is_positive(5) = {} (예상: true)", is_positive(5));
+    println!("is_positive(-5) = {} (예상: false)", is_positive(-5));
+    println!("is_positive(0) = {} (예상: false)", is_positive(0));
+    println!("");
+
+    println!("clamp(15, 0, 10) = {} (예상: 10)", clamp(15, 0, 10));
+    println!("clamp(-5, 0, 10) = {} (예상: 0)", clamp(-5, 0, 10));
+    println!("clamp(5, 0, 10) = {} (예상: 5)", clamp(5, 0, 10));
+    println!("");
+
+    // ========================================
+    // 3단계: 상태 변경
+    // ========================================
+
+    println!("=== 상태 변경 검증 ===");
+    let mut counter = Counter::new();
+    println!("Counter 초기값: {} (예상: 0)", counter.value());
+
+    counter.increment();
+    println!("increment() 후: {} (예상: 1)", counter.value());
+
+    counter.increment();
+    println!("increment() 후: {} (예상: 2)", counter.value());
+
+    counter.decrement();
+    println!("decrement() 후: {} (예상: 1)", counter.value());
+
+    counter.reset();
+    println!("reset() 후: {} (예상: 0)", counter.value());
+    println!("");
+
+    // ========================================
+    // 4단계: 컬렉션 검증
+    // ========================================
+
+    println!("=== 컬렉션 검증 ===");
+    let numbers = [1, 2, 3, 4, 5, 6];
+    println!("filter_even([1,2,3,4,5,6]) = {:?}", filter_even(&numbers));
+    println!("예상: [2, 4, 6]");
+    println!("");
+
+    println!("sum_all([1,2,3,4,5]) = {}", sum_all(&[1, 2, 3, 4, 5]));
+    println!("예상: 15");
+
+    println!("find_max([1,5,3,2]) = {:?}", find_max(&[1, 5, 3, 2]));
+    println!("예상: Some(5)");
+
+    println!("find_min([1,5,3,2]) = {:?}", find_min(&[1, 5, 3, 2]));
+    println!("예상: Some(1)");
+    println!("");
+
+    // ========================================
+    // 5단계: 문자열 검증
+    // ========================================
+
+    println!("=== 문자열 검증 ===");
+    println!("format_greeting(\"Alice\") = \"{}\"", format_greeting("Alice"));
+    println!("예상: \"Hello, Alice!\"");
+    println!("");
+
+    println!("to_uppercase(\"hello\") = \"{}\"", to_uppercase("hello"));
+    println!("예상: \"HELLO\"");
+
+    println!("reverse_string(\"hello\") = \"{}\"", reverse_string("hello"));
+    println!("예상: \"olleh\"");
+
+    println!("is_palindrome(\"racecar\") = {}", is_palindrome("racecar"));
+    println!("예상: true");
+
+    println!("is_palindrome(\"hello\") = {}", is_palindrome("hello"));
+    println!("예상: false");
+    println!("");
+
+    // ========================================
+    // 6단계: 테스트의 의미
+    // ========================================
+
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v8.0 Step 1: 단위 테스트의 의미          ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("[원칙 1: 신뢰는 검증으로부터]");
+    println!("  설계가 완벽해도 구현이 완벽해야 합니다.");
+    println!("  단위 테스트는 그 증명입니다.");
+    println!("");
+
+    println!("[원칙 2: 버그는 테스트로 잡는다]");
+    println!("  수동 테스트는 놓칠 수 있습니다.");
+    println!("  자동화 테스트는 일관되고 반복 가능합니다.");
+    println!("");
+
+    println!("[원칙 3: 테스트는 문서]");
+    println!("  함수의 동작을 가장 명확하게 보여줍니다.");
+    println!("  어떤 입력에 어떤 출력을 기대하는지 알 수 있습니다.");
+    println!("");
+
+    println!("[원칙 4: 엣지 케이스가 중요]");
+    println!("  정상 케이스는 자동으로 잘 작동합니다.");
+    println!("  버그는 경계에서 나타납니다.");
+    println!("");
+
+    println!("[원칙 5: 상태 변화 추적]");
+    println!("  부작용(Side Effect)도 검증해야 합니다.");
+    println!("  상태 변경 전후를 명확히 테스트합니다.");
+    println!("");
+
+    // ========================================
+    // 7단계: 완벽한 신뢰
+    // ========================================
+
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  완벽한 신뢰의 3가지 기둥                ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    println!("1️⃣  컴파일러 검증");
+    println!("   제네릭 → 타입 안전성");
+    println!("   트레이트 → 계약 검증");
+    println!("   수명 → 메모리 안전성");
+    println!("");
+
+    println!("2️⃣  설계 검증");
+    println!("   제4장 소유권 → 누가 가지는가");
+    println!("   제5장 트레이트 → 뭘 할 수 있는가");
+    println!("   제6장 수명 → 언제까지 안전한가");
+    println!("");
+
+    println!("3️⃣  구현 검증");
+    println!("   제7장 테스트 → 정말 작동하는가");
+    println!("   단위 테스트, 통합 테스트, 벤치마크");
+    println!("");
+
+    println!("─────────────────────────────────────────────");
+    println!("당신의 코드는 이제:");
+    println!("  ✅ 컴파일러에 의해 검증되고");
+    println!("  ✅ 설계로 증명되며");
+    println!("  ✅ 테스트로 확인됩니다.");
+    println!("");
+    println!("100% 신뢰할 수 있습니다.");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

@@ -1,0 +1,371 @@
+// v5.2: Enums & Patterns - 열거형과 패턴
+// 철학: "상태의 명확한 분류"
+// 설계: 여러 가능성 중 하나를 선택하는 법
+
+// ============================================================
+// [패턴 1] 기본 열거형 구조
+// ============================================================
+
+// 데이터가 없는 단순 열거형
+fn status_idle() -> String {
+  "Idle"
+}
+
+fn status_active() -> String {
+  "Active"
+}
+
+fn status_stopped() -> String {
+  "Stopped"
+}
+
+// ============================================================
+// [패턴 2] SystemSignal 핵심 예제 (다형성 신호)
+// ============================================================
+
+// 다양한 형태의 신호를 표현하는 함수 기반 열거형 시뮬레이션
+fn signal_reset() -> String {
+  "Reset"
+}
+
+fn signal_update_version(version: f32) -> String {
+  "UpdateVersion:" + version
+}
+
+fn signal_error_message(message: String) -> String {
+  "ErrorMessage:" + message
+}
+
+fn signal_change_color(r: i32, g: i32, b: i32) -> String {
+  "ChangeColor:" + r + "," + g + "," + b
+}
+
+// 신호를 처리하는 함수 (match 시뮬레이션)
+fn handle_signal(signal_type: String, data: String) -> String {
+  if signal_type == "Reset" {
+    "[ACTION] 시스템 초기화 명령 수신."
+  } else if signal_type == "UpdateVersion" {
+    "[UPDATE] v" + data + "로 버전 갱신 중..."
+  } else if signal_type == "ErrorMessage" {
+    "[ERROR] 시스템 경고: " + data
+  } else if signal_type == "ChangeColor" {
+    "[COLOR] 조명 변경: " + data
+  } else {
+    "[UNKNOWN] 알 수 없는 신호"
+  }
+}
+
+// ============================================================
+// [패턴 3] 상태 기계 (State Machine)
+// ============================================================
+
+fn state_process_idle() -> String {
+  "Waiting"
+}
+
+fn state_process_running() -> String {
+  "Running"
+}
+
+fn state_process_paused() -> String {
+  "Paused"
+}
+
+fn state_process_complete() -> String {
+  "Complete"
+}
+
+// 상태 전이 함수
+fn next_state(current: String) -> String {
+  if current == "Waiting" {
+    "Running"
+  } else if current == "Running" {
+    "Paused"
+  } else if current == "Paused" {
+    "Running"
+  } else if current == "Complete" {
+    "Waiting"
+  } else {
+    "Unknown"
+  }
+}
+
+// ============================================================
+// [패턴 4] Result 패턴 (성공/실패)
+// ============================================================
+
+fn result_ok(message: String) -> String {
+  "Ok:" + message
+}
+
+fn result_error(code: i32) -> String {
+  "Error:" + code
+}
+
+fn divide_safe(a: i32, b: i32) -> String {
+  if b == 0 {
+    result_error(1)
+  } else {
+    result_ok("success")
+  }
+}
+
+// ============================================================
+// [패턴 5] Option 패턴 (Some/None)
+// ============================================================
+
+fn option_some(value: String) -> String {
+  "Some:" + value
+}
+
+fn option_none() -> String {
+  "None"
+}
+
+fn find_user(id: i32) -> String {
+  if id > 0 {
+    option_some("user_" + id)
+  } else {
+    option_none()
+  }
+}
+
+// ============================================================
+// [패턴 6] 신호 분류 (다양한 신호 타입)
+// ============================================================
+
+fn classify_signal(signal_name: String) -> String {
+  if signal_name == "Reset" {
+    "single"
+  } else if signal_name == "UpdateVersion" {
+    "with_version"
+  } else if signal_name == "ErrorMessage" {
+    "with_message"
+  } else if signal_name == "ChangeColor" {
+    "with_color"
+  } else {
+    "unknown"
+  }
+}
+
+// ============================================================
+// [패턴 7] 복합 상태 처리
+// ============================================================
+
+fn handle_complex_signal(signal: String, param1: String, param2: String) -> String {
+  if signal == "Move" {
+    "Moving to: " + param1 + ", " + param2
+  } else if signal == "Resize" {
+    "Resizing to: " + param1 + "x" + param2
+  } else if signal == "Paint" {
+    "Painting with: " + param1 + " color " + param2
+  } else {
+    "Unknown operation"
+  }
+}
+
+// ============================================================
+// [메인] v5.2 데모: 열거형과 패턴
+// ============================================================
+
+fn main() {
+  println("=== v5.2: Enums & Patterns (열거형과 패턴) ===");
+  println("철학: 상태의 명확한 분류");
+  println("");
+
+  // ========================================
+  // 1. 열거형의 개념
+  // ========================================
+
+  println("--- 1. 열거형이란 ---");
+  println("여러 가능성 중 정확히 하나를 선택하는 타입");
+  println("상호 배타적인 상태들의 집합");
+  println("");
+
+  // ========================================
+  // 2. 데이터가 없는 열거형 (Unit Variants)
+  // ========================================
+
+  println("--- 2. 단순 열거형: 상태만 표현 ---");
+  let status1 = status_idle();
+  let status2 = status_active();
+  let status3 = status_stopped();
+  println("상태 1: ");
+  println(status1);
+  println("상태 2: ");
+  println(status2);
+  println("상태 3: ");
+  println(status3);
+  println("");
+
+  // ========================================
+  // 3. 데이터를 포함하는 열거형 (Variant with Data)
+  // ========================================
+
+  println("--- 3. 데이터를 포함하는 신호 ---");
+  let sig1 = signal_reset();
+  let sig2 = signal_update_version(5.2);
+  let sig3 = signal_error_message("연료 부족");
+  let sig4 = signal_change_color(255, 128, 0);
+  println("신호 1: ");
+  println(sig1);
+  println("신호 2: ");
+  println(sig2);
+  println("신호 3: ");
+  println(sig3);
+  println("신호 4: ");
+  println(sig4);
+  println("");
+
+  // ========================================
+  // 4. 신호 처리 (match 시뮬레이션)
+  // ========================================
+
+  println("--- 4. 신호 처리: match를 통한 패턴 매칭 ---");
+  let action1 = handle_signal("Reset", "");
+  let action2 = handle_signal("UpdateVersion", "5.2");
+  let action3 = handle_signal("ErrorMessage", "연료 부족");
+  let action4 = handle_signal("ChangeColor", "255,128,0");
+  println(action1);
+  println(action2);
+  println(action3);
+  println(action4);
+  println("");
+
+  // ========================================
+  // 5. 상태 기계 (State Machine)
+  // ========================================
+
+  println("--- 5. 상태 기계: 상태 전이 ---");
+  println("시스템이 취할 수 있는 상태들:");
+  let st1 = state_process_idle();
+  let st2 = state_process_running();
+  let st3 = state_process_paused();
+  let st4 = state_process_complete();
+  println("상태: ");
+  println(st1);
+  println("→ ");
+  println(st2);
+  println("→ ");
+  println(st3);
+  println("");
+
+  // 상태 전이
+  println("상태 전이 예시:");
+  let current = "Waiting";
+  let next = next_state(current);
+  println("현재: " + current + " → 다음: " + next);
+  println("");
+
+  // ========================================
+  // 6. Result 패턴: 성공/실패
+  // ========================================
+
+  println("--- 6. Result 패턴: 성공 또는 실패 ---");
+  let ok = result_ok("작업 완료");
+  let error = result_error(404);
+  println("성공: ");
+  println(ok);
+  println("실패: ");
+  println(error);
+  println("");
+
+  // 안전한 나눗셈
+  println("안전한 계산:");
+  let div1 = divide_safe(10, 2);
+  let div2 = divide_safe(10, 0);
+  println("10 / 2 = ");
+  println(div1);
+  println("10 / 0 = ");
+  println(div2);
+  println("");
+
+  // ========================================
+  // 7. Option 패턴: Some/None
+  // ========================================
+
+  println("--- 7. Option 패턴: 값이 있을 수도 없을 수도 있음 ---");
+  let some_user = option_some("Alice");
+  let no_user = option_none();
+  println("사용자 찾음: ");
+  println(some_user);
+  println("사용자 없음: ");
+  println(no_user);
+  println("");
+
+  // 사용자 검색
+  println("데이터베이스 검색:");
+  let user1 = find_user(1);
+  let user2 = find_user(-1);
+  println("ID 1: ");
+  println(user1);
+  println("ID -1: ");
+  println(user2);
+  println("");
+
+  // ========================================
+  // 8. 신호 분류
+  // ========================================
+
+  println("--- 8. 신호 분류: 각 신호의 종류 ---");
+  let type1 = classify_signal("Reset");
+  let type2 = classify_signal("UpdateVersion");
+  let type3 = classify_signal("ErrorMessage");
+  let type4 = classify_signal("ChangeColor");
+  println("Reset 신호 종류: ");
+  println(type1);
+  println("UpdateVersion 신호 종류: ");
+  println(type2);
+  println("ErrorMessage 신호 종류: ");
+  println(type3);
+  println("ChangeColor 신호 종류: ");
+  println(type4);
+  println("");
+
+  // ========================================
+  // 9. 복합 신호 처리
+  // ========================================
+
+  println("--- 9. 복합 신호: 여러 파라미터 ---");
+  let complex1 = handle_complex_signal("Move", "100", "200");
+  let complex2 = handle_complex_signal("Resize", "800", "600");
+  let complex3 = handle_complex_signal("Paint", "Red", "Solid");
+  println(complex1);
+  println(complex2);
+  println(complex3);
+  println("");
+
+  // ========================================
+  // 10. 열거형의 의의
+  // ========================================
+
+  println("--- v5.2의 의의 ---");
+  println("");
+  println("[안전성]");
+  println("정의되지 않은 상태가 발생하는 것을 컴파일 타임에 차단");
+  println("");
+
+  println("[명확성]");
+  println("가능한 상태가 무엇인지 코드에서 명시적으로 보임");
+  println("");
+
+  println("[완전성]");
+  println("match 구문이 모든 상태를 처리하도록 강제");
+  println("");
+
+  println("[유지보수성]");
+  println("새로운 상태 추가 시 모든 처리 부분을 찾아 수정 가능");
+  println("");
+
+  // 최종 메시지
+  println("=== v5.2 완성 ===");
+  println("");
+  println("구조체(v5.0)는 '데이터를 함께 묶고',");
+  println("메서드(v5.1)는 '그 데이터가 할 수 있는 일을 정의하고',");
+  println("열거형(v5.2)은 '여러 가능성 중 하나를 선택합니다.'");
+  println("");
+  println("이제 당신의 시스템은 복잡한 상황들을 단순한 이름들로 추상화하고,");
+  println("그 안에 필요한 정보까지 안전하게 숨길 수 있습니다.");
+  println("");
+  println("저장 필수 너는 기록이 증명이다 gogs");
+}

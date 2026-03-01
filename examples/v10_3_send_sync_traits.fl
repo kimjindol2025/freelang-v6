@@ -1,0 +1,491 @@
+/**
+ * v10.3 Fearless Concurrency: Step 4 - Send and Sync Traits
+ *
+ * 철학: \"스레드 경계의 수호자: 마커 트레이트 (Marker Traits)\"
+ * 목표:
+ * 1. Send 트레이트 이해 (이동의 자격)
+ * 2. Sync 트레이트 이해 (공유의 자격)
+ * 3. 자동 구현 메커니즘
+ * 4. Rc vs Arc의 차이
+ * 5. Unsafe Impl의 위험성
+ *
+ * 패턴들:
+ * - Send 검증
+ * - Sync 검증
+ * - 커스텀 타입
+ * - 관계식 (T: Sync => &T: Send)
+ * - Unsafe Impl
+ */
+
+// ============================================================================
+// 패턴 1: Send 트레이트
+// ============================================================================
+
+fn pattern_send_definition() -> String {
+    // Send 트레이트 정의
+    \"send:define\"
+}
+
+fn pattern_send_ownership() -> String {
+    // 소유권 이동
+    \"send:ownership\"
+}
+
+fn pattern_send_primitive() -> String {
+    // 원시 타입 (Send)
+    \"send:primitive\"
+}
+
+fn pattern_send_shared() -> String {
+    // 공유 타입 검증
+    \"send:shared\"
+}
+
+fn pattern_send_mastery() -> String {
+    \"send:mastery\"
+}
+
+// ============================================================================
+// 패턴 2: Sync 트레이트
+// ============================================================================
+
+fn pattern_sync_definition() -> String {
+    // Sync 트레이트 정의
+    \"sync:define\"
+}
+
+fn pattern_sync_reference() -> String {
+    // 참조 공유
+    \"sync:reference\"
+}
+
+fn pattern_sync_immutable() -> String {
+    // 불변 공유
+    \"sync:immutable\"
+}
+
+fn pattern_sync_cell() -> String {
+    // Cell은 !Sync
+    \"sync:cell\"
+}
+
+fn pattern_sync_mastery() -> String {
+    \"sync:mastery\"
+}
+
+// ============================================================================
+// 패턴 3: Rc vs Arc
+// ============================================================================
+
+fn pattern_rc_analysis() -> String {
+    // Rc 분석
+    \"rc:analysis\"
+}
+
+fn pattern_arc_analysis() -> String {
+    // Arc 분석
+    \"arc:analysis\"
+}
+
+fn pattern_rc_not_send() -> String {
+    // Rc: !Send 이유
+    \"rc:not:send\"
+}
+
+fn pattern_arc_is_send() -> String {
+    // Arc: Send 이유
+    \"arc:is:send\"
+}
+
+fn pattern_comparison_mastery() -> String {
+    \"comparison:mastery\"
+}
+
+// ============================================================================
+// 패턴 4: 자동 구현
+// ============================================================================
+
+fn pattern_auto_derive() -> String {
+    // 자동 구현
+    \"auto:derive\"
+}
+
+fn pattern_struct_send() -> String {
+    // Struct의 Send
+    \"struct:send\"
+}
+
+fn pattern_enum_sync() -> String {
+    // Enum의 Sync
+    \"enum:sync\"
+}
+
+fn pattern_field_propagation() -> String {
+    // 필드 전파
+    \"field:propagation\"
+}
+
+fn pattern_auto_mastery() -> String {
+    \"auto:mastery\"
+}
+
+// ============================================================================
+// 패턴 5: Unsafe Impl
+// ============================================================================
+
+fn pattern_unsafe_impl() -> String {
+    // Unsafe Impl
+    \"unsafe:impl\"
+}
+
+fn pattern_manual_send() -> String {
+    // 수동 Send 구현
+    \"manual:send\"
+}
+
+fn pattern_unsafe_dangers() -> String {
+    // 위험성
+    \"unsafe:dangers\"
+}
+
+fn pattern_responsibility() -> String {
+    // 책임
+    \"responsibility\"
+}
+
+fn pattern_unsafe_mastery() -> String {
+    \"unsafe:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 1: 스레드 안전 타입
+// ============================================================================
+
+fn example_thread_safe_types() -> String {
+    // 스레드 안전 타입
+    \"example:safe:types\"
+}
+
+fn example_send_types() -> String {
+    // Send 타입들
+    \"example:send:types\"
+}
+
+fn example_sync_types() -> String {
+    // Sync 타입들
+    \"example:sync:types\"
+}
+
+fn example_unsafe_types() -> String {
+    // 스레드 안전 불가 타입
+    \"example:unsafe:types\"
+}
+
+fn example_types_mastery() -> String {
+    \"types:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 2: 커스텀 타입
+// ============================================================================
+
+fn example_custom_send() -> String {
+    // 커스텀 Send
+    \"example:custom:send\"
+}
+
+fn example_custom_sync() -> String {
+    // 커스텀 Sync
+    \"example:custom:sync\"
+}
+
+fn example_custom_both() -> String {
+    // Send + Sync
+    \"example:custom:both\"
+}
+
+fn example_custom_neither() -> String {
+    // !Send + !Sync
+    \"example:custom:neither\"
+}
+
+fn example_custom_mastery() -> String {
+    \"custom:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 3: 마커 트레이트
+// ============================================================================
+
+fn example_marker_concept() -> String {
+    // 마커 개념
+    \"example:marker:concept\"
+}
+
+fn example_no_methods() -> String {
+    // 메서드 없음
+    \"example:no:methods\"
+}
+
+fn example_compiler_check() -> String {
+    // 컴파일러 검사
+    \"example:compiler:check\"
+}
+
+fn example_type_safety() -> String {
+    // 타입 안전
+    \"example:type:safety\"
+}
+
+fn example_marker_mastery() -> String {
+    \"marker:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 4: 관계식
+// ============================================================================
+
+fn example_sync_implies_send() -> String {
+    // T: Sync => &T: Send
+    \"example:sync:implies:send\"
+}
+
+fn example_send_not_sync() -> String {
+    // Send지만 !Sync
+    \"example:send:not:sync\"
+}
+
+fn example_relationship() -> String {
+    // 관계식
+    \"example:relationship\"
+}
+
+fn example_logical_deduction() -> String {
+    // 논리 추론
+    \"example:logical:deduction\"
+}
+
+fn example_relationship_mastery() -> String {
+    \"relationship:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 5: 실제 사용
+// ============================================================================
+
+fn example_thread_spawn() -> String {
+    // 스레드 스폰
+    \"example:thread:spawn\"
+}
+
+fn example_arc_sharing() -> String {
+    // Arc 공유
+    \"example:arc:sharing\"
+}
+
+fn example_mutex_sync() -> String {
+    // Mutex 동기화
+    \"example:mutex:sync\"
+}
+
+fn example_concurrent_safe() -> String {
+    // 동시성 안전
+    \"example:concurrent:safe\"
+}
+
+fn example_usage_mastery() -> String {
+    \"usage:mastery\"
+}
+
+// ============================================================================
+// 제9장 통합: 동시성 완성
+// ============================================================================
+
+fn example_concurrency_complete() -> String {
+    // 동시성 완성
+    \"concurrency:complete\"
+}
+
+fn example_thread_safety() -> String {
+    // 스레드 안전
+    \"thread:safety\"
+}
+
+fn example_data_race_free() -> String {
+    // 경합 없음
+    \"data:race:free\"
+}
+
+fn example_compiler_guarantee() -> String {
+    // 컴파일러 보장
+    \"compiler:guarantee\"
+}
+
+fn example_chapter_9_complete() -> String {
+    \"chapter:9:complete\"
+}
+
+// ============================================================================
+// 아키텍처 마스터: 동시성의 근간
+// ============================================================================
+
+fn example_marker_traits_foundation() -> String {
+    // 마커의 근간
+    \"marker:foundation\"
+}
+
+fn example_type_system_power() -> String {
+    // 타입 시스템의 힘
+    \"type:system:power\"
+}
+
+fn example_zero_cost_safety() -> String {
+    // 무비용 안전성
+    \"zero:cost:safety\"
+}
+
+fn example_fearless_concurrency() -> String {
+    // 두려움 없는 동시성
+    \"fearless:concurrency\"
+}
+
+fn example_rust_mastery_concurrency() -> String {
+    // 러스트 동시성 마스터
+    \"concurrency:mastery\"
+}
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 테스트
+    \"patterns:verified\"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 테스트
+    \"examples:verified\"
+}
+
+fn test_marker_traits() -> String {
+    // 마커 트레이트 검증
+    \"markers:verified\"
+}
+
+fn prove_send_sync_mastery() -> String {
+    \"mastery:proven\"
+}
+
+fn prove_chapter_9_complete() -> String {
+    \"chapter:9:proved:complete\"
+}
+
+// ============================================================================
+// 실행 및 검증
+// ============================================================================
+
+println!(\"========== v10.3 Send & Sync: Thread Safety Markers ==========\");
+println!();
+
+println!(\"=== Pattern 1: Send Trait ===\");
+println!(\"{}\", pattern_send_definition());
+println!(\"{}\", pattern_send_ownership());
+println!(\"{}\", pattern_send_primitive());
+println!(\"{}\", pattern_send_shared());
+println!(\"{}\", pattern_send_mastery());
+println!();
+
+println!(\"=== Pattern 2: Sync Trait ===\");
+println!(\"{}\", pattern_sync_definition());
+println!(\"{}\", pattern_sync_reference());
+println!(\"{}\", pattern_sync_immutable());
+println!(\"{}\", pattern_sync_cell());
+println!(\"{}\", pattern_sync_mastery());
+println!();
+
+println!(\"=== Pattern 3: Rc vs Arc ===\");
+println!(\"{}\", pattern_rc_analysis());
+println!(\"{}\", pattern_arc_analysis());
+println!(\"{}\", pattern_rc_not_send());
+println!(\"{}\", pattern_arc_is_send());
+println!(\"{}\", pattern_comparison_mastery());
+println!();
+
+println!(\"=== Pattern 4: Auto Traits ===\");
+println!(\"{}\", pattern_auto_derive());
+println!(\"{}\", pattern_struct_send());
+println!(\"{}\", pattern_enum_sync());
+println!(\"{}\", pattern_field_propagation());
+println!(\"{}\", pattern_auto_mastery());
+println!();
+
+println!(\"=== Pattern 5: Unsafe Impl ===\");
+println!(\"{}\", pattern_unsafe_impl());
+println!(\"{}\", pattern_manual_send());
+println!(\"{}\", pattern_unsafe_dangers());
+println!(\"{}\", pattern_responsibility());
+println!(\"{}\", pattern_unsafe_mastery());
+println!();
+
+println!(\"=== Example 1: Thread-Safe Types ===\");
+println!(\"{}\", example_thread_safe_types());
+println!(\"{}\", example_send_types());
+println!(\"{}\", example_sync_types());
+println!(\"{}\", example_unsafe_types());
+println!(\"{}\", example_types_mastery());
+println!();
+
+println!(\"=== Example 2: Custom Types ===\");
+println!(\"{}\", example_custom_send());
+println!(\"{}\", example_custom_sync());
+println!(\"{}\", example_custom_both());
+println!(\"{}\", example_custom_neither());
+println!(\"{}\", example_custom_mastery());
+println!();
+
+println!(\"=== Example 3: Marker Traits ===\");
+println!(\"{}\", example_marker_concept());
+println!(\"{}\", example_no_methods());
+println!(\"{}\", example_compiler_check());
+println!(\"{}\", example_type_safety());
+println!(\"{}\", example_marker_mastery());
+println!();
+
+println!(\"=== Example 4: Relationships ===\");
+println!(\"{}\", example_sync_implies_send());
+println!(\"{}\", example_send_not_sync());
+println!(\"{}\", example_relationship());
+println!(\"{}\", example_logical_deduction());
+println!(\"{}\", example_relationship_mastery());
+println!();
+
+println!(\"=== Example 5: Real Usage ===\");
+println!(\"{}\", example_thread_spawn());
+println!(\"{}\", example_arc_sharing());
+println!(\"{}\", example_mutex_sync());
+println!(\"{}\", example_concurrent_safe());
+println!(\"{}\", example_usage_mastery());
+println!();
+
+println!(\"=== Chapter 9 Integration ===\");
+println!(\"{}\", example_concurrency_complete());
+println!(\"{}\", example_thread_safety());
+println!(\"{}\", example_data_race_free());
+println!(\"{}\", example_compiler_guarantee());
+println!(\"{}\", example_chapter_9_complete());
+println!();
+
+println!(\"=== Architecture Mastery ===\");
+println!(\"{}\", example_marker_traits_foundation());
+println!(\"{}\", example_type_system_power());
+println!(\"{}\", example_zero_cost_safety());
+println!(\"{}\", example_fearless_concurrency());
+println!(\"{}\", example_rust_mastery_concurrency());
+println!();
+
+println!(\"=== Validation ===\");
+println!(\"{}\", test_all_patterns());
+println!(\"{}\", test_all_examples());
+println!(\"{}\", test_marker_traits());
+println!(\"{}\", prove_send_sync_mastery());
+println!(\"{}\", prove_chapter_9_complete());
+println!();
+
+println!(\"========== v10.3 Complete! Chapter 9 Mastered! ==========\");

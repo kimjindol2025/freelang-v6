@@ -1,0 +1,14 @@
+// Super minimal test
+
+println("Test 1: Basic ops")
+let a = 10
+let b = 20
+println("a + b = " + (a + b))
+
+println("")
+println("Test 2: Arrays")
+let numbers = [1, 2, 3, 4, 5]
+println("Array created")
+
+println("")
+println("Done!")

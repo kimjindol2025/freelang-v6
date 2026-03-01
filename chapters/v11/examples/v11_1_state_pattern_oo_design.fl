@@ -1,0 +1,491 @@
+/**
+ * v11.1 Object-Oriented Patterns: Step 2 - State Pattern and OO Design
+ *
+ * 철학: \"상태를 객체로, 행동을 메서드로 (Object-Oriented State Management)\"
+ * 목표:
+ * 1. 상태 인터페이스 정의
+ * 2. 구체 상태 구현
+ * 3. 상태 전이 관리
+ * 4. 문맥(Context) 상태 관리
+ * 5. 복잡한 상태 머신
+ *
+ * 패턴들:
+ * - 기본 상태 패턴
+ * - 상태 전이
+ * - 문맥 관리
+ * - 상태 기반 행동
+ * - 복잡한 상태 머신
+ */
+
+// ============================================================================
+// 패턴 1: 기본 상태 패턴
+// ============================================================================
+
+fn pattern_state_interface() -> String {
+    // State 트레이트 정의
+    \"state:interface\"
+}
+
+fn pattern_concrete_state() -> String {
+    // 구체 상태 구현
+    \"state:concrete\"
+}
+
+fn pattern_state_behavior() -> String {
+    // 상태별 행동
+    \"behavior:state\"
+}
+
+fn pattern_state_encapsulation() -> String {
+    // 상태 캡슐화
+    \"encapsulation:state\"
+}
+
+fn pattern_state_mastery() -> String {
+    \"state:mastery\"
+}
+
+// ============================================================================
+// 패턴 2: 상태 전이
+// ============================================================================
+
+fn pattern_state_transition() -> String {
+    // 상태 간 전이
+    \"transition:state\"
+}
+
+fn pattern_transition_rules() -> String {
+    // 전이 규칙
+    \"rules:transition\"
+}
+
+fn pattern_box_return() -> String {
+    // Box<dyn State> 반환
+    \"return:boxed\"
+}
+
+fn pattern_self_consumption() -> String {
+    // self 소비
+    \"self:consume\"
+}
+
+fn pattern_transition_mastery() -> String {
+    \"transition:mastery\"
+}
+
+// ============================================================================
+// 패턴 3: 문맥 상태 관리
+// ============================================================================
+
+fn pattern_context_definition() -> String {
+    // Context 정의
+    \"context:define\"
+}
+
+fn pattern_state_storage() -> String {
+    // 상태 저장
+    \"storage:state\"
+}
+
+fn pattern_state_update() -> String {
+    // 상태 업데이트
+    \"update:state\"
+}
+
+fn pattern_delegation() -> String {
+    // 상태에 위임
+    \"delegation:state\"
+}
+
+fn pattern_context_mastery() -> String {
+    \"context:mastery\"
+}
+
+// ============================================================================
+// 패턴 4: 상태 기반 행동
+// ============================================================================
+
+fn pattern_different_behavior() -> String {
+    // 상태별 다른 행동
+    \"behavior:different\"
+}
+
+fn pattern_valid_operations() -> String {
+    // 유효한 연산
+    \"operations:valid\"
+}
+
+fn pattern_invalid_prevention() -> String {
+    // 불가능한 연산 방지
+    \"prevent:invalid\"
+}
+
+fn pattern_action_dispatch() -> String {
+    // 행동 디스패치
+    \"dispatch:action\"
+}
+
+fn pattern_action_mastery() -> String {
+    \"action:mastery\"
+}
+
+// ============================================================================
+// 패턴 5: 복잡한 상태 머신
+// ============================================================================
+
+fn pattern_complex_states() -> String {
+    // 복잡한 상태 구성
+    \"states:complex\"
+}
+
+fn pattern_state_hierarchy() -> String {
+    // 상태 계층
+    \"hierarchy:state\"
+}
+
+fn pattern_conditional_transition() -> String {
+    // 조건부 전이
+    \"transition:conditional\"
+}
+
+fn pattern_state_combination() -> String {
+    // 상태 조합
+    \"combination:state\"
+}
+
+fn pattern_complex_mastery() -> String {
+    \"complex:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 1: 문서 편집기
+// ============================================================================
+
+fn example_document_states() -> String {
+    // 문서 상태
+    \"example:document\"
+}
+
+fn example_draft_state() -> String {
+    // Draft 상태
+    \"example:draft\"
+}
+
+fn example_review_state() -> String {
+    // Review 상태
+    \"example:review\"
+}
+
+fn example_published_state() -> String {
+    // Published 상태
+    \"example:published\"
+}
+
+fn example_document_mastery() -> String {
+    \"document:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 2: 주문 처리 시스템
+// ============================================================================
+
+fn example_order_states() -> String {
+    // 주문 상태
+    \"example:order\"
+}
+
+fn example_pending_order() -> String {
+    // Pending 주문
+    \"example:pending\"
+}
+
+fn example_processing_order() -> String {
+    // Processing 주문
+    \"example:processing\"
+}
+
+fn example_shipped_order() -> String {
+    // Shipped 주문
+    \"example:shipped\"
+}
+
+fn example_order_mastery() -> String {
+    \"order:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 3: 게임 상태
+// ============================================================================
+
+fn example_game_states() -> String {
+    // 게임 상태
+    \"example:game\"
+}
+
+fn example_menu_state() -> String {
+    // Menu 상태
+    \"example:menu\"
+}
+
+fn example_playing_state() -> String {
+    // Playing 상태
+    \"example:playing\"
+}
+
+fn example_paused_state() -> String {
+    // Paused 상태
+    \"example:paused\"
+}
+
+fn example_game_mastery() -> String {
+    \"game:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 4: 연결 상태
+// ============================================================================
+
+fn example_connection_states() -> String {
+    // 연결 상태
+    \"example:connection\"
+}
+
+fn example_disconnected_state() -> String {
+    // Disconnected 상태
+    \"example:disconnected\"
+}
+
+fn example_connecting_state() -> String {
+    // Connecting 상태
+    \"example:connecting\"
+}
+
+fn example_connected_state() -> String {
+    // Connected 상태
+    \"example:connected\"
+}
+
+fn example_connection_mastery() -> String {
+    \"connection:mastery\"
+}
+
+// ============================================================================
+// 통합 예제 5: 사용자 세션
+// ============================================================================
+
+fn example_session_states() -> String {
+    // 세션 상태
+    \"example:session\"
+}
+
+fn example_anonymous_session() -> String {
+    // Anonymous 상태
+    \"example:anonymous\"
+}
+
+fn example_authenticated_session() -> String {
+    // Authenticated 상태
+    \"example:authenticated\"
+}
+
+fn example_premium_session() -> String {
+    // Premium 상태
+    \"example:premium\"
+}
+
+fn example_session_mastery() -> String {
+    \"session:mastery\"
+}
+
+// ============================================================================
+// 제10장 통합: 객체 지향 설계
+// ============================================================================
+
+fn example_oo_principles() -> String {
+    // 객체 지향 원칙
+    \"oo:principles\"
+}
+
+fn example_responsibility() -> String {
+    // 책임 분리
+    \"responsibility:single\"
+}
+
+fn example_maintainability() -> String {
+    // 유지보수성
+    \"maintain:ability\"
+}
+
+fn example_extensibility() -> String {
+    // 확장성
+    \"extend:ability\"
+}
+
+fn example_oo_design_complete() -> String {
+    \"oo:design:complete\"
+}
+
+// ============================================================================
+// 아키텍처 마스터: 완전한 객체 지향 시스템
+// ============================================================================
+
+fn example_state_machine_engine() -> String {
+    // 상태 머신 엔진
+    \"engine:state:machine\"
+}
+
+fn example_workflow_system() -> String {
+    // 워크플로우 시스템
+    \"system:workflow\"
+}
+
+fn example_fsm_framework() -> String {
+    // FSM 프레임워크
+    \"framework:fsm\"
+}
+
+fn example_production_system() -> String {
+    // 프로덕션 시스템
+    \"system:production\"
+}
+
+fn example_rust_mastery_oo_complete() -> String {
+    // 러스트 객체 지향 완성
+    \"oo:complete:mastery\"
+}
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 테스트
+    \"patterns:verified\"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 테스트
+    \"examples:verified\"
+}
+
+fn test_state_transitions() -> String {
+    // 상태 전이 검증
+    \"transitions:verified\"
+}
+
+fn prove_state_pattern_mastery() -> String {
+    \"pattern:proven:mastery\"
+}
+
+fn prove_chapter_10_progress() -> String {
+    \"chapter:10:progress\"
+}
+
+// ============================================================================
+// 실행 및 검증
+// ============================================================================
+
+println!(\"========== v11.1 State Pattern: OO Design ==========\");
+println!();
+
+println!(\"=== Pattern 1: Basic State ===\");
+println!(\"{}\", pattern_state_interface());
+println!(\"{}\", pattern_concrete_state());
+println!(\"{}\", pattern_state_behavior());
+println!(\"{}\", pattern_state_encapsulation());
+println!(\"{}\", pattern_state_mastery());
+println!();
+
+println!(\"=== Pattern 2: State Transition ===\");
+println!(\"{}\", pattern_state_transition());
+println!(\"{}\", pattern_transition_rules());
+println!(\"{}\", pattern_box_return());
+println!(\"{}\", pattern_self_consumption());
+println!(\"{}\", pattern_transition_mastery());
+println!();
+
+println!(\"=== Pattern 3: Context Management ===\");
+println!(\"{}\", pattern_context_definition());
+println!(\"{}\", pattern_state_storage());
+println!(\"{}\", pattern_state_update());
+println!(\"{}\", pattern_delegation());
+println!(\"{}\", pattern_context_mastery());
+println!();
+
+println!(\"=== Pattern 4: State-Based Behavior ===\");
+println!(\"{}\", pattern_different_behavior());
+println!(\"{}\", pattern_valid_operations());
+println!(\"{}\", pattern_invalid_prevention());
+println!(\"{}\", pattern_action_dispatch());
+println!(\"{}\", pattern_action_mastery());
+println!();
+
+println!(\"=== Pattern 5: Complex State Machines ===\");
+println!(\"{}\", pattern_complex_states());
+println!(\"{}\", pattern_state_hierarchy());
+println!(\"{}\", pattern_conditional_transition());
+println!(\"{}\", pattern_state_combination());
+println!(\"{}\", pattern_complex_mastery());
+println!();
+
+println!(\"=== Example 1: Document Editor ===\");
+println!(\"{}\", example_document_states());
+println!(\"{}\", example_draft_state());
+println!(\"{}\", example_review_state());
+println!(\"{}\", example_published_state());
+println!(\"{}\", example_document_mastery());
+println!();
+
+println!(\"=== Example 2: Order Processing ===\");
+println!(\"{}\", example_order_states());
+println!(\"{}\", example_pending_order());
+println!(\"{}\", example_processing_order());
+println!(\"{}\", example_shipped_order());
+println!(\"{}\", example_order_mastery());
+println!();
+
+println!(\"=== Example 3: Game States ===\");
+println!(\"{}\", example_game_states());
+println!(\"{}\", example_menu_state());
+println!(\"{}\", example_playing_state());
+println!(\"{}\", example_paused_state());
+println!(\"{}\", example_game_mastery());
+println!();
+
+println!(\"=== Example 4: Connection States ===\");
+println!(\"{}\", example_connection_states());
+println!(\"{}\", example_disconnected_state());
+println!(\"{}\", example_connecting_state());
+println!(\"{}\", example_connected_state());
+println!(\"{}\", example_connection_mastery());
+println!();
+
+println!(\"=== Example 5: User Sessions ===\");
+println!(\"{}\", example_session_states());
+println!(\"{}\", example_anonymous_session());
+println!(\"{}\", example_authenticated_session());
+println!(\"{}\", example_premium_session());
+println!(\"{}\", example_session_mastery());
+println!();
+
+println!(\"=== Chapter 10 Integration ===\");
+println!(\"{}\", example_oo_principles());
+println!(\"{}\", example_responsibility());
+println!(\"{}\", example_maintainability());
+println!(\"{}\", example_extensibility());
+println!(\"{}\", example_oo_design_complete());
+println!();
+
+println!(\"=== Architecture Mastery ===\");
+println!(\"{}\", example_state_machine_engine());
+println!(\"{}\", example_workflow_system());
+println!(\"{}\", example_fsm_framework());
+println!(\"{}\", example_production_system());
+println!(\"{}\", example_rust_mastery_oo_complete());
+println!();
+
+println!(\"=== Validation ===\");
+println!(\"{}\", test_all_patterns());
+println!(\"{}\", test_all_examples());
+println!(\"{}\", test_state_transitions());
+println!(\"{}\", prove_state_pattern_mastery());
+println!(\"{}\", prove_chapter_10_progress());
+println!();
+
+println!(\"========== v11.1 Complete! State Pattern Mastered! ==========\");

@@ -1,0 +1,326 @@
+// v3.8: Iterator Mastery - Declarative Data Flow
+// Philosophy: "What to do" instead of "How to do"
+
+// [Example 1] Data Filtering - Remove invalid entries
+fn example_filter() {
+  println("=== v3.8 Example 1: Data Filtering ===");
+
+  let raw_signals = [10, 0, 85, 92, 120, 0, 45];
+  println("Raw signals: [10, 0, 85, 92, 120, 0, 45]");
+
+  // Imperative: Manual filtering with mutable state
+  println("\nImperative approach:");
+  let mut filtered = [];
+  let mut i = 0;
+  while i < 7 {
+    if raw_signals[i] > 0 {
+      filtered.push(raw_signals[i]);
+    }
+    i = i + 1;
+  }
+  println("Filtered (mut): ");
+  for sig in filtered {
+    print(sig);
+    print(" ");
+  }
+  println("");
+
+  // Declarative: Iterator-like pattern (simulated with for loop)
+  println("\nDeclarative approach:");
+  let mut valid_signals = [];
+  for signal in raw_signals {
+    if signal > 0 {
+      valid_signals.push(signal);
+    }
+  }
+  println("Filtered (for...in):");
+  for sig in valid_signals {
+    print(sig);
+    print(" ");
+  }
+  println("");
+}
+
+// [Example 2] Data Transformation - Map values
+fn example_map() {
+  println("=== v3.8 Example 2: Data Transformation ===");
+
+  let prices_usd = [10, 20, 30, 0, 50];
+  let exchange_rate = 130;
+
+  println("Prices in USD: [10, 20, 30, 0, 50]");
+
+  // Imperative: Manual transformation with accumulation
+  println("\nImperative approach:");
+  let mut prices_yen = [];
+  let mut i = 0;
+  while i < 5 {
+    prices_yen.push(prices_usd[i] * exchange_rate);
+    i = i + 1;
+  }
+  println("Prices in JPY:");
+  for price in prices_yen {
+    print(price);
+    print(" ");
+  }
+  println("");
+
+  // Declarative: Transformation with for...in
+  println("\nDeclarative approach:");
+  let mut converted = [];
+  for price_usd in prices_usd {
+    let price_jpy = price_usd * exchange_rate;
+    converted.push(price_jpy);
+  }
+  println("Converted (for...in):");
+  for price in converted {
+    print(price);
+    print(" ");
+  }
+  println("");
+}
+
+// [Example 3] Multi-stage Pipeline - Filter then Map
+fn example_pipeline() {
+  println("=== v3.8 Example 3: Multi-stage Pipeline ===");
+
+  let sensor_readings = [5, 12, 0, 45, 100, 0, 30];
+  println("Sensor readings: [5, 12, 0, 45, 100, 0, 30]");
+
+  // Pipeline: Filter (remove 0s) then Map (categorize)
+  println("\nPipeline: filter -> map");
+  let mut categorized = [];
+  for reading in sensor_readings {
+    if reading > 0 {
+      let category = if reading >= 100 {
+        "CRITICAL"
+      } else if reading >= 50 {
+        "WARNING"
+      } else if reading >= 20 {
+        "NORMAL"
+      } else {
+        "LOW"
+      };
+      categorized.push(category);
+    }
+  }
+
+  println("Categorized readings:");
+  for cat in categorized {
+    println("  -> " + cat);
+  }
+}
+
+// [Example 4] Accumulation - Fold/Sum
+fn example_accumulation() {
+  println("=== v3.8 Example 4: Accumulation (Fold/Sum) ===");
+
+  let values = [10, 20, 30, 40, 50];
+
+  // Imperative: Manual accumulation
+  println("\nImperative sum:");
+  let mut sum = 0;
+  let mut i = 0;
+  while i < 5 {
+    sum = sum + values[i];
+    i = i + 1;
+  }
+  println("Sum: " + sum);
+
+  // Declarative: Fold pattern
+  println("\nDeclarative fold:");
+  let mut result = 0;
+  for val in values {
+    result = result + val;
+  }
+  println("Sum: " + result);
+
+  // Count elements
+  println("\nCount elements:");
+  let mut count = 0;
+  for _ in values {
+    count = count + 1;
+  }
+  println("Count: " + count);
+
+  // Average
+  println("\nAverage:");
+  let mut total = 0;
+  let mut cnt = 0;
+  for val in values {
+    total = total + val;
+    cnt = cnt + 1;
+  }
+  let average = total / cnt;
+  println("Average: " + average);
+}
+
+// [Example 5] Conditional Processing
+fn example_conditional() {
+  println("=== v3.8 Example 5: Conditional Processing ===");
+
+  let orders = ["active", "cancelled", "active", "pending", "active"];
+  let mut processed = [];
+
+  println("Processing orders with state filtering:");
+  for order_status in orders {
+    if order_status == "active" {
+      processed.push("PROCESS");
+    } else if order_status == "pending" {
+      processed.push("WAIT");
+    } else {
+      processed.push("SKIP");
+    }
+  }
+
+  for result in processed {
+    println("  -> " + result);
+  }
+}
+
+// [Example 6] Declarative vs Imperative comparison
+fn example_comparison() {
+  println("=== v3.8 Example 6: Comparison ===");
+
+  let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  // Task: Get sum of even numbers greater than 4
+  println("Task: Sum of even numbers > 4");
+
+  // Imperative
+  println("\nImperative (explicit state):");
+  let mut sum_imp = 0;
+  let mut count_imp = 0;
+  let mut i = 0;
+  while i < 10 {
+    let num = numbers[i];
+    if num % 2 == 0 {
+      if num > 4 {
+        sum_imp = sum_imp + num;
+        count_imp = count_imp + 1;
+        println("  Found: " + num);
+      }
+    }
+    i = i + 1;
+  }
+  println("Result: sum=" + sum_imp + ", count=" + count_imp);
+
+  // Declarative
+  println("\nDeclarative (clear intent):");
+  let mut result_sum = 0;
+  let mut result_count = 0;
+  for num in numbers {
+    if num % 2 == 0 && num > 4 {
+      result_sum = result_sum + num;
+      result_count = result_count + 1;
+      println("  Found: " + num);
+    }
+  }
+  println("Result: sum=" + result_sum + ", count=" + result_count);
+}
+
+// [Example 7] Real-world: Data cleaning
+fn example_data_cleaning() {
+  println("=== v3.8 Example 7: Real-world Data Cleaning ===");
+
+  let raw_data = ["apple", "", "banana", "NULL", "cherry", "", "date"];
+  println("Raw data: [apple, , banana, NULL, cherry, , date]");
+
+  // Clean data: Remove empty strings and "NULL"
+  let mut cleaned = [];
+  for item in raw_data {
+    if item != "" && item != "NULL" {
+      cleaned.push(item);
+    }
+  }
+
+  println("Cleaned data:");
+  for item in cleaned {
+    println("  -> " + item);
+  }
+}
+
+// [Example 8] Iterator safety - No index out of bounds
+fn example_safety() {
+  println("=== v3.8 Example 8: Iterator Safety ===");
+
+  let items = ["A", "B", "C"];
+  println("Items: [A, B, C]");
+
+  println("\nWith for...in (safe - no bounds check needed):");
+  for item in items {
+    println("  Item: " + item);
+  }
+
+  println("No risk of accessing items[3] or beyond");
+  println("Iterator automatically handles correct iteration");
+}
+
+// [Example 9] Lazy evaluation concept
+fn example_lazy() {
+  println("=== v3.8 Example 9: Lazy Evaluation Concept ===");
+
+  let big_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  println("Pipeline: filter -> map -> take");
+  println("(In true iterators, this would be lazy)");
+
+  // Simulated lazy: Process only needed elements
+  let mut results = [];
+  let mut count = 0;
+  for num in big_list {
+    if num % 2 == 0 {
+      let doubled = num * 2;
+      results.push(doubled);
+      count = count + 1;
+      if count >= 3 {
+        break;
+      }
+    }
+  }
+
+  println("Result (first 3 even numbers doubled):");
+  for r in results {
+    print(r);
+    print(" ");
+  }
+  println("");
+}
+
+// Main execution
+fn main() {
+  println("=== FreeLang v3.8: Iterator Mastery ===\n");
+
+  example_filter();
+  println();
+
+  example_map();
+  println();
+
+  example_pipeline();
+  println();
+
+  example_accumulation();
+  println();
+
+  example_conditional();
+  println();
+
+  example_comparison();
+  println();
+
+  example_data_cleaning();
+  println();
+
+  example_safety();
+  println();
+
+  example_lazy();
+
+  println("\n=== v3.8 Core Concepts ===");
+  println("1. Declarative: What to do, not how to do it");
+  println("2. Immutability: Transform data, don't mutate state");
+  println("3. Composability: Chain operations like pipelines");
+  println("4. Safety: Iterator eliminates bounds checks");
+  println("5. Efficiency: Lazy evaluation skips unnecessary work");
+}

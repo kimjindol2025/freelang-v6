@@ -1,0 +1,6 @@
+// Test array length
+
+let numbers = [1, 2, 3, 4, 5]
+println("Array created")
+let len = numbers.length
+println("Got length: " + len)

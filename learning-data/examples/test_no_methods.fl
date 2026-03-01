@@ -1,0 +1,34 @@
+// Test without array methods
+
+println("Test 1: Basic ops")
+let a = 10
+let b = 20
+println("a + b = " + (a + b))
+
+println("")
+println("Test 2: Arrays")
+let numbers = [1, 2, 3, 4, 5]
+println("Array length: " + numbers.length)
+println("First element: " + numbers[0])
+
+println("")
+println("Test 3: String methods")
+let text = "Hello"
+let upper = text.toUpperCase()
+println("Upper: " + upper)
+
+println("")
+println("Test 4: Math functions")
+let sqrt_val = sqrt(16)
+println("sqrt(16) = " + sqrt_val)
+
+println("")
+println("Test 5: Functions")
+fn add(x, y) {
+    return x + y
+}
+let sum = add(5, 3)
+println("add(5, 3) = " + sum)
+
+println("")
+println("✅ Done!")

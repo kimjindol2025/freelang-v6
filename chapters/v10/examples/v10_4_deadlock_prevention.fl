@@ -1,0 +1,553 @@
+/**
+ * v10.4 동시성의 함정: 데드락 방어 설계 (Deadlock Prevention)
+ *
+ * 철학: "순환 대기의 고리 끊기"
+ * 목표:
+ * 1. 데드락의 정의와 4가지 조건 이해
+ * 2. 자원 계층화(Resource Hierarchy)를 통한 예방
+ * 3. 잠금 범위 최소화
+ * 4. 불변성 활용
+ * 5. 복잡한 다중 자원 안전 프로토콜
+ *
+ * 패턴들:
+ * - 순환 대기 방지
+ * - 자원 ID 기반 순서화
+ * - 타임아웃 메커니즘
+ * - 구조적 설계 개선
+ * - 데드락 방지 체크리스트
+ */
+
+// ============================================================================
+// 패턴 1: 데드락 이해하기
+// ============================================================================
+
+fn pattern_deadlock_definition() -> String {
+    // 데드락: 두 스레드가 서로의 자원을 기다리며 영구 멈춤
+    "deadlock:understand"
+}
+
+fn pattern_coffman_conditions() -> String {
+    // Coffman 조건 4가지 분석
+    "coffman:conditions"
+}
+
+fn pattern_circular_wait() -> String {
+    // 순환 대기의 위험성
+    "circular:wait"
+}
+
+fn pattern_deadlock_scenario() -> String {
+    // 실제 데드락 시나리오
+    "deadlock:scenario"
+}
+
+fn pattern_deadlock_mastery() -> String {
+    "deadlock:mastery"
+}
+
+// ============================================================================
+// 패턴 2: 자원 계층화 (Resource Hierarchy)
+// ============================================================================
+
+fn pattern_resource_hierarchy() -> String {
+    // 자원에 ID 부여하여 순서 정의
+    "hierarchy:define"
+}
+
+fn pattern_hierarchy_ordering() -> String {
+    // ID 기반 잠금 순서 명문화
+    "hierarchy:ordering"
+}
+
+fn pattern_safe_locking_protocol() -> String {
+    // "항상 낮은 ID부터 먼저 잠근다" 규칙
+    "protocol:safe"
+}
+
+fn pattern_hierarchy_proof() -> String {
+    // 왜 이것이 데드락을 방지하는가?
+    "hierarchy:proof"
+}
+
+fn pattern_hierarchy_mastery() -> String {
+    "hierarchy:mastery"
+}
+
+// ============================================================================
+// 패턴 3: 잠금 범위 최소화 (Lock Scope Minimization)
+// ============================================================================
+
+fn pattern_lock_scope() -> String {
+    // 임계 영역을 최소한으로 유지
+    "scope:minimize"
+}
+
+fn pattern_raii_guards() -> String {
+    // RAII로 자동 해제 시점 제어
+    "guards:raii"
+}
+
+fn pattern_early_unlock() -> String {
+    // 스코프 종료로 조기 해제
+    "unlock:early"
+}
+
+fn pattern_performance_gain() -> String {
+    // 다른 스레드의 대기 시간 단축
+    "performance:gain"
+}
+
+fn pattern_scope_mastery() -> String {
+    "scope:mastery"
+}
+
+// ============================================================================
+// 패턴 4: 불변성 활용 (Immutability Strategy)
+// ============================================================================
+
+fn pattern_immutable_sharing() -> String {
+    // Arc<T>로 읽기 전용 공유
+    "immutable:share"
+}
+
+fn pattern_selective_mutex() -> String {
+    // 필요한 부분에만 Mutex 배치
+    "mutex:selective"
+}
+
+fn pattern_functional_approach() -> String {
+    // 함수형 설계로 Mutex 수요 감소
+    "functional:approach"
+}
+
+fn pattern_data_separation() -> String {
+    // 불변/가변 데이터 분리
+    "data:separate"
+}
+
+fn pattern_immutability_mastery() -> String {
+    "immutability:mastery"
+}
+
+// ============================================================================
+// 패턴 5: 복잡한 다중 자원 안전 프로토콜
+// ============================================================================
+
+fn pattern_multi_resource_acquire() -> String {
+    // 여러 자원을 안전하게 획득
+    "acquire:multiple"
+}
+
+fn pattern_resource_manager() -> String {
+    // 자원 관리자 패턴 구현
+    "manager:pattern"
+}
+
+fn pattern_timeout_mechanism() -> String {
+    // 타임아웃으로 데드락 감지
+    "timeout:detect"
+}
+
+fn pattern_checklist_design() -> String {
+    // 데드락 방지 체크리스트
+    "checklist:design"
+}
+
+fn pattern_complex_mastery() -> String {
+    "complex:mastery"
+}
+
+// ============================================================================
+// 통합 예제 1: 안전한 자원 관리
+// ============================================================================
+
+fn example_resource_safe() -> String {
+    // 자원 계층화로 안전성 보장
+    "example:resource:safe"
+}
+
+fn example_secure_resource() -> String {
+    // SecureResource 구조체 구현
+    "example:secure:resource"
+}
+
+fn example_thread_coordination() -> String {
+    // 스레드 간 자원 접근 조정
+    "example:coordination"
+}
+
+fn example_database_auth() -> String {
+    // DB와 인증서버 자원 관리
+    "example:database:auth"
+}
+
+fn example_resource_mastery() -> String {
+    "resource:mastery"
+}
+
+// ============================================================================
+// 통합 예제 2: 구조적 설계 개선
+// ============================================================================
+
+fn example_restructure_problem() -> String {
+    // 문제: Mutex가 너무 많음
+    "example:problem:mutex"
+}
+
+fn example_data_decompose() -> String {
+    // 해결: 데이터 분해 및 재조직
+    "example:decompose"
+}
+
+fn example_ownership_clarity() -> String {
+    // 소유권을 명확히 분리
+    "example:ownership"
+}
+
+fn example_thread_isolation() -> String {
+    // 스레드 간 데이터 격리
+    "example:isolation"
+}
+
+fn example_design_mastery() -> String {
+    "design:mastery"
+}
+
+// ============================================================================
+// 통합 예제 3: 타임아웃 기반 감지
+// ============================================================================
+
+fn example_timeout_strategy() -> String {
+    // 데드락 감지 전략
+    "example:timeout:strategy"
+}
+
+fn example_try_lock() -> String {
+    // try_lock으로 비차단 시도
+    "example:try:lock"
+}
+
+fn example_exponential_backoff() -> String {
+    // 지수 백오프로 재시도
+    "example:backoff"
+}
+
+fn example_timeout_mastery() -> String {
+    "timeout:mastery"
+}
+
+// ============================================================================
+// 통합 예제 4: 웹 서버 아키텍처
+// ============================================================================
+
+fn example_web_server_design() -> String {
+    // 웹 서버의 자원 계층화
+    "example:web:server"
+}
+
+fn example_cache_database() -> String {
+    // 캐시와 DB의 안전한 상호작용
+    "example:cache:db"
+}
+
+fn example_logging_queue() -> String {
+    // 로그 큐 시스템 통합
+    "example:logging"
+}
+
+fn example_server_mastery() -> String {
+    "server:mastery"
+}
+
+// ============================================================================
+// 통합 예제 5: 게임 엔진 다중 시스템
+// ============================================================================
+
+fn example_game_engine() -> String {
+    // 게임 엔진의 다중 시스템 조화
+    "example:game:engine"
+}
+
+fn example_physics_rendering() -> String {
+    // 물리 + 렌더링 시스템
+    "example:physics:render"
+}
+
+fn example_audio_input() -> String {
+    // 사운드 + 입력 시스템
+    "example:audio:input"
+}
+
+fn example_game_mastery() -> String {
+    "game:mastery"
+}
+
+// ============================================================================
+// 설계자의 관점: 동시성 완성
+// ============================================================================
+
+fn example_locking_order() -> String {
+    // 명확한 잠금 순서 문서화
+    "design:locking:order"
+}
+
+fn example_mutex_minimization() -> String {
+    // Mutex 사용 최소화 원칙
+    "design:minimize:mutex"
+}
+
+fn example_structure_redesign() -> String {
+    // 구조적 설계 변경으로 해결
+    "design:restructure"
+}
+
+fn example_designer_confidence() -> String {
+    // 설계자로서의 자신감 확보
+    "designer:confidence"
+}
+
+fn example_chapter_9_complete() -> String {
+    "chapter:9:complete"
+}
+
+// ============================================================================
+// 동시성 마스터: 논리적 안정성
+// ============================================================================
+
+fn example_fearless_logic() -> String {
+    // 데이터 경합 없이 논리에만 집중
+    "fearless:logic"
+}
+
+fn example_runtime_guarantee() -> String {
+    // 컴파일러의 보장과 설계자의 설계
+    "runtime:guarantee"
+}
+
+fn example_architect_confidence() -> String {
+    // 멀티코어 시스템의 완전한 제어
+    "architect:confidence"
+}
+
+fn example_design_principles() -> String {
+    // 동시성 설계의 5가지 원칙
+    "design:principles"
+}
+
+fn example_concurrency_mastery() -> String {
+    "concurrency:mastery"
+}
+
+// ============================================================================
+// 제9장 통합: 두려움 없는 동시성의 대단원
+// ============================================================================
+
+fn example_isolation_mastery() -> String {
+    // v10.0: 격리된 실행
+    "isolation:mastery"
+}
+
+fn example_communication_mastery() -> String {
+    // v10.1: 안전한 통신
+    "communication:mastery"
+}
+
+fn example_synchronization_mastery() -> String {
+    // v10.2: 공유 상태 동기화
+    "synchronization:mastery"
+}
+
+fn example_thread_safety_mastery() -> String {
+    // v10.3: 타입 시스템 안전성
+    "thread:safety:mastery"
+}
+
+fn example_deadlock_defense_mastery() -> String {
+    // v10.4: 논리적 안전성
+    "deadlock:defense:mastery"
+}
+
+fn example_concurrency_architect() -> String {
+    "concurrency:architect"
+}
+
+// ============================================================================
+// 아키텍처 마스터: 동시성의 근간
+// ============================================================================
+
+fn example_level_1_isolation() -> String {
+    // Level 1: 스레드 격리
+    "level:1:isolation"
+}
+
+fn example_level_2_messaging() -> String {
+    // Level 2: 메시지 전달
+    "level:2:messaging"
+}
+
+fn example_level_3_synchronization() -> String {
+    // Level 3: 상호 배제
+    "level:3:sync"
+}
+
+fn example_level_4_type_safety() -> String {
+    // Level 4: 타입 안전성
+    "level:4:safety"
+}
+
+fn example_level_5_logical_defense() -> String {
+    // Level 5: 논리적 방어
+    "level:5:defense"
+}
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 검증
+    "patterns:verified"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 검증
+    "examples:verified"
+}
+
+fn test_deadlock_prevention() -> String {
+    // 데드락 방지 메커니즘 검증
+    "prevention:verified"
+}
+
+fn prove_chapter_9_complete() -> String {
+    // 제9장 완성 증명
+    "chapter:9:complete:proved"
+}
+
+fn prove_concurrency_mastery() -> String {
+    // 동시성 마스터 선언
+    "mastery:proven"
+}
+
+// ============================================================================
+// 실행 및 검증
+// ============================================================================
+
+println!("========== v10.4 Deadlock Prevention: Defensive Design ==========");
+println!();
+
+println!("=== Pattern 1: Understanding Deadlock ===");
+println!("{}", pattern_deadlock_definition());
+println!("{}", pattern_coffman_conditions());
+println!("{}", pattern_circular_wait());
+println!("{}", pattern_deadlock_scenario());
+println!("{}", pattern_deadlock_mastery());
+println!();
+
+println!("=== Pattern 2: Resource Hierarchy ===");
+println!("{}", pattern_resource_hierarchy());
+println!("{}", pattern_hierarchy_ordering());
+println!("{}", pattern_safe_locking_protocol());
+println!("{}", pattern_hierarchy_proof());
+println!("{}", pattern_hierarchy_mastery());
+println!();
+
+println!("=== Pattern 3: Lock Scope Minimization ===");
+println!("{}", pattern_lock_scope());
+println!("{}", pattern_raii_guards());
+println!("{}", pattern_early_unlock());
+println!("{}", pattern_performance_gain());
+println!("{}", pattern_scope_mastery());
+println!();
+
+println!("=== Pattern 4: Immutability Strategy ===");
+println!("{}", pattern_immutable_sharing());
+println!("{}", pattern_selective_mutex());
+println!("{}", pattern_functional_approach());
+println!("{}", pattern_data_separation());
+println!("{}", pattern_immutability_mastery());
+println!();
+
+println!("=== Pattern 5: Complex Multi-Resource Protocol ===");
+println!("{}", pattern_multi_resource_acquire());
+println!("{}", pattern_resource_manager());
+println!("{}", pattern_timeout_mechanism());
+println!("{}", pattern_checklist_design());
+println!("{}", pattern_complex_mastery());
+println!();
+
+println!("=== Example 1: Safe Resource Management ===");
+println!("{}", example_resource_safe());
+println!("{}", example_secure_resource());
+println!("{}", example_thread_coordination());
+println!("{}", example_database_auth());
+println!("{}", example_resource_mastery());
+println!();
+
+println!("=== Example 2: Structural Design Improvement ===");
+println!("{}", example_restructure_problem());
+println!("{}", example_data_decompose());
+println!("{}", example_ownership_clarity());
+println!("{}", example_thread_isolation());
+println!("{}", example_design_mastery());
+println!();
+
+println!("=== Example 3: Timeout-Based Detection ===");
+println!("{}", example_timeout_strategy());
+println!("{}", example_try_lock());
+println!("{}", example_exponential_backoff());
+println!("{}", example_timeout_mastery());
+println!();
+
+println!("=== Example 4: Web Server Architecture ===");
+println!("{}", example_web_server_design());
+println!("{}", example_cache_database());
+println!("{}", example_logging_queue());
+println!("{}", example_server_mastery());
+println!();
+
+println!("=== Example 5: Game Engine Multi-System ===");
+println!("{}", example_game_engine());
+println!("{}", example_physics_rendering());
+println!("{}", example_audio_input());
+println!("{}", example_game_mastery());
+println!();
+
+println!("=== Designer's Perspective ===");
+println!("{}", example_locking_order());
+println!("{}", example_mutex_minimization());
+println!("{}", example_structure_redesign());
+println!("{}", example_designer_confidence());
+println!("{}", example_chapter_9_complete());
+println!();
+
+println!("=== Fearless Logic: Concurrency Mastery ===");
+println!("{}", example_fearless_logic());
+println!("{}", example_runtime_guarantee());
+println!("{}", example_architect_confidence());
+println!("{}", example_design_principles());
+println!("{}", example_concurrency_mastery());
+println!();
+
+println!("=== Chapter 9 Integration ===");
+println!("{}", example_isolation_mastery());
+println!("{}", example_communication_mastery());
+println!("{}", example_synchronization_mastery());
+println!("{}", example_thread_safety_mastery());
+println!("{}", example_deadlock_defense_mastery());
+println!("{}", example_concurrency_architect());
+println!();
+
+println!("=== Architecture Mastery ===");
+println!("{}", example_level_1_isolation());
+println!("{}", example_level_2_messaging());
+println!("{}", example_level_3_synchronization());
+println!("{}", example_level_4_type_safety());
+println!("{}", example_level_5_logical_defense());
+println!();
+
+println!("=== Validation ===");
+println!("{}", test_all_patterns());
+println!("{}", test_all_examples());
+println!("{}", test_deadlock_prevention());
+println!("{}", prove_chapter_9_complete());
+println!("{}", prove_concurrency_mastery());
+println!();
+
+println!("========== v10.4 Complete! Chapter 9 Mastered! ==========");

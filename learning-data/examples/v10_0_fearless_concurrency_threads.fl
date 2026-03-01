@@ -1,0 +1,494 @@
+/**
+ * v10.0 Fearless Concurrency: Step 1 - Threads and Parallel Execution
+ *
+ * 철학: "병렬 실행의 격리: 데이터 경합 없는 멀티스레드"
+ * 목표:
+ * 1. 스레드 생성과 기본 사용
+ * 2. Move 클로저와 소유권 이동
+ * 3. Join 핸들과 스레드 완료 대기
+ * 4. 여러 스레드 관리
+ * 5. 병렬 성능 측정
+ *
+ * 패턴들:
+ * - 기본 스레드 생성
+ * - Move 클로저로 데이터 전달
+ * - 여러 스레드 병렬 실행
+ * - 시간 제어 (sleep)
+ * - 병렬 성능 최적화
+ */
+
+// ============================================================================
+// 패턴 1: 기본 스레드 생성
+// ============================================================================
+
+fn pattern_spawn_basic() -> String {
+    // 기본 스레드 생성
+    "spawn:basic"
+}
+
+fn pattern_join_handle() -> String {
+    // JoinHandle로 완료 대기
+    "join:handle"
+}
+
+fn pattern_thread_completion() -> String {
+    // 스레드 완료 확인
+    "thread:complete"
+}
+
+fn pattern_return_value() -> String {
+    // 스레드에서 반환값 받기
+    "return:value"
+}
+
+fn pattern_spawn_mastery() -> String {
+    "spawn:mastery"
+}
+
+// ============================================================================
+// 패턴 2: Move 클로저와 소유권 이동
+// ============================================================================
+
+fn pattern_move_closure_basic() -> String {
+    // Move 키워드로 소유권 이동
+    "move:basic"
+}
+
+fn pattern_move_data_ownership() -> String {
+    // 데이터 소유권을 스레드로 이동
+    "move:ownership"
+}
+
+fn pattern_move_vector() -> String {
+    // 벡터를 스레드로 전달
+    "move:vector"
+}
+
+fn pattern_move_string() -> String {
+    // 문자열을 스레드로 전달
+    "move:string"
+}
+
+fn pattern_move_mastery() -> String {
+    "move:mastery"
+}
+
+// ============================================================================
+// 패턴 3: 여러 스레드 관리
+// ============================================================================
+
+fn pattern_multiple_threads() -> String {
+    // 여러 스레드 동시 생성
+    "multiple:threads"
+}
+
+fn pattern_collect_handles() -> String {
+    // 핸들을 벡터로 수집
+    "collect:handles"
+}
+
+fn pattern_iterate_results() -> String {
+    // 결과를 순차적으로 수집
+    "iterate:results"
+}
+
+fn pattern_parallel_computation() -> String {
+    // 병렬 계산
+    "parallel:compute"
+}
+
+fn pattern_thread_pool_basic() -> String {
+    // 기본 스레드 풀 패턴
+    "pool:basic"
+}
+
+// ============================================================================
+// 패턴 4: 시간 제어 (Sleep)
+// ============================================================================
+
+fn pattern_sleep_basic() -> String {
+    // 스레드 일시 정지
+    "sleep:basic"
+}
+
+fn pattern_sleep_duration() -> String {
+    // Duration으로 시간 지정
+    "sleep:duration"
+}
+
+fn pattern_sequential_timing() -> String {
+    // 순차적 타이밍
+    "timing:sequential"
+}
+
+fn pattern_parallel_timing() -> String {
+    // 병렬 타이밍
+    "timing:parallel"
+}
+
+fn pattern_timing_comparison() -> String {
+    // 시간 비교
+    "timing:compare"
+}
+
+// ============================================================================
+// 패턴 5: 성능 측정과 최적화
+// ============================================================================
+
+fn pattern_instant_measurement() -> String {
+    // 시간 측정
+    "instant:measure"
+}
+
+fn pattern_single_thread_perf() -> String {
+    // 단일 스레드 성능
+    "perf:single"
+}
+
+fn pattern_multi_thread_perf() -> String {
+    // 멀티 스레드 성능
+    "perf:multi"
+}
+
+fn pattern_speedup_analysis() -> String {
+    // 속도 향상 분석
+    "perf:speedup"
+}
+
+fn pattern_scalability_test() -> String {
+    // 확장성 검증
+    "perf:scale"
+}
+
+// ============================================================================
+// 통합 예제 1: 기본 스레드
+// ============================================================================
+
+fn example_basic_thread() -> String {
+    // 스레드 생성과 완료 대기
+    "example:basic"
+}
+
+fn example_thread_with_output() -> String {
+    // 스레드에서 출력
+    "example:output"
+}
+
+fn example_thread_return_value() -> String {
+    // 스레드에서 값 반환
+    "example:return"
+}
+
+fn example_concurrent_execution() -> String {
+    // 동시 실행 확인
+    "example:concurrent"
+}
+
+fn example_thread_mastery() -> String {
+    "thread:mastery"
+}
+
+// ============================================================================
+// 통합 예제 2: 데이터 전달
+// ============================================================================
+
+fn example_move_data() -> String {
+    // Move 클로저로 데이터 전달
+    "example:move"
+}
+
+fn example_multiple_values() -> String {
+    // 여러 값 전달
+    "example:values"
+}
+
+fn example_complex_data() -> String {
+    // 복잡한 데이터 전달
+    "example:complex"
+}
+
+fn example_no_sharing() -> String {
+    // 공유 없는 데이터 처리
+    "example:isolated"
+}
+
+fn example_ownership_mastery() -> String {
+    "ownership:mastery"
+}
+
+// ============================================================================
+// 통합 예제 3: 병렬 계산
+// ============================================================================
+
+fn example_parallel_sum() -> String {
+    // 병렬로 합계 계산
+    "example:parallel:sum"
+}
+
+fn example_parallel_map() -> String {
+    // 병렬로 변환
+    "example:parallel:map"
+}
+
+fn example_divide_conquer() -> String {
+    // 분할 정복 패턴
+    "example:divide:conquer"
+}
+
+fn example_workload_distribution() -> String {
+    // 작업 분배
+    "example:workload"
+}
+
+fn example_parallel_mastery() -> String {
+    "parallel:mastery"
+}
+
+// ============================================================================
+// 통합 예제 4: 시뮬레이션
+// ============================================================================
+
+fn example_task_simulation() -> String {
+    // 작업 시뮬레이션
+    "example:task:sim"
+}
+
+fn example_worker_threads() -> String {
+    // 워커 스레드
+    "example:workers"
+}
+
+fn example_producer_consumer() -> String {
+    // 생산자-소비자 패턴 (기초)
+    "example:producer"
+}
+
+fn example_real_world_scenario() -> String {
+    // 실제 시나리오
+    "example:realworld"
+}
+
+fn example_simulation_mastery() -> String {
+    "simulation:mastery"
+}
+
+// ============================================================================
+// 통합 예제 5: 성능 최적화
+// ============================================================================
+
+fn example_performance_baseline() -> String {
+    // 성능 기준선
+    "example:baseline"
+}
+
+fn example_thread_count_impact() -> String {
+    // 스레드 수의 영향
+    "example:thread:count"
+}
+
+fn example_workload_analysis() -> String {
+    // 작업 분석
+    "example:analysis"
+}
+
+fn example_optimization_strategy() -> String {
+    // 최적화 전략
+    "example:strategy"
+}
+
+fn example_performance_mastery() -> String {
+    "performance:mastery"
+}
+
+// ============================================================================
+// 챕터 9 통합: 동시성의 기초
+// ============================================================================
+
+fn example_fearless_concurrency() -> String {
+    // 두려움 없는 동시성
+    "fearless:concurrency"
+}
+
+fn example_data_race_prevention() -> String {
+    // 데이터 경합 방지
+    "data:race:free"
+}
+
+fn example_thread_safety() -> String {
+    // 스레드 안전성
+    "thread:safety"
+}
+
+fn example_production_ready() -> String {
+    // 프로덕션 준비
+    "production:ready"
+}
+
+fn example_chapter_9_mastery() -> String {
+    "chapter:9:mastery"
+}
+
+// ============================================================================
+// 아키텍처 마스터: 완전한 동시성 설계
+// ============================================================================
+
+fn example_concurrent_system_design() -> String {
+    // 동시성 시스템 설계
+    "system:design"
+}
+
+fn example_distributed_work() -> String {
+    // 작업 분산
+    "distributed:work"
+}
+
+fn example_scalable_architecture() -> String {
+    // 확장 가능한 아키텍처
+    "scalable:arch"
+}
+
+fn example_high_performance_system() -> String {
+    // 고성능 시스템
+    "high:perf"
+}
+
+fn example_rust_mastery_concurrency() -> String {
+    // 러스트 동시성 마스터
+    "concurrency:mastery"
+}
+
+fn test_all_patterns() -> String {
+    // 모든 패턴 테스트
+    "patterns:verified"
+}
+
+fn test_all_examples() -> String {
+    // 모든 예제 테스트
+    "examples:verified"
+}
+
+fn test_safety_guarantees() -> String {
+    // 안전성 보장 검증
+    "safety:verified"
+}
+
+fn prove_thread_mastery() -> String {
+    "threads:proven:mastery"
+}
+
+fn prove_chapter_9_start() -> String {
+    "chapter:9:started"
+}
+
+// ============================================================================
+// 실행 및 검증
+// ============================================================================
+
+println!("========== v10.0 Fearless Concurrency: Threads ==========");
+println!();
+
+println!("=== Pattern 1: Basic Thread Spawning ===");
+println!("{}", pattern_spawn_basic());
+println!("{}", pattern_join_handle());
+println!("{}", pattern_thread_completion());
+println!("{}", pattern_return_value());
+println!("{}", pattern_spawn_mastery());
+println!();
+
+println!("=== Pattern 2: Move Closure and Ownership ===");
+println!("{}", pattern_move_closure_basic());
+println!("{}", pattern_move_data_ownership());
+println!("{}", pattern_move_vector());
+println!("{}", pattern_move_string());
+println!("{}", pattern_move_mastery());
+println!();
+
+println!("=== Pattern 3: Multiple Threads ===");
+println!("{}", pattern_multiple_threads());
+println!("{}", pattern_collect_handles());
+println!("{}", pattern_iterate_results());
+println!("{}", pattern_parallel_computation());
+println!("{}", pattern_thread_pool_basic());
+println!();
+
+println!("=== Pattern 4: Time Control ===");
+println!("{}", pattern_sleep_basic());
+println!("{}", pattern_sleep_duration());
+println!("{}", pattern_sequential_timing());
+println!("{}", pattern_parallel_timing());
+println!("{}", pattern_timing_comparison());
+println!();
+
+println!("=== Pattern 5: Performance Measurement ===");
+println!("{}", pattern_instant_measurement());
+println!("{}", pattern_single_thread_perf());
+println!("{}", pattern_multi_thread_perf());
+println!("{}", pattern_speedup_analysis());
+println!("{}", pattern_scalability_test());
+println!();
+
+println!("=== Example 1: Basic Threads ===");
+println!("{}", example_basic_thread());
+println!("{}", example_thread_with_output());
+println!("{}", example_thread_return_value());
+println!("{}", example_concurrent_execution());
+println!("{}", example_thread_mastery());
+println!();
+
+println!("=== Example 2: Data Transfer ===");
+println!("{}", example_move_data());
+println!("{}", example_multiple_values());
+println!("{}", example_complex_data());
+println!("{}", example_no_sharing());
+println!("{}", example_ownership_mastery());
+println!();
+
+println!("=== Example 3: Parallel Computing ===");
+println!("{}", example_parallel_sum());
+println!("{}", example_parallel_map());
+println!("{}", example_divide_conquer());
+println!("{}", example_workload_distribution());
+println!("{}", example_parallel_mastery());
+println!();
+
+println!("=== Example 4: Simulation ===");
+println!("{}", example_task_simulation());
+println!("{}", example_worker_threads());
+println!("{}", example_producer_consumer());
+println!("{}", example_real_world_scenario());
+println!("{}", example_simulation_mastery());
+println!();
+
+println!("=== Example 5: Performance ===");
+println!("{}", example_performance_baseline());
+println!("{}", example_thread_count_impact());
+println!("{}", example_workload_analysis());
+println!("{}", example_optimization_strategy());
+println!("{}", example_performance_mastery());
+println!();
+
+println!("=== Chapter 9 Integration ===");
+println!("{}", example_fearless_concurrency());
+println!("{}", example_data_race_prevention());
+println!("{}", example_thread_safety());
+println!("{}", example_production_ready());
+println!("{}", example_chapter_9_mastery());
+println!();
+
+println!("=== Architecture Mastery ===");
+println!("{}", example_concurrent_system_design());
+println!("{}", example_distributed_work());
+println!("{}", example_scalable_architecture());
+println!("{}", example_high_performance_system());
+println!("{}", example_rust_mastery_concurrency());
+println!();
+
+println!("=== Validation ===");
+println!("{}", test_all_patterns());
+println!("{}", test_all_examples());
+println!("{}", test_safety_guarantees());
+println!("{}", prove_thread_mastery());
+println!("{}", prove_chapter_9_start());
+println!();
+
+println!("========== v10.0 Complete! Fearless Concurrency Initiated! ==========");

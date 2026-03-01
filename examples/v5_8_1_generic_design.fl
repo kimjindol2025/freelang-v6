@@ -1,0 +1,327 @@
+// v5.8.1: 제네릭 설계 보강 수업 — 범용 데이터 래퍼
+// 철학: "타입으로부터의 자유"
+// 목표: 어떤 타입의 데이터든 담을 수 있는 범용 컨테이너
+
+// ============================================================
+// [개념] 제네릭이란?
+// ============================================================
+
+// Before (타입별로 따로 정의):
+// struct IntEnvelope { id: u32, data: i32 }
+// struct StringEnvelope { id: u32, data: String }
+// struct BoolEnvelope { id: u32, data: bool }
+// → 같은 로직을 3번 반복!
+
+// After (제네릭으로 통합):
+// struct GogsEnvelope<T> { id: u32, data: T }
+// → 단 하나의 설계도로 모든 타입을 지원!
+
+// ============================================================
+// [1단계] 제네릭 구조체 정의
+// ============================================================
+
+// 제네릭 봉투 (Envelope)
+// T는 "어떤 타입이든 될 수 있는 타입 변수"
+struct GogsEnvelope<T> {
+    id: u32,           // 봉투 고유 번호
+    data: T,           // 타입 T인 데이터 (실제 타입은 사용 시 결정됨)
+    created_at: String, // 생성 시각
+}
+
+// ============================================================
+// [2단계] 제네릭 메서드 구현
+// ============================================================
+
+// impl<T> — "모든 타입 T에 대해 다음을 구현한다"
+// 이 메서드들은 T가 무엇이든 상관없이 항상 동일하게 작동
+
+fn create_envelope<T>(id: u32, data: T, timestamp: String) -> String {
+    \"envelope:created\"
+}
+
+// 데이터 열람 (참조로 반환, 소유권 이동 없음)
+fn peek_envelope<T>(id: u32) -> String {
+    \"data:peeked\"
+}
+
+// 데이터 변환 (소유권 이동)
+fn unwrap_envelope<T>(id: u32) -> String {
+    \"data:unwrapped\"
+}
+
+// ============================================================
+// [3단계] 특화된 래퍼들
+// ============================================================
+
+// 정수를 담는 래퍼
+fn wrap_integer(id: u32, value: i32) -> String {
+    \"int:wrapped\"
+}
+
+// 문자열을 담는 래퍼
+fn wrap_string(id: u32, value: String) -> String {
+    \"string:wrapped\"
+}
+
+// Option을 담는 래퍼 (더블 래핑!)
+fn wrap_optional(id: u32, value: Option<f32>) -> String {
+    \"optional:wrapped\"
+}
+
+// 벡터를 담는 래퍼 (컬렉션 래핑!)
+fn wrap_vector(id: u32, items: String) -> String {
+    // Vec<String>을 담는 래퍼
+    \"vector:wrapped\"
+}
+
+// ============================================================
+// [4단계] 제네릭 저장소
+// ============================================================
+
+// 여러 GogsEnvelope를 저장하는 저장소
+// 하지만 각각 다른 타입을 담을 수 있음 (제네릭)
+struct GogsWarehouse<T> {
+    name: String,
+    envelopes: String,  // Vec<GogsEnvelope<T>>
+    capacity: u32,
+}
+
+fn create_warehouse<T>(name: String, capacity: u32) -> String {
+    \"warehouse:created\"
+}
+
+fn add_to_warehouse<T>(warehouse: String, envelope: String) -> String {
+    \"envelope:added\"
+}
+
+fn get_from_warehouse<T>(warehouse: String, id: u32) -> String {
+    \"envelope:retrieved\"
+}
+
+// ============================================================
+// [5단계] 복합 제네릭 패턴
+// ============================================================
+
+// 제네릭 쌍 (두 개의 다른 타입)
+struct Pair<A, B> {
+    first: String,  // 타입 A
+    second: String, // 타입 B
+}
+
+fn create_pair<A, B>(first: String, second: String) -> String {
+    \"pair:created\"
+}
+
+// 제네릭 삼중 (세 개의 다른 타입)
+struct Triple<A, B, C> {
+    first: String,
+    second: String,
+    third: String,
+}
+
+fn create_triple<A, B, C>(
+    first: String,
+    second: String,
+    third: String
+) -> String {
+    \"triple:created\"
+}
+
+// ============================================================
+// [6단계] 제네릭의 실무 활용
+// ============================================================
+
+// 캐시: 어떤 타입의 값이든 저장 가능
+struct Cache<K, V> {
+    key: String,     // K 타입의 키
+    value: String,   // V 타입의 값
+}
+
+fn cache_get<K, V>(key: String) -> String {
+    \"cached:retrieved\"
+}
+
+fn cache_set<K, V>(key: String, value: String) -> String {
+    \"cached:stored\"
+}
+
+// Result 래퍼: 성공 또는 실패 (제네릭 활용)
+fn safe_operation<T>(operation: String) -> String {
+    // Result<T, String>을 반환한다면:
+    // 성공 시: Ok(T)
+    // 실패 시: Err(String)
+    \"operation:result\"
+}
+
+// ============================================================
+// [메인] v5.8.1 데모: 제네릭 설계
+// ============================================================
+
+fn main() {
+    println(\"=== v5.8.1: 제네릭 설계 보강 수업 ===\");
+    println(\"철학: 타입으로부터의 자유\");
+    println(\"\");
+
+    // ========================================
+    // 1단계: 기본 봉투 생성
+    // ========================================
+
+    println(\"--- 1단계: 기본 봉투 생성 ---\");
+
+    // 정수를 담는 봉투
+    let int_env = wrap_integer(1, 1024);
+    println(\"Integer Envelope: \" + int_env);
+
+    // 문자열을 담는 봉투
+    let str_env = wrap_string(2, \"GOGS Security Protocol\".to_string());
+    println(\"String Envelope: \" + str_env);
+
+    // Option을 담는 봉투
+    let opt_env = wrap_optional(3, \"5.81\".to_string());
+    println(\"Optional Envelope: \" + opt_env);
+
+    // 벡터를 담는 봉투
+    let vec_env = wrap_vector(4, \"item1,item2,item3\".to_string());
+    println(\"Vector Envelope: \" + vec_env);
+    println(\"\");
+
+    // ========================================
+    // 2단계: 봉투 조작
+    // ========================================
+
+    println(\"--- 2단계: 봉투 조작 ---\");
+
+    let peek1 = peek_envelope::<i32>(1);
+    println(\"Peek #1: \" + peek1);
+
+    let peek2 = peek_envelope::<String>(2);
+    println(\"Peek #2: \" + peek2);
+
+    let peek3 = peek_envelope::<Option<f32>>(3);
+    println(\"Peek #3: \" + peek3);
+    println(\"\");
+
+    // ========================================
+    // 3단계: 봉투 저장소
+    // ========================================
+
+    println(\"--- 3단계: 봉투 저장소 (제네릭) ---\");
+
+    let warehouse_int = create_warehouse::<i32>(
+        \"Integer Warehouse\".to_string(),
+        100
+    );
+    println(\"Created: \" + warehouse_int);
+
+    let add_int = add_to_warehouse::<i32>(
+        warehouse_int,
+        \"envelope:1\".to_string()
+    );
+    println(\"Added: \" + add_int);
+
+    let warehouse_str = create_warehouse::<String>(
+        \"String Warehouse\".to_string(),
+        100
+    );
+    println(\"Created: \" + warehouse_str);
+
+    let add_str = add_to_warehouse::<String>(
+        warehouse_str,
+        \"envelope:2\".to_string()
+    );
+    println(\"Added: \" + add_str);
+    println(\"\");
+
+    // ========================================
+    // 4단계: 다중 제네릭 (Pair, Triple)
+    // ========================================
+
+    println(\"--- 4단계: 다중 제네릭 ---\");
+
+    // Pair: 두 개의 서로 다른 타입
+    let pair = create_pair::<i32, String>(
+        \"42\".to_string(),
+        \"GOGS\".to_string()
+    );
+    println(\"Pair<i32, String>: \" + pair);
+
+    // Triple: 세 개의 서로 다른 타입
+    let triple = create_triple::<i32, String, f32>(
+        \"42\".to_string(),
+        \"GOGS\".to_string(),
+        \"3.14\".to_string()
+    );
+    println(\"Triple<i32, String, f32>: \" + triple);
+    println(\"\");
+
+    // ========================================
+    // 5단계: 실무 활용
+    // ========================================
+
+    println(\"--- 5단계: 실무 활용 ---\");
+
+    // 캐시: 문자열 키, 정수 값
+    let cache_str_int = cache_set::<String, i32>(
+        \"sensor_id_101\".to_string(),
+        \"1024\".to_string()
+    );
+    println(\"Cache (String → i32): \" + cache_str_int);
+
+    let retrieve = cache_get::<String, i32>(
+        \"sensor_id_101\".to_string()
+    );
+    println(\"Retrieved: \" + retrieve);
+
+    // Result를 이용한 안전한 연산
+    let op1 = safe_operation::<i32>(\"divide_by_zero\".to_string());
+    println(\"Safe Op #1: \" + op1);
+
+    let op2 = safe_operation::<String>(\"parse_json\".to_string());
+    println(\"Safe Op #2: \" + op2);
+    println(\"\");
+
+    // ========================================
+    // v5.8.1의 의의
+    // ========================================
+
+    println(\"=== v5.8.1의 의의 ===\");
+    println(\"\");
+
+    println(\"[1] 코드 재사용성\");
+    println(\"  GogsEnvelope<T>는 모든 타입을 지원\");
+    println(\"  → 타입별로 따로 정의할 필요 없음\");
+    println(\"\");
+
+    println(\"[2] 타입 안전성\");
+    println(\"  GogsEnvelope<i32>는 정수만 담음\");
+    println(\"  GogsEnvelope<String>은 문자열만 담음\");
+    println(\"  → 타입 불일치를 컴파일 시점에 감지\");
+    println(\"\");
+
+    println(\"[3] 성능 (Monomorphization)\");
+    println(\"  GogsEnvelope<T>는 '하나'의 코드\");
+    println(\"  하지만 컴파일할 때 각 타입별로 생성됨\");
+    println(\"  → 런타임 성능 저하 없음\");
+    println(\"\");
+
+    println(\"[4] 확장성 (Trait Bounds 예고)\");
+    println(\"  struct GogsEnvelope<T: Display> {}\");
+    println(\"  → \"T는 어떤 타입이든 되지만, 출력 가능해야 함\"\");
+    println(\"\");
+
+    println(\"=== 제4장 보강 완성 ===\");
+    println(\"\");
+
+    println(\"v5.8 통합 설계 + v5.8.1 제네릭 기초\");
+    println(\"\");
+    println(\"당신의 설계도는 이제:\");
+    println(\"  ✅ 구체적 (Security Control Center)\");
+    println(\"  ✅ 추상적 (GogsEnvelope<T>)\");
+    println(\"  ✅ 유연함 (어떤 타입이든 대응)\");
+    println(\"  ✅ 재사용 가능 (DRY 원칙)\");
+    println(\"\");
+
+    println(\"이것이 바로 \"설계자의 경지\"입니다.\");
+    println(\"\");
+    println(\"저장 필수 너는 기록이 증명이다 gogs.\");
+}

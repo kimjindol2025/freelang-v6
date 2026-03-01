@@ -1,0 +1,364 @@
+// v6.0: 트레이트 마스터 과정 6~7단계 — 트레이트 경계와 다중 경계
+// 철학: "깐깐한 전문가처럼, 필요한 자격을 갖춘 것만 통과시킨다"
+// 목표: 함수에 엄격한 자격 요건을 부여하여 타입 안전성 강화
+
+// ============================================================
+// [Step 6 준비] 트레이트 1: 요약 가능
+// ============================================================
+
+trait Summary {
+    fn summarize() -> String;
+}
+
+// ============================================================
+// [Step 7 준비] 트레이트 2: 보안 레벨
+// ============================================================
+
+trait SecurityLevel {
+    fn level() -> u8;
+
+    fn is_critical() -> bool {
+        SecurityLevel::level() > 7
+    }
+}
+
+// ============================================================
+// [Step 6-7 기초] 트레이트 3: 전송 가능
+// ============================================================
+
+trait Transmittable {
+    fn serialize() -> String;
+    fn validate() -> bool;
+}
+
+// ============================================================
+// [구현체 1] 보안 로그 (Summary + SecurityLevel)
+// ============================================================
+
+struct SecurityLog {
+    id: u32,
+    code: String,
+    clearance: u8,
+}
+
+impl Summary for SecurityLog {
+    fn summarize() -> String {
+        "Security event logged"
+    }
+}
+
+impl SecurityLevel for SecurityLog {
+    fn level() -> u8 {
+        7
+    }
+}
+
+impl Transmittable for SecurityLog {
+    fn serialize() -> String {
+        "log:encrypted"
+    }
+
+    fn validate() -> bool {
+        true
+    }
+}
+
+// ============================================================
+// [구현체 2] 네트워크 패킷 (Summary + Transmittable)
+// ============================================================
+
+struct NetworkPacket {
+    id: u32,
+    source: String,
+    destination: String,
+}
+
+impl Summary for NetworkPacket {
+    fn summarize() -> String {
+        "Packet transmitted"
+    }
+}
+
+impl Transmittable for NetworkPacket {
+    fn serialize() -> String {
+        "packet:serialized"
+    }
+
+    fn validate() -> bool {
+        true
+    }
+}
+
+// ============================================================
+// [구현체 3] 데이터베이스 레코드 (모든 트레이트)
+// ============================================================
+
+struct DatabaseRecord {
+    id: u32,
+    table_name: String,
+    data: String,
+}
+
+impl Summary for DatabaseRecord {
+    fn summarize() -> String {
+        "Database record accessed"
+    }
+}
+
+impl SecurityLevel for DatabaseRecord {
+    fn level() -> u8 {
+        5
+    }
+}
+
+impl Transmittable for DatabaseRecord {
+    fn serialize() -> String {
+        "record:serialized"
+    }
+
+    fn validate() -> bool {
+        true
+    }
+}
+
+// ============================================================
+// [Step 6: 단일 경계] 함수: Summary 자격 필요
+// ============================================================
+
+fn display_summary<T: Summary>() {
+    println!("Summary: {}", T::summarize());
+}
+
+// ============================================================
+// [Step 6: 단일 경계] 함수: SecurityLevel 자격 필요
+// ============================================================
+
+fn check_security_level<T: SecurityLevel>() {
+    let level = T::level();
+    println!("Security Level: {}", level);
+
+    if T::is_critical() {
+        println!("  ⚠️ CRITICAL ALERT!");
+    }
+}
+
+// ============================================================
+// [Step 6: 단일 경계] 함수: Transmittable 자격 필요
+// ============================================================
+
+fn transmit_data<T: Transmittable>() {
+    if T::validate() {
+        println!("✓ Data valid. Sending: {}", T::serialize());
+    } else {
+        println!("✗ Data validation failed");
+    }
+}
+
+// ============================================================
+// [Step 7: 다중 경계] 함수: Summary + SecurityLevel 모두 필요
+// ============================================================
+
+fn monitor_system<T: Summary + SecurityLevel>() {
+    let summary = T::summarize();
+    let level = T::level();
+
+    if level > 5 {
+        println!("[🚨 ALERT] 고위험: {}", summary);
+    } else {
+        println!("[ℹ️ INFO] 일반: {}", summary);
+    }
+}
+
+// ============================================================
+// [Step 7: 다중 경계] 함수: Summary + Transmittable 모두 필요
+// ============================================================
+
+fn send_summary<T: Summary + Transmittable>() {
+    println!("Sending: {} ({})", T::summarize(), T::serialize());
+}
+
+// ============================================================
+// [Step 7: 다중 경계] 함수: 세 가지 경계 모두 필요 (최고 수준)
+// ============================================================
+
+fn critical_operation<T: Summary + SecurityLevel + Transmittable>() {
+    println!("=== Critical Operation ===");
+    println!("Summary: {}", T::summarize());
+    println!("Level: {}", T::level());
+    println!("Transmission: {}", T::serialize());
+
+    if T::is_critical() && T::validate() {
+        println!("✅ Operation approved and transmitted");
+    }
+}
+
+// ============================================================
+// [Step 6 실践] 경계의 의미: 컴파일러의 입문 통제
+// ============================================================
+
+fn demonstrate_bounds_power() {
+    println!("\n=== Step 6: 경계의 힘 ===");
+    println!("[경계 1] Summary만 필요한 함수");
+    display_summary::<SecurityLog>();
+    display_summary::<NetworkPacket>();
+    display_summary::<DatabaseRecord>();
+
+    println!("\n[경계 2] SecurityLevel만 필요한 함수");
+    check_security_level::<SecurityLog>();
+    check_security_level::<DatabaseRecord>();
+
+    println!("\n[경계 3] Transmittable만 필요한 함수");
+    transmit_data::<SecurityLog>();
+    transmit_data::<NetworkPacket>();
+    transmit_data::<DatabaseRecord>();
+}
+
+// ============================================================
+// [Step 7 실践] 다중 경계: 복합 조건으로 더 강한 보장
+// ============================================================
+
+fn demonstrate_multiple_bounds() {
+    println!("\n=== Step 7: 다중 경계 ===");
+
+    println!("[경계 1] Summary + SecurityLevel");
+    monitor_system::<SecurityLog>();
+    monitor_system::<DatabaseRecord>();
+
+    println!("\n[경계 2] Summary + Transmittable");
+    send_summary::<SecurityLog>();
+    send_summary::<NetworkPacket>();
+    send_summary::<DatabaseRecord>();
+
+    println!("\n[경계 3] 세 가지 경계 모두");
+    critical_operation::<SecurityLog>();
+    critical_operation::<DatabaseRecord>();
+}
+
+// ============================================================
+// [Step 6-7의 철학] 최소 권한 원칙
+// ============================================================
+
+fn explain_principle() {
+    println!("\n=== 최소 권한 원칙 (Principle of Least Privilege) ===");
+
+    println!("❌ 과도한 경계 (안티패턴):");
+    println!("  fn process<T: Summary + SecurityLevel + Transmittable + Clone + Default>()");
+    println!("  → 너무 많은 조건, 호출하기 어려움");
+
+    println!("\n✅ 최소한의 경계 (최적):");
+    println!("  fn process<T: Summary>()");
+    println!("  → 필요한 것만 요구, 호출하기 간단");
+
+    println!("\n⚖️ 균형잡힌 경계 (실전):");
+    println!("  fn process<T: Summary + Transmittable>()");
+    println!("  → 필요한 기능 모두 포함, 합리적인 조건");
+}
+
+// ============================================================
+// [Step 6-7의 강점] 정적 다형성
+// ============================================================
+
+fn explain_static_polymorphism() {
+    println!("\n=== 정적 다형성 vs 동적 다형성 ===");
+
+    println!("정적 다형성 (Rust의 트레이트 경계):");
+    println!("  ✓ 컴파일 타임에 타입 결정");
+    println!("  ✓ 런타임 오버헤드 없음");
+    println!("  ✓ 모든 오류 컴파일 타임에 감지");
+    println!("  ✓ 인라인 최적화 가능");
+
+    println!("\n동적 다형성 (트레이트 객체 &dyn Trait):");
+    println!("  ✓ 런타임에 타입 결정");
+    println!("  ✓ 유연성 높음");
+    println!("  ✗ 런타임 오버헤드 있음");
+    println!("  ✗ 일부 오류가 런타임에 발생");
+}
+
+// ============================================================
+// [메인] v6.0 Steps 6-7 실습
+// ============================================================
+
+fn main() {
+    println!("╔════════════════════════════════════════════╗");
+    println!("║  v6.0 마스터: Step 6-7 트레이트 경계      ║");
+    println!("║  철학: \"깐깐한 전문가처럼 자격을 검증한다\" ║");
+    println!("╚════════════════════════════════════════════╝");
+    println!("");
+
+    // ========================================
+    // 1단계: Step 6 단일 경계의 힘
+    // ========================================
+
+    demonstrate_bounds_power();
+
+    // ========================================
+    // 2단계: Step 7 다중 경계의 강력함
+    // ========================================
+
+    demonstrate_multiple_bounds();
+
+    // ========================================
+    // 3단계: 최소 권한 원칙
+    // ========================================
+
+    explain_principle();
+
+    // ========================================
+    // 4단계: 정적 다형성의 강점
+    // ========================================
+
+    explain_static_polymorphism();
+
+    // ========================================
+    // 5단계: Step 6-7의 설계 원칙
+    // ========================================
+
+    println!("\n=== v6.0 Step 6-7의 설계 원칙 ===");
+    println!("");
+
+    println!("[원칙 1: 트레이트 경계 (Trait Bounds)]");
+    println!("  ✓ 함수의 '자격 요건' 명시");
+    println!("  ✓ Summary를 구현한 타입만 환영");
+    println!("  ✓ fn process<T: Summary>(item: T) { }");
+    println!("");
+
+    println!("[원칙 2: 다중 경계 (Multiple Bounds)]");
+    println!("  ✓ 복합적인 조건으로 강한 보장");
+    println!("  ✓ Summary + SecurityLevel 모두 필요");
+    println!("  ✓ fn monitor<T: Summary + SecurityLevel>(item: T) { }");
+    println!("");
+
+    println!("[원칙 3: 최소 권한 원칙]");
+    println!("  ✓ 필요한 트레이트만 경계로 설정");
+    println!("  ✓ 과도한 조건은 호출을 어렵게 함");
+    println!("  ✓ 필요한 것만 요구, 불필요한 것은 버림");
+    println!("");
+
+    println!("[원칙 4: 정적 다형성의 힘]");
+    println!("  ✓ 컴파일 타임에 모든 검증 완료");
+    println!("  ✓ 런타임 오버헤드 없음");
+    println!("  ✓ 오류를 실행 전에 감지");
+    println!("");
+
+    println!("[원칙 5: 깐깐한 전문가]");
+    println!("  ✓ 자격이 없으면 절대 통과시키지 않음");
+    println!("  ✓ 컴파일러가 입문 통제");
+    println!("  ✓ 잘못된 타입 사용 불가능");
+    println!("");
+
+    // ========================================
+    // 6단계: Step 8-9로의 준비
+    // ========================================
+
+    println!("=== Step 8-9 예고 ===");
+    println!("");
+    println!("Step 8: where 절 (가독성 개선)");
+    println!("  fn process<T>(item: T)");
+    println!("  where T: Summary + Transmittable { }");
+    println!("");
+    println!("Step 9: 반환 타입 트레이트");
+    println!("  fn create() -> impl Summary { }");
+    println!("");
+
+    println!("저장 필수 너는 기록이 증명이다 gogs");
+}

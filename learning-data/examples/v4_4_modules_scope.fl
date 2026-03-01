@@ -1,0 +1,246 @@
+// v4.4: Modules & Scope Control - 모듈과 패키지 관리
+// 철학: "필요한 것만 보여주기"
+// 설계: 논리적 코드 경계를 통한 체계적 조직화
+
+// [Module 1] MATH 모듈: 수학 연산
+// (설계: 수학 관련 함수들만 모임)
+
+// [Public API]
+fn math_add(a: i32, b: i32) -> i32 {
+  a + b
+}
+
+fn math_subtract(a: i32, b: i32) -> i32 {
+  a - b
+}
+
+fn math_multiply(a: i32, b: i32) -> i32 {
+  a * b
+}
+
+// [Internal Helper] (비공개)
+fn math_validate(a: i32, b: i32) -> bool {
+  true
+}
+
+fn math_log_operation(op: String) {
+  println!("[MATH] {}", op);
+}
+
+// [Module 2] NETWORK 모듈: 네트워크 통신
+// (설계: 네트워크 관련 함수들만 모임)
+
+// [Public API]
+fn network_connect(host: String) -> bool {
+  true
+}
+
+fn network_send(data: String) -> bool {
+  true
+}
+
+fn network_receive() -> String {
+  "data"
+}
+
+// [Internal Helper] (비공개)
+fn network_validate_host(host: String) -> bool {
+  host != ""
+}
+
+fn network_log_event(event: String) {
+  println!("[NETWORK] {}", event);
+}
+
+// [Module 3] STORAGE 모듈: 데이터 저장
+// (설계: 저장소 관련 함수들만 모임)
+
+// [Public API]
+fn storage_save(key: String, value: String) -> bool {
+  true
+}
+
+fn storage_load(key: String) -> String {
+  "value"
+}
+
+fn storage_delete(key: String) -> bool {
+  true
+}
+
+// [Internal Helper] (비공개)
+fn storage_validate_key(key: String) -> bool {
+  key != ""
+}
+
+fn storage_log_access(key: String) {
+  println!("[STORAGE] {}", key);
+}
+
+// [Module 4] SYSTEM 모듈: 시스템 제어
+// (설계: 캡슐화된 모듈 - 복잡한 내부 구현 숨김)
+
+// [Public API] 공개 함수
+fn system_initialize() {
+  system_check_safety();
+  system_load_config();
+  system_start_engine();
+  println!("[SYSTEM] 초기화 완료");
+}
+
+fn system_shutdown() {
+  system_stop_engine();
+  system_save_config();
+  println!("[SYSTEM] 종료 완료");
+}
+
+// [Internal Helper] (비공개)
+fn system_check_safety() {
+  println!("[INTERNAL] 안전성 검사");
+}
+
+fn system_load_config() {
+  println!("[INTERNAL] 설정 로드");
+}
+
+fn system_start_engine() {
+  println!("[INTERNAL] 엔진 시작");
+}
+
+fn system_stop_engine() {
+  println!("[INTERNAL] 엔진 중지");
+}
+
+fn system_save_config() {
+  println!("[INTERNAL] 설정 저장");
+}
+
+// [Module 5] API 모듈: 상위 계층 (다른 모듈 조합)
+// (설계: 조합된 모듈 - 여러 모듈의 기능을 통합)
+
+fn api_process_request(request: String) -> String {
+  // 1단계: 검증
+  if request == "" {
+    return "error";
+  }
+
+  // 2단계: 처리
+  let result = "success";
+
+  // 3단계: 반환
+  result
+}
+
+fn api_handle_user_action(action: String) -> bool {
+  // 네트워크 모듈 사용
+  if network_connect("server") {
+    // 데이터 저장
+    storage_save("action", action);
+    return true;
+  }
+
+  false
+}
+
+// [Advanced] 모듈화의 3가지 패턴 입증
+
+fn demonstrate_module_patterns() {
+  println!("=== v4.4 Module Patterns Demo ===\\n");
+
+  // 1. 기능별 모듈화: 각 모듈은 독립적으로 사용 가능
+  println!("[1] 기능별 모듈화:");
+  let math_result = math_add(10, 20);
+  println!("Math 모듈 결과: {}", math_result);
+
+  let network_ok = network_connect("localhost");
+  println!("Network 모듈 결과: {}", network_ok);
+
+  let storage_ok = storage_save("key", "value");
+  println!("Storage 모듈 결과: {}", storage_ok);
+
+  // 2. 계층별 모듈화: API 모듈이 다른 모듈 사용
+  println!("\\n[2] 계층별 모듈화:");
+  let api_result = api_process_request("test");
+  println!("API 모듈 결과: {}", api_result);
+
+  // 3. 캡슐화: 공개 함수만 호출
+  println!("\\n[3] 캡슐화된 모듈:");
+  system_initialize();
+  // system_check_safety();  // ✗ 호출 불가 (비공개)
+
+  // 4. 모듈 조합: 복잡한 작업 수행
+  println!("\\n[4] 모듈 조합:");
+  let combined = api_handle_user_action("login");
+  println!("복합 작업 결과: {}", combined);
+
+  // 5. 이름 충돌 방지: 같은 이름의 함수를 다른 모듈에서 사용
+  println!("\\n[5] 이름 충돌 방지:");
+  math_log_operation("덧셈");
+  network_log_event("연결됨");
+  storage_log_access("로드됨");
+  // 모두 다른 log 함수들이지만 충돌 없음
+}
+
+// [메인] 전체 시스템 실행
+
+fn main() {
+  println!("=== v4.4 Modules & Scope Control ===");
+  println!("철학: 필요한 것만 보여주기\\n");
+
+  // [모듈 1] MATH: 수학 연산
+  println!("--- Module 1: MATH (수학 연산) ---");
+  let add_result = math_add(10, 20);
+  println!("덧셈: 10 + 20 = {}", add_result);
+
+  let sub_result = math_subtract(30, 10);
+  println!("뺄셈: 30 - 10 = {}", sub_result);
+
+  let mul_result = math_multiply(5, 6);
+  println!("곱셈: 5 × 6 = {}", mul_result);
+
+  // [모듈 2] NETWORK: 네트워크
+  println!("\\n--- Module 2: NETWORK (네트워크) ---");
+  let connected = network_connect("192.168.1.1");
+  println!("연결: {}", connected);
+
+  let sent = network_send("hello");
+  println!("송신: {}", sent);
+
+  let received = network_receive();
+  println!("수신: {}", received);
+
+  // [모듈 3] STORAGE: 저장소
+  println!("\\n--- Module 3: STORAGE (저장소) ---");
+  let saved = storage_save("user_name", "Alice");
+  println!("저장: {}", saved);
+
+  let loaded = storage_load("user_name");
+  println!("로드: {}", loaded);
+
+  let deleted = storage_delete("user_name");
+  println!("삭제: {}", deleted);
+
+  // [모듈 4] SYSTEM: 시스템 (캡슐화)
+  println!("\\n--- Module 4: SYSTEM (시스템) ---");
+  println!("시스템 초기화:");
+  system_initialize();
+  println!("시스템 종료:");
+  system_shutdown();
+
+  // [모듈 5] API: 통합 (조합된 모듈)
+  println!("\\n--- Module 5: API (통합 모듈) ---");
+  let response = api_process_request("action");
+  println!("API 처리: {}", response);
+
+  let handled = api_handle_user_action("click");
+  println!("사용자 작업 처리: {}", handled);
+
+  // Advanced: 모듈화 패턴 입증
+  println!("\\n--- Advanced: 모듈화 패턴 입증 ---");
+  demonstrate_module_patterns();
+
+  // 최종 메시지
+  println!("\\n=== v4.4 설계 완료 ===");
+  println!("기록: 모듈화를 통해 시스템의 가시성을 제어하고 구조를 계층화함");
+  println!("다음: v4.5 트레이트와 제네릭으로 다양성을 포용");
+}
