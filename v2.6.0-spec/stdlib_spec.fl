@@ -1,0 +1,374 @@
+// FreeLang v2.6.0: Standard Library Specification
+// 목표: 표준 라이브러리의 완전한 명세
+// 규모: 400줄 (Day 5)
+// 작성자: Agent 8
+
+// ============================================================================
+// MODULE 1: Core Types & Functions (80줄)
+// ============================================================================
+
+// Unit type
+struct Unit {}
+
+// Option type
+enum Option<T> {
+    Some(T),
+    None
+}
+
+// Result type
+enum Result<T, E> {
+    Ok(T),
+    Err(E)
+}
+
+// 기본 시스템 함수들
+fn print(value: any) -> Unit {
+    // stdout에 출력
+}
+
+fn println(value: any) -> Unit {
+    // stdout에 출력 + 개행
+}
+
+fn eprint(value: any) -> Unit {
+    // stderr에 출력
+}
+
+fn eprintln(value: any) -> Unit {
+    // stderr에 출력 + 개행
+}
+
+fn input() -> string {
+    // stdin에서 입력
+}
+
+// ============================================================================
+// MODULE 2: Array Operations (80줄)
+// ============================================================================
+
+// 배열 메서드
+struct ArrayMethods<T> {
+    // 기본 메서드들
+    len: fn(&self) -> i32,
+    is_empty: fn(&self) -> bool,
+    first: fn(&self) -> Option<&T>,
+    last: fn(&self) -> Option<&T>,
+    get: fn(&self, index: i32) -> Option<&T>,
+
+    // 변경 메서드
+    push: fn(&mut self, value: T) -> Unit,
+    pop: fn(&mut self) -> Option<T>,
+    insert: fn(&mut self, index: i32, value: T) -> Unit,
+    remove: fn(&mut self, index: i32) -> T,
+    clear: fn(&mut self) -> Unit,
+
+    // 반복 메서드
+    iter: fn(&self) -> Iterator<&T>,
+    iter_mut: fn(&mut self) -> Iterator<&mut T>,
+
+    // 함수형 메서드
+    map: fn<U>(self, f: fn(T) -> U) -> Array<U>,
+    filter: fn(self, f: fn(&T) -> bool) -> Array<T>,
+    fold: fn<U>(self, init: U, f: fn(U, T) -> U) -> U,
+    find: fn(&self, f: fn(&T) -> bool) -> Option<&T>,
+    any: fn(&self, f: fn(&T) -> bool) -> bool,
+    all: fn(&self, f: fn(&T) -> bool) -> bool,
+
+    // 정렬 & 검색
+    sort: fn(&mut self) -> Unit,  // requires T: Ord
+    reverse: fn(&mut self) -> Unit,
+    contains: fn(&self, value: &T) -> bool,  // requires T: Eq
+    index_of: fn(&self, value: &T) -> Option<i32>,  // requires T: Eq
+
+    // 변환
+    join: fn(&self, separator: &str) -> string,  // requires T: Display
+    to_string: fn(&self) -> string  // requires T: Display
+}
+
+// 배열 생성 함수들
+fn array_new<T>() -> Array<T> {
+    // 새로운 빈 배열 생성
+}
+
+fn array_with_capacity<T>(capacity: i32) -> Array<T> {
+    // 주어진 용량의 배열 생성
+}
+
+fn array_from_slice<T>(slice: &[T]) -> Array<T> {
+    // 슬라이스로부터 배열 생성
+}
+
+// ============================================================================
+// MODULE 3: String Operations (80줄)
+// ============================================================================
+
+struct StringMethods {
+    // 조회 메서드
+    len: fn(&self) -> i32,
+    is_empty: fn(&self) -> bool,
+    chars: fn(&self) -> Iterator<char>,
+    bytes: fn(&self) -> Iterator<u8>,
+
+    // 부분 문자열
+    substring: fn(&self, start: i32, end: i32) -> string,
+    starts_with: fn(&self, prefix: &str) -> bool,
+    ends_with: fn(&self, suffix: &str) -> bool,
+    contains_substr: fn(&self, substr: &str) -> bool,
+
+    // 검색
+    find: fn(&self, pattern: &str) -> Option<i32>,
+    find_last: fn(&self, pattern: &str) -> Option<i32>,
+    count: fn(&self, pattern: &str) -> i32,
+
+    // 변환
+    to_uppercase: fn(&self) -> string,
+    to_lowercase: fn(&self) -> string,
+    trim: fn(&self) -> string,
+    trim_start: fn(&self) -> string,
+    trim_end: fn(&self) -> string,
+
+    // 분할 & 결합
+    split: fn(&self, delimiter: &str) -> Array<string>,
+    split_whitespace: fn(&self) -> Array<string>,
+    join: fn(&self, parts: &[string]) -> string,
+
+    // 대체
+    replace: fn(&self, from: &str, to: &str) -> string,
+    replace_all: fn(&self, from: &str, to: &str) -> string,
+
+    // 파싱
+    parse_i32: fn(&self) -> Result<i32, ParseError>,
+    parse_f64: fn(&self) -> Result<f64, ParseError>,
+
+    // 포맷
+    format: fn(template: &str, args: &[any]) -> string
+}
+
+fn string_new() -> string {
+    // 새로운 빈 문자열
+}
+
+fn string_from_chars(chars: &[char]) -> string {
+    // char 배열로부터 문자열 생성
+}
+
+// ============================================================================
+// MODULE 4: Dictionary Operations (80줄)
+// ============================================================================
+
+struct DictionaryMethods<K, V> {
+    // 조회
+    len: fn(&self) -> i32,
+    is_empty: fn(&self) -> bool,
+    contains_key: fn(&self, key: &K) -> bool,
+    get: fn(&self, key: &K) -> Option<&V>,
+    get_mut: fn(&mut self, key: &K) -> Option<&mut V>,
+
+    // 삽입 & 제거
+    insert: fn(&mut self, key: K, value: V) -> Option<V>,
+    remove: fn(&mut self, key: &K) -> Option<V>,
+    clear: fn(&mut self) -> Unit,
+
+    // 반복
+    keys: fn(&self) -> Iterator<&K>,
+    values: fn(&self) -> Iterator<&V>,
+    iter: fn(&self) -> Iterator<(&K, &V)>,
+    iter_mut: fn(&mut self) -> Iterator<(&K, &mut V)>,
+
+    // 함수형
+    map: fn<U>(self, f: fn(K, V) -> (K, U)) -> Dict<K, U>,
+    filter: fn(self, f: fn(&K, &V) -> bool) -> Dict<K, V>,
+
+    // 병합
+    merge: fn(&mut self, other: &Dict<K, V>) -> Unit,
+
+    // 변환
+    to_entries: fn(&self) -> Array<Entry<K, V>>
+}
+
+struct Entry<K, V> {
+    key: K,
+    value: V
+}
+
+fn dict_new<K, V>() -> Dict<K, V> {
+    // 새로운 빈 딕셔너리
+}
+
+// ============================================================================
+// MODULE 5: Math Functions (40줄)
+// ============================================================================
+
+fn abs(x: i32) -> i32 {
+    // 절댓값
+}
+
+fn min(a: i32, b: i32) -> i32 {
+    // 최소값
+}
+
+fn max(a: i32, b: i32) -> i32 {
+    // 최대값
+}
+
+fn sqrt(x: f64) -> f64 {
+    // 제곱근
+}
+
+fn pow(base: f64, exp: f64) -> f64 {
+    // 거듭제곱
+}
+
+fn sin(x: f64) -> f64 {
+    // 사인
+}
+
+fn cos(x: f64) -> f64 {
+    // 코사인
+}
+
+fn tan(x: f64) -> f64 {
+    // 탄젠트
+}
+
+fn ln(x: f64) -> f64 {
+    // 자연로그
+}
+
+fn log10(x: f64) -> f64 {
+    // 로그 10
+}
+
+fn ceil(x: f64) -> i32 {
+    // 올림
+}
+
+fn floor(x: f64) -> i32 {
+    // 내림
+}
+
+fn round(x: f64) -> i32 {
+    // 반올림
+}
+
+// ============================================================================
+// MODULE 6: Iterator & Range (40줄)
+// ============================================================================
+
+struct Iterator<T> {
+    next: fn(&mut self) -> Option<T>
+}
+
+struct Range {
+    start: i32,
+    end: i32,
+    step: i32
+}
+
+fn range(start: i32, end: i32) -> Range {
+    // [start, end) 범위 생성
+}
+
+fn range_inclusive(start: i32, end: i32) -> Range {
+    // [start, end] 범위 생성
+}
+
+fn range_step(start: i32, end: i32, step: i32) -> Range {
+    // step 크기의 범위 생성
+}
+
+// ============================================================================
+// MODULE 7: File I/O (30줄)
+// ============================================================================
+
+struct File {
+    path: string,
+    mode: string  // "r", "w", "a"
+}
+
+fn open_file(path: &str, mode: &str) -> Result<File, IOError> {
+    // 파일 열기
+}
+
+fn read_file(path: &str) -> Result<string, IOError> {
+    // 파일 전체 읽기
+}
+
+fn write_file(path: &str, content: &str) -> Result<Unit, IOError> {
+    // 파일 쓰기
+}
+
+fn append_file(path: &str, content: &str) -> Result<Unit, IOError> {
+    // 파일 추가
+}
+
+fn file_exists(path: &str) -> bool {
+    // 파일 존재 여부
+}
+
+fn delete_file(path: &str) -> Result<Unit, IOError> {
+    // 파일 삭제
+}
+
+// ============================================================================
+// MODULE 8: Error Types (20줄)
+// ============================================================================
+
+struct ParseError {
+    message: string,
+    position: i32
+}
+
+struct IOError {
+    code: i32,
+    message: string
+}
+
+struct RuntimeError {
+    message: string
+}
+
+// ============================================================================
+// MODULE 9: Testing Framework (30줄)
+// ============================================================================
+
+// 테스트 매크로
+// #[test]
+// fn test_name() { ... }
+
+fn assert_eq<T>(left: T, right: T) -> Unit {
+    // 동등 어설션
+}
+
+fn assert_ne<T>(left: T, right: T) -> Unit {
+    // 부등 어설션
+}
+
+fn assert(condition: bool) -> Unit {
+    // 조건 어설션
+}
+
+fn assert_true(condition: bool) -> Unit {
+    // true 어설션
+}
+
+fn assert_false(condition: bool) -> Unit {
+    // false 어설션
+}
+
+// ============================================================================
+// MODULE 10: Trait Bounds & Constraints (10줄)
+// ============================================================================
+
+// 주요 트레이트들 (컴파일러가 자동 구현)
+// trait Eq { fn eq(&self, other: &Self) -> bool; }
+// trait Ord { fn cmp(&self, other: &Self) -> Ordering; }
+// trait Clone { fn clone(&self) -> Self; }
+// trait Copy : Clone { }  // automatically copy types
+// trait Display { fn to_string(&self) -> string; }
+// trait Debug { fn debug(&self) -> string; }
+// trait Default { fn default() -> Self; }
+// trait Into<T> { fn into(self) -> T; }
+// trait From<T> { fn from(t: T) -> Self; }
+// trait Iterator { fn next(&mut self) -> Option<Self::Item>; }

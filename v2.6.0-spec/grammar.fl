@@ -1,0 +1,660 @@
+// FreeLang v2.6.0: Complete Grammar Specification
+// 목표: FreeLang 언어의 완전한 문법을 메타프로그래밍으로 정의
+// 규모: 600줄 (Day 1-2)
+// 작성자: Agent 8
+
+// ============================================================================
+// PART 1: Token & Lexical Elements (100줄)
+// ============================================================================
+
+struct Token {
+    type: string,      // KEYWORD, IDENTIFIER, NUMBER, STRING, OPERATOR, PUNCTUATION
+    lexeme: string,    // 실제 토큰 텍스트
+    line: i32,         // 라인 번호
+    column: i32        // 컬럼 번호
+}
+
+struct TokenType {
+    // 키워드 (40개)
+    keywords: array,
+    // KEYWORD tokens: fn, let, const, struct, trait, impl, match, if, else, while, for, break, continue,
+    // return, pub, private, module, use, as, where, super, self, crate, unsafe, async, await, move, dyn, ref, mut
+
+    // 연산자 & 특수 문자
+    operators: array,   // +, -, *, /, %, ==, !=, <, >, <=, >=, &&, ||, !, &, |, ^, <<, >>
+    punctuation: array  // (, ), {, }, [, ], ;, :, ,, ., ->, =>, ::, =, @, #
+}
+
+fn create_token_type() -> TokenType {
+    let mut types = TokenType {
+        keywords: array,
+        operators: array,
+        punctuation: array
+    };
+
+    // 키워드 초기화 (40개)
+    let keywords = array[
+        "fn", "let", "const", "struct", "trait", "impl",
+        "match", "if", "else", "while", "for", "break", "continue",
+        "return", "pub", "private", "module", "use", "as", "where",
+        "super", "self", "crate", "unsafe", "async", "await", "move",
+        "dyn", "ref", "mut", "static", "type", "enum", "union",
+        "in", "loop", "default", "abstract", "virtual", "final"
+    ];
+
+    types.keywords = keywords;
+    return types;
+}
+
+// ============================================================================
+// PART 2: Grammar Rules - 상향식 파서 (200줄)
+// ============================================================================
+
+struct GrammarRule {
+    name: string,           // 규칙 이름 (e.g., "expression", "statement")
+    alternatives: array,    // 여러 선택지
+    first_set: array,       // FIRST 집합 (LL1 파싱)
+    follow_set: array       // FOLLOW 집합
+}
+
+struct Parser {
+    tokens: array,
+    current: i32,           // 현재 토큰 위치
+    errors: array
+}
+
+// 규칙 1: Program (최상위)
+// program := (declaration | statement)* EOF
+fn parse_program(parser: Parser) -> any {
+    let mut items = array;
+
+    while parser.current < length(parser.tokens) {
+        let token = parser.tokens[parser.current];
+
+        // declaration vs statement 판단
+        if token.type == "KEYWORD" && (token.lexeme == "fn" || token.lexeme == "struct" || token.lexeme == "trait") {
+            // declaration
+            let decl = parse_declaration(parser);
+            push(items, decl);
+        } else {
+            // statement
+            let stmt = parse_statement(parser);
+            push(items, stmt);
+        }
+    }
+
+    return items;
+}
+
+// 규칙 2: Declaration
+// declaration := fn_decl | struct_decl | trait_decl | impl_block | module_decl
+fn parse_declaration(parser: Parser) -> any {
+    let token = parser.tokens[parser.current];
+
+    if token.lexeme == "fn" {
+        return parse_fn_decl(parser);
+    } else if token.lexeme == "struct" {
+        return parse_struct_decl(parser);
+    } else if token.lexeme == "trait" {
+        return parse_trait_decl(parser);
+    } else if token.lexeme == "impl" {
+        return parse_impl_block(parser);
+    } else if token.lexeme == "module" {
+        return parse_module_decl(parser);
+    }
+
+    return {type: "error", message: "unknown declaration"};
+}
+
+// 규칙 3: Function Declaration
+// fn_decl := "fn" IDENT "(" params? ")" ("->" type)? "{" block "}"
+fn parse_fn_decl(parser: Parser) -> any {
+    // consume "fn"
+    parser.current = parser.current + 1;
+
+    // parse function name
+    let name_token = parser.tokens[parser.current];
+    let name = name_token.lexeme;
+    parser.current = parser.current + 1;
+
+    // expect "("
+    parser.current = parser.current + 1;
+
+    // parse parameters
+    let params = parse_params(parser);
+
+    // expect ")"
+    parser.current = parser.current + 1;
+
+    // parse return type (optional)
+    let return_type = null;
+    if parser.tokens[parser.current].lexeme == "->" {
+        parser.current = parser.current + 1;
+        return_type = parse_type(parser);
+    }
+
+    // expect "{"
+    parser.current = parser.current + 1;
+
+    // parse function body
+    let body = parse_block(parser);
+
+    // expect "}"
+    parser.current = parser.current + 1;
+
+    return {
+        type: "fn_decl",
+        name: name,
+        params: params,
+        return_type: return_type,
+        body: body
+    };
+}
+
+// 규칙 4: Parameters
+// params := pattern (":" type)? ("," pattern (":" type)?)*
+fn parse_params(parser: Parser) -> array {
+    let mut params = array;
+
+    while parser.tokens[parser.current].lexeme != ")" {
+        let param_name = parser.tokens[parser.current].lexeme;
+        parser.current = parser.current + 1;
+
+        // expect ":"
+        parser.current = parser.current + 1;
+
+        // parse type
+        let param_type = parse_type(parser);
+
+        push(params, {name: param_name, type: param_type});
+
+        // check for "," or ")"
+        if parser.tokens[parser.current].lexeme == "," {
+            parser.current = parser.current + 1;
+        }
+    }
+
+    return params;
+}
+
+// 규칙 5: Type
+// type := IDENT | type "[" type "]" | type "->" type | "(" type_list ")" | "{" struct_members "}"
+fn parse_type(parser: Parser) -> any {
+    let token = parser.tokens[parser.current];
+
+    if token.type == "IDENTIFIER" {
+        let type_name = token.lexeme;
+        parser.current = parser.current + 1;
+
+        // check for generics: Type<T, U>
+        if parser.tokens[parser.current].lexeme == "<" {
+            parser.current = parser.current + 1;
+            let generics = array;
+            while parser.tokens[parser.current].lexeme != ">" {
+                push(generics, parse_type(parser));
+                if parser.tokens[parser.current].lexeme == "," {
+                    parser.current = parser.current + 1;
+                }
+            }
+            parser.current = parser.current + 1; // consume ">"
+
+            return {type: "generic", name: type_name, params: generics};
+        }
+
+        return {type: "named", name: type_name};
+    }
+
+    return {type: "error", message: "invalid type"};
+}
+
+// ============================================================================
+// PART 3: Expression Grammar (150줄)
+// ============================================================================
+
+// 규칙 6: Expression (우선순위)
+// expr := match_expr | assignment_expr
+// assignment_expr := logical_or_expr (("=" | "+=" | "-=" | ...) logical_or_expr)*
+// logical_or_expr := logical_and_expr ("||" logical_and_expr)*
+// logical_and_expr := equality_expr ("&&" equality_expr)*
+// equality_expr := comparison_expr (("==" | "!=") comparison_expr)*
+// comparison_expr := additive_expr (("<" | ">" | "<=" | ">=") additive_expr)*
+// additive_expr := multiplicative_expr (("+" | "-") multiplicative_expr)*
+// multiplicative_expr := unary_expr (("*" | "/" | "%") unary_expr)*
+// unary_expr := ("!" | "-" | "&" | "*") unary_expr | postfix_expr
+// postfix_expr := call_expr | index_expr | member_expr | primary_expr
+
+fn parse_expr(parser: Parser) -> any {
+    // 최고 우선순위 진입점
+    return parse_assignment_expr(parser);
+}
+
+fn parse_assignment_expr(parser: Parser) -> any {
+    let left = parse_logical_or_expr(parser);
+
+    // 할당 연산자 체크
+    let token = parser.tokens[parser.current];
+    if token.lexeme == "=" || token.lexeme == "+=" || token.lexeme == "-=" {
+        let op = token.lexeme;
+        parser.current = parser.current + 1;
+        let right = parse_assignment_expr(parser);
+
+        return {
+            type: "assignment",
+            operator: op,
+            left: left,
+            right: right
+        };
+    }
+
+    return left;
+}
+
+fn parse_logical_or_expr(parser: Parser) -> any {
+    let mut left = parse_logical_and_expr(parser);
+
+    while parser.tokens[parser.current].lexeme == "||" {
+        parser.current = parser.current + 1;
+        let right = parse_logical_and_expr(parser);
+        left = {
+            type: "binary",
+            operator: "||",
+            left: left,
+            right: right
+        };
+    }
+
+    return left;
+}
+
+fn parse_logical_and_expr(parser: Parser) -> any {
+    let mut left = parse_equality_expr(parser);
+
+    while parser.tokens[parser.current].lexeme == "&&" {
+        parser.current = parser.current + 1;
+        let right = parse_equality_expr(parser);
+        left = {
+            type: "binary",
+            operator: "&&",
+            left: left,
+            right: right
+        };
+    }
+
+    return left;
+}
+
+fn parse_equality_expr(parser: Parser) -> any {
+    let mut left = parse_comparison_expr(parser);
+
+    let token = parser.tokens[parser.current];
+    while token.lexeme == "==" || token.lexeme == "!=" {
+        let op = token.lexeme;
+        parser.current = parser.current + 1;
+        let right = parse_comparison_expr(parser);
+        left = {
+            type: "binary",
+            operator: op,
+            left: left,
+            right: right
+        };
+    }
+
+    return left;
+}
+
+fn parse_comparison_expr(parser: Parser) -> any {
+    let mut left = parse_additive_expr(parser);
+
+    let token = parser.tokens[parser.current];
+    while token.lexeme == "<" || token.lexeme == ">" || token.lexeme == "<=" || token.lexeme == ">=" {
+        let op = token.lexeme;
+        parser.current = parser.current + 1;
+        let right = parse_additive_expr(parser);
+        left = {
+            type: "binary",
+            operator: op,
+            left: left,
+            right: right
+        };
+    }
+
+    return left;
+}
+
+fn parse_additive_expr(parser: Parser) -> any {
+    let mut left = parse_multiplicative_expr(parser);
+
+    while parser.tokens[parser.current].lexeme == "+" || parser.tokens[parser.current].lexeme == "-" {
+        let op = parser.tokens[parser.current].lexeme;
+        parser.current = parser.current + 1;
+        let right = parse_multiplicative_expr(parser);
+        left = {
+            type: "binary",
+            operator: op,
+            left: left,
+            right: right
+        };
+    }
+
+    return left;
+}
+
+fn parse_multiplicative_expr(parser: Parser) -> any {
+    let mut left = parse_unary_expr(parser);
+
+    while parser.tokens[parser.current].lexeme == "*" || parser.tokens[parser.current].lexeme == "/" || parser.tokens[parser.current].lexeme == "%" {
+        let op = parser.tokens[parser.current].lexeme;
+        parser.current = parser.current + 1;
+        let right = parse_unary_expr(parser);
+        left = {
+            type: "binary",
+            operator: op,
+            left: left,
+            right: right
+        };
+    }
+
+    return left;
+}
+
+fn parse_unary_expr(parser: Parser) -> any {
+    let token = parser.tokens[parser.current];
+
+    if token.lexeme == "!" || token.lexeme == "-" || token.lexeme == "&" || token.lexeme == "*" {
+        let op = token.lexeme;
+        parser.current = parser.current + 1;
+        let operand = parse_unary_expr(parser);
+
+        return {
+            type: "unary",
+            operator: op,
+            operand: operand
+        };
+    }
+
+    return parse_postfix_expr(parser);
+}
+
+fn parse_postfix_expr(parser: Parser) -> any {
+    let mut expr = parse_primary_expr(parser);
+
+    // postfix 연산자 처리
+    loop {
+        let token = parser.tokens[parser.current];
+
+        if token.lexeme == "(" {
+            // function call
+            parser.current = parser.current + 1;
+            let args = parse_arg_list(parser);
+            parser.current = parser.current + 1; // consume ")"
+            expr = {
+                type: "call",
+                callee: expr,
+                args: args
+            };
+        } else if token.lexeme == "[" {
+            // array index
+            parser.current = parser.current + 1;
+            let index = parse_expr(parser);
+            parser.current = parser.current + 1; // consume "]"
+            expr = {
+                type: "index",
+                array: expr,
+                index: index
+            };
+        } else if token.lexeme == "." {
+            // member access
+            parser.current = parser.current + 1;
+            let member = parser.tokens[parser.current].lexeme;
+            parser.current = parser.current + 1;
+            expr = {
+                type: "member",
+                object: expr,
+                member: member
+            };
+        } else {
+            break;
+        }
+    }
+
+    return expr;
+}
+
+fn parse_primary_expr(parser: Parser) -> any {
+    let token = parser.tokens[parser.current];
+
+    if token.type == "NUMBER" {
+        parser.current = parser.current + 1;
+        return {type: "literal", value: token.lexeme, kind: "number"};
+    } else if token.type == "STRING" {
+        parser.current = parser.current + 1;
+        return {type: "literal", value: token.lexeme, kind: "string"};
+    } else if token.type == "IDENTIFIER" {
+        parser.current = parser.current + 1;
+        return {type: "identifier", name: token.lexeme};
+    } else if token.lexeme == "(" {
+        parser.current = parser.current + 1;
+        let expr = parse_expr(parser);
+        parser.current = parser.current + 1; // consume ")"
+        return expr;
+    } else if token.lexeme == "{" {
+        // block expression
+        return parse_block(parser);
+    }
+
+    return {type: "error", message: "invalid expression"};
+}
+
+// ============================================================================
+// PART 4: Statement Grammar (100줄)
+// ============================================================================
+
+// statement := expr_stmt | let_stmt | if_stmt | while_stmt | for_stmt | match_stmt | block
+fn parse_statement(parser: Parser) -> any {
+    let token = parser.tokens[parser.current];
+
+    if token.lexeme == "let" {
+        return parse_let_stmt(parser);
+    } else if token.lexeme == "if" {
+        return parse_if_stmt(parser);
+    } else if token.lexeme == "while" {
+        return parse_while_stmt(parser);
+    } else if token.lexeme == "for" {
+        return parse_for_stmt(parser);
+    } else if token.lexeme == "match" {
+        return parse_match_stmt(parser);
+    } else if token.lexeme == "{" {
+        return parse_block(parser);
+    } else {
+        // expression statement
+        let expr = parse_expr(parser);
+        if parser.tokens[parser.current].lexeme == ";" {
+            parser.current = parser.current + 1;
+        }
+        return {type: "expr_stmt", expr: expr};
+    }
+}
+
+fn parse_let_stmt(parser: Parser) -> any {
+    parser.current = parser.current + 1; // consume "let"
+
+    let name = parser.tokens[parser.current].lexeme;
+    parser.current = parser.current + 1;
+
+    let type_annotation = null;
+    if parser.tokens[parser.current].lexeme == ":" {
+        parser.current = parser.current + 1;
+        type_annotation = parse_type(parser);
+    }
+
+    let init = null;
+    if parser.tokens[parser.current].lexeme == "=" {
+        parser.current = parser.current + 1;
+        init = parse_expr(parser);
+    }
+
+    if parser.tokens[parser.current].lexeme == ";" {
+        parser.current = parser.current + 1;
+    }
+
+    return {
+        type: "let_stmt",
+        name: name,
+        type_annotation: type_annotation,
+        init: init
+    };
+}
+
+fn parse_if_stmt(parser: Parser) -> any {
+    parser.current = parser.current + 1; // consume "if"
+
+    let cond = parse_expr(parser);
+    let then_block = parse_block(parser);
+
+    let else_block = null;
+    if parser.tokens[parser.current].lexeme == "else" {
+        parser.current = parser.current + 1;
+
+        if parser.tokens[parser.current].lexeme == "if" {
+            else_block = parse_if_stmt(parser);
+        } else {
+            else_block = parse_block(parser);
+        }
+    }
+
+    return {
+        type: "if_stmt",
+        condition: cond,
+        then_block: then_block,
+        else_block: else_block
+    };
+}
+
+fn parse_while_stmt(parser: Parser) -> any {
+    parser.current = parser.current + 1; // consume "while"
+
+    let cond = parse_expr(parser);
+    let body = parse_block(parser);
+
+    return {
+        type: "while_stmt",
+        condition: cond,
+        body: body
+    };
+}
+
+fn parse_for_stmt(parser: Parser) -> any {
+    parser.current = parser.current + 1; // consume "for"
+
+    let pattern = parser.tokens[parser.current].lexeme;
+    parser.current = parser.current + 1;
+
+    parser.current = parser.current + 1; // consume "in"
+
+    let iter = parse_expr(parser);
+    let body = parse_block(parser);
+
+    return {
+        type: "for_stmt",
+        pattern: pattern,
+        iterable: iter,
+        body: body
+    };
+}
+
+fn parse_match_stmt(parser: Parser) -> any {
+    parser.current = parser.current + 1; // consume "match"
+
+    let expr = parse_expr(parser);
+
+    parser.current = parser.current + 1; // consume "{"
+
+    let mut arms = array;
+    while parser.tokens[parser.current].lexeme != "}" {
+        let pattern = parse_pattern(parser);
+
+        parser.current = parser.current + 1; // consume "=>"
+
+        let body = parse_expr(parser);
+
+        push(arms, {pattern: pattern, body: body});
+
+        if parser.tokens[parser.current].lexeme == "," {
+            parser.current = parser.current + 1;
+        }
+    }
+
+    parser.current = parser.current + 1; // consume "}"
+
+    return {
+        type: "match_stmt",
+        expr: expr,
+        arms: arms
+    };
+}
+
+fn parse_block(parser: Parser) -> any {
+    parser.current = parser.current + 1; // consume "{"
+
+    let mut stmts = array;
+    while parser.tokens[parser.current].lexeme != "}" {
+        push(stmts, parse_statement(parser));
+    }
+
+    parser.current = parser.current + 1; // consume "}"
+
+    return {type: "block", statements: stmts};
+}
+
+// ============================================================================
+// PART 5: Helper Functions (50줄)
+// ============================================================================
+
+fn parse_pattern(parser: Parser) -> any {
+    let token = parser.tokens[parser.current];
+
+    if token.type == "IDENTIFIER" {
+        let name = token.lexeme;
+        parser.current = parser.current + 1;
+        return {type: "identifier_pattern", name: name};
+    } else if token.lexeme == "_" {
+        parser.current = parser.current + 1;
+        return {type: "wildcard_pattern"};
+    }
+
+    return {type: "error", message: "invalid pattern"};
+}
+
+fn parse_arg_list(parser: Parser) -> array {
+    let mut args = array;
+
+    while parser.tokens[parser.current].lexeme != ")" {
+        push(args, parse_expr(parser));
+
+        if parser.tokens[parser.current].lexeme == "," {
+            parser.current = parser.current + 1;
+        }
+    }
+
+    return args;
+}
+
+fn parse_struct_decl(parser: Parser) -> any {
+    // stub
+    return {type: "struct_decl"};
+}
+
+fn parse_trait_decl(parser: Parser) -> any {
+    // stub
+    return {type: "trait_decl"};
+}
+
+fn parse_impl_block(parser: Parser) -> any {
+    // stub
+    return {type: "impl_block"};
+}
+
+fn parse_module_decl(parser: Parser) -> any {
+    // stub
+    return {type: "module_decl"};
+}

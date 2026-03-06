@@ -1,0 +1,137 @@
+// FreeLang v2.6.0: 10 Core Examples (30줄)
+// 각 레슨별 필수 예제 모음
+
+// Example 1: Hello, World! (Lesson 1)
+fn example_hello() {
+    println("Hello, World!");
+}
+
+// Example 2: 기본 타입 (Lesson 2)
+fn example_types() {
+    let age: i32 = 25;
+    let height: f64 = 1.75;
+    let is_student: bool = true;
+    let name: string = "Alice";
+
+    println("Name: {}", name);
+    println("Age: {}", age);
+}
+
+// Example 3: 변수 & 불변성 (Lesson 3)
+fn example_mutability() {
+    let x = 5;
+    let mut y = 10;
+    y = 20;
+
+    println("x: {}", x);
+    println("y: {}", y);
+}
+
+// Example 4: 함수 (Lesson 4)
+fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn example_functions() {
+    let result = add(5, 3);
+    println("5 + 3 = {}", result);
+}
+
+// Example 5: 제어흐름 (Lesson 5)
+fn example_control_flow() {
+    for i in 1..=5 {
+        if i % 2 == 0 {
+            println("{} is even", i);
+        } else {
+            println("{} is odd", i);
+        }
+    }
+}
+
+// Example 6: 배열 & 벡터 (Lesson 6)
+fn example_arrays() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    let mut total = 0;
+
+    for num in &numbers {
+        total = total + num;
+    }
+
+    println("Sum: {}", total);
+}
+
+// Example 7: 딕셔너리 (Lesson 7)
+fn example_dict() {
+    let scores = dict![
+        "Alice" => 85,
+        "Bob" => 92,
+        "Charlie" => 78
+    ];
+
+    for (name, score) in &scores {
+        println("{}: {}", name, score);
+    }
+}
+
+// Example 8: 구조체 (Lesson 8)
+struct Person {
+    name: string,
+    age: i32
+}
+
+fn example_struct() {
+    let person = Person {
+        name: "Alice".to_string(),
+        age: 30
+    };
+
+    println("{} is {} years old", person.name, person.age);
+}
+
+// Example 9: 열거형 (Lesson 9)
+enum Status {
+    Active,
+    Inactive,
+    Pending
+}
+
+fn example_enum(status: Status) {
+    match status {
+        Status::Active => println("Active"),
+        Status::Inactive => println("Inactive"),
+        Status::Pending => println("Pending")
+    }
+}
+
+// Example 10: 모듈 (Lesson 10)
+mod calculator {
+    pub fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+
+    pub fn multiply(a: i32, b: i32) -> i32 {
+        a * b
+    }
+}
+
+fn example_module() {
+    let sum = calculator::add(10, 20);
+    let product = calculator::multiply(5, 6);
+
+    println("Sum: {}", sum);
+    println("Product: {}", product);
+}
+
+// 메인 함수 - 모든 예제 실행
+fn main() {
+    example_hello();
+    example_types();
+    example_mutability();
+    example_functions();
+    example_control_flow();
+    example_arrays();
+    example_dict();
+    example_struct();
+    example_enum(Status::Active);
+    example_module();
+}

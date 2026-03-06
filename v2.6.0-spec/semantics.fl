@@ -1,0 +1,494 @@
+// FreeLang v2.6.0: Complete Semantics Specification
+// 목표: 타입 시스템, 타입 추론, 제약 전파, 의미론 검증
+// 규모: 600줄 (Day 3-4)
+// 작성자: Agent 8
+
+// ============================================================================
+// PART 1: Type System (150줄)
+// ============================================================================
+
+struct Type {
+    name: string,           // 타입 이름 (i32, string, User, etc.)
+    kind: string,           // "primitive" | "struct" | "array" | "function" | "generic" | "tuple"
+    parameters: array,      // 제네릭 파라미터 (Type<T, U>)
+    methods: dict,          // 메서드 (타입 이름 -> 함수 시그니처)
+    traits: array,          // 구현한 트레이트
+    size: i32               // 바이트 단위 크기 (최적화용)
+}
+
+// 기본 타입 (8개)
+fn create_primitive_types() -> dict {
+    let mut types = dict;
+
+    // 정수
+    types["i32"] = {name: "i32", kind: "primitive", size: 4};
+    types["i64"] = {name: "i64", kind: "primitive", size: 8};
+    types["u32"] = {name: "u32", kind: "primitive", size: 4};
+    types["u64"] = {name: "u64", kind: "primitive", size: 8};
+
+    // 부동소수
+    types["f32"] = {name: "f32", kind: "primitive", size: 4};
+    types["f64"] = {name: "f64", kind: "primitive", size: 8};
+
+    // 문자열 & 불린
+    types["string"] = {name: "string", kind: "primitive", size: -1}; // 동적
+    types["bool"] = {name: "bool", kind: "primitive", size: 1};
+
+    return types;
+}
+
+// 타입 동등성 (Type Equivalence)
+// 두 타입이 같은지 검사
+fn types_equal(t1: Type, t2: Type) -> bool {
+    if t1.name != t2.name {
+        return false;
+    }
+
+    // 제네릭 파라미터 개수 확인
+    if length(t1.parameters) != length(t2.parameters) {
+        return false;
+    }
+
+    // 각 파라미터 타입 확인 (재귀)
+    let i = 0;
+    while i < length(t1.parameters) {
+        if !types_equal(t1.parameters[i], t2.parameters[i]) {
+            return false;
+        }
+        i = i + 1;
+    }
+
+    return true;
+}
+
+// 타입 호환성 (Type Compatibility)
+// t1이 t2로 암시 변환 가능한지 확인
+fn type_compatible(t1: Type, t2: Type) -> bool {
+    // 동등성 먼저 확인
+    if types_equal(t1, t2) {
+        return true;
+    }
+
+    // 자동 변환 규칙
+    // i32 -> i64 (승격)
+    if t1.name == "i32" && t2.name == "i64" {
+        return true;
+    }
+    // f32 -> f64 (승격)
+    if t1.name == "f32" && t2.name == "f64" {
+        return true;
+    }
+
+    return false;
+}
+
+// ============================================================================
+// PART 2: Type Inference Engine (150줄)
+// ============================================================================
+
+struct TypeEnv {
+    vars: dict,             // 변수명 -> 타입
+    functions: dict,        // 함수명 -> 함수 타입
+    scopes: array           // 스코프 스택
+}
+
+fn create_type_env() -> TypeEnv {
+    return {
+        vars: dict,
+        functions: dict,
+        scopes: array
+    };
+}
+
+// 변수 타입 등록
+fn bind_var(env: TypeEnv, name: string, type_info: Type) {
+    env.vars[name] = type_info;
+}
+
+// 변수 타입 조회
+fn lookup_var(env: TypeEnv, name: string) -> Type {
+    if env.vars[name] != null {
+        return env.vars[name];
+    }
+
+    return {name: "unknown", kind: "error"};
+}
+
+// 타입 추론 메인 함수
+// 주어진 AST 노드의 타입을 추론
+fn infer_type(env: TypeEnv, node: any) -> Type {
+    if node.type == "literal" {
+        return infer_literal_type(node);
+    } else if node.type == "identifier" {
+        return lookup_var(env, node.name);
+    } else if node.type == "binary" {
+        return infer_binary_type(env, node);
+    } else if node.type == "call" {
+        return infer_call_type(env, node);
+    } else if node.type == "let_stmt" {
+        // let x: i32 = 5;
+        if node.type_annotation != null {
+            return node.type_annotation;
+        } else {
+            return infer_type(env, node.init);
+        }
+    }
+
+    return {name: "unknown", kind: "error"};
+}
+
+fn infer_literal_type(node: any) -> Type {
+    if node.kind == "number" {
+        // 정수 또는 실수 판단
+        let value = node.value;
+
+        // 단순 휴리스틱: 점이 있으면 f64, 없으면 i32
+        if contains(value, ".") {
+            return {name: "f64", kind: "primitive"};
+        } else {
+            return {name: "i32", kind: "primitive"};
+        }
+    } else if node.kind == "string" {
+        return {name: "string", kind: "primitive"};
+    } else if node.kind == "bool" {
+        return {name: "bool", kind: "primitive"};
+    }
+
+    return {name: "unknown", kind: "error"};
+}
+
+fn infer_binary_type(env: TypeEnv, node: any) -> Type {
+    let left_type = infer_type(env, node.left);
+    let right_type = infer_type(env, node.right);
+
+    // 산술 연산자
+    if node.operator == "+" || node.operator == "-" || node.operator == "*" || node.operator == "/" {
+        // 타입 승격 규칙
+        if left_type.name == "f64" || right_type.name == "f64" {
+            return {name: "f64", kind: "primitive"};
+        }
+        return left_type; // 같다고 가정
+    }
+
+    // 비교 연산자 (==, !=, <, >, ...)
+    if node.operator == "==" || node.operator == "!=" || node.operator == "<" || node.operator == ">" {
+        return {name: "bool", kind: "primitive"};
+    }
+
+    // 논리 연산자
+    if node.operator == "&&" || node.operator == "||" {
+        return {name: "bool", kind: "primitive"};
+    }
+
+    return {name: "unknown", kind: "error"};
+}
+
+fn infer_call_type(env: TypeEnv, node: any) -> Type {
+    // 함수명으로 반환 타입 조회
+    let fn_name = node.callee.name;
+    let fn_type = env.functions[fn_name];
+
+    if fn_type != null {
+        return fn_type.return_type;
+    }
+
+    return {name: "unknown", kind: "error"};
+}
+
+// 문자열 포함 확인 헬퍼
+fn contains(str: string, substr: string) -> bool {
+    let i = 0;
+    while i < length(str) {
+        if str[i] == substr {
+            return true;
+        }
+        i = i + 1;
+    }
+    return false;
+}
+
+// ============================================================================
+// PART 3: Constraint Propagation & Unification (150줄)
+// ============================================================================
+
+struct Constraint {
+    kind: string,       // "equals" | "subtype" | "trait" | "frequency"
+    lhs: Type,          // 좌측
+    rhs: Type           // 우측
+}
+
+struct ConstraintStore {
+    constraints: array,
+    substitutions: dict  // 타입 변수 -> 구체 타입
+}
+
+fn create_constraint_store() -> ConstraintStore {
+    return {
+        constraints: array,
+        substitutions: dict
+    };
+}
+
+// 제약 추가
+fn add_constraint(store: ConstraintStore, kind: string, lhs: Type, rhs: Type) {
+    push(store.constraints, {kind: kind, lhs: lhs, rhs: rhs});
+}
+
+// 단일화 (Unification) - 두 타입을 같게 만들기
+fn unify(store: ConstraintStore, t1: Type, t2: Type) -> bool {
+    // 이미 같으면 성공
+    if types_equal(t1, t2) {
+        return true;
+    }
+
+    // 타입 변수 치환
+    t1 = apply_substitution(store, t1);
+    t2 = apply_substitution(store, t2);
+
+    // 다시 확인
+    if types_equal(t1, t2) {
+        return true;
+    }
+
+    // 기본 타입 단일화 실패
+    if t1.kind == "primitive" && t2.kind == "primitive" {
+        return false;
+    }
+
+    // 호환성 확인
+    if type_compatible(t1, t2) {
+        return true;
+    }
+
+    return false;
+}
+
+// 제약 전파 및 풀이
+fn propagate_constraints(store: ConstraintStore) -> bool {
+    let changed = true;
+
+    while changed {
+        changed = false;
+        let i = 0;
+
+        while i < length(store.constraints) {
+            let constraint = store.constraints[i];
+
+            if constraint.kind == "equals" {
+                if unify(store, constraint.lhs, constraint.rhs) {
+                    // 제약 제거
+                    store.constraints[i] = null;
+                    changed = true;
+                }
+            }
+
+            i = i + 1;
+        }
+    }
+
+    // null 제약 제거
+    let mut filtered = array;
+    let i = 0;
+    while i < length(store.constraints) {
+        if store.constraints[i] != null {
+            push(filtered, store.constraints[i]);
+        }
+        i = i + 1;
+    }
+    store.constraints = filtered;
+
+    // 남은 제약이 없으면 성공
+    return length(store.constraints) == 0;
+}
+
+// 치환 적용
+fn apply_substitution(store: ConstraintStore, t: Type) -> Type {
+    if store.substitutions[t.name] != null {
+        return apply_substitution(store, store.substitutions[t.name]);
+    }
+
+    return t;
+}
+
+// ============================================================================
+// PART 4: Semantic Analysis (100줄)
+// ============================================================================
+
+struct SemanticAnalyzer {
+    env: TypeEnv,
+    store: ConstraintStore,
+    errors: array
+}
+
+fn create_semantic_analyzer() -> SemanticAnalyzer {
+    return {
+        env: create_type_env(),
+        store: create_constraint_store(),
+        errors: array
+    };
+}
+
+// AST 노드 검증
+fn analyze_node(analyzer: SemanticAnalyzer, node: any) {
+    if node.type == "fn_decl" {
+        analyze_fn_decl(analyzer, node);
+    } else if node.type == "let_stmt" {
+        analyze_let_stmt(analyzer, node);
+    } else if node.type == "expr_stmt" {
+        analyze_expr(analyzer, node.expr);
+    }
+}
+
+fn analyze_fn_decl(analyzer: SemanticAnalyzer, node: any) {
+    // 함수 시그니처 등록
+    let fn_type = {
+        name: node.name,
+        kind: "function",
+        params: node.params,
+        return_type: node.return_type
+    };
+
+    analyzer.env.functions[node.name] = fn_type;
+
+    // 파라미터 바인딩
+    let i = 0;
+    while i < length(node.params) {
+        let param = node.params[i];
+        bind_var(analyzer.env, param.name, param.type);
+        i = i + 1;
+    }
+
+    // 함수 바디 분석
+    analyze_block(analyzer, node.body);
+}
+
+fn analyze_let_stmt(analyzer: SemanticAnalyzer, node: any) {
+    // 초기값 타입 검증
+    if node.init != null {
+        let init_type = infer_type(analyzer.env, node.init);
+
+        if node.type_annotation != null {
+            // 명시적 타입과 초기값 타입이 호환되는지 확인
+            if !type_compatible(init_type, node.type_annotation) {
+                push(analyzer.errors, {
+                    kind: "type_mismatch",
+                    expected: node.type_annotation.name,
+                    found: init_type.name
+                });
+            }
+        }
+
+        // 변수 바인딩
+        bind_var(analyzer.env, node.name, node.type_annotation != null ? node.type_annotation : init_type);
+    }
+}
+
+fn analyze_expr(analyzer: SemanticAnalyzer, expr: any) {
+    let expr_type = infer_type(analyzer.env, expr);
+
+    if expr_type.kind == "error" {
+        push(analyzer.errors, {
+            kind: "inference_failed",
+            expr: expr
+        });
+    }
+}
+
+fn analyze_block(analyzer: SemanticAnalyzer, block: any) {
+    let i = 0;
+    while i < length(block.statements) {
+        analyze_node(analyzer, block.statements[i]);
+        i = i + 1;
+    }
+}
+
+// ============================================================================
+// PART 5: Trait System (50줄)
+// ============================================================================
+
+struct Trait {
+    name: string,
+    methods: dict,          // 메서드명 -> 타입 시그니처
+    super_traits: array     // 상속한 트레이트
+}
+
+// 기본 트레이트들
+fn create_builtin_traits() -> dict {
+    let mut traits = dict;
+
+    // Clone 트레이트
+    traits["Clone"] = {
+        name: "Clone",
+        methods: {clone: "fn(self) -> Self"},
+        super_traits: array
+    };
+
+    // Copy 트레이트 (Clone의 부분 트레이트)
+    traits["Copy"] = {
+        name: "Copy",
+        methods: dict,
+        super_traits: array["Clone"]
+    };
+
+    // Debug 트레이트
+    traits["Debug"] = {
+        name: "Debug",
+        methods: {debug: "fn(&self) -> string"},
+        super_traits: array
+    };
+
+    // Display 트레이트
+    traits["Display"] = {
+        name: "Display",
+        methods: {to_string: "fn(&self) -> string"},
+        super_traits: array
+    };
+
+    return traits;
+}
+
+// 타입이 트레이트를 구현하는지 확인
+fn implements_trait(type_info: Type, trait_name: string) -> bool {
+    let i = 0;
+    while i < length(type_info.traits) {
+        if type_info.traits[i] == trait_name {
+            return true;
+        }
+        i = i + 1;
+    }
+
+    return false;
+}
+
+// ============================================================================
+// PART 6: Error Messages (50줄)
+// ============================================================================
+
+struct SemanticError {
+    kind: string,           // "type_mismatch" | "undefined_var" | "inference_failed" | etc.
+    message: string,
+    location: any           // {line, column}
+}
+
+fn format_error(error: SemanticError) -> string {
+    if error.kind == "type_mismatch" {
+        return "Type mismatch: expected " + error.expected + ", found " + error.found;
+    } else if error.kind == "undefined_var" {
+        return "Undefined variable: " + error.name;
+    } else if error.kind == "inference_failed" {
+        return "Type inference failed for expression";
+    }
+
+    return error.message;
+}
+
+// 에러 리포팅
+fn report_errors(analyzer: SemanticAnalyzer) {
+    let i = 0;
+    while i < length(analyzer.errors) {
+        let error = analyzer.errors[i];
+        // 실제로는 stderr에 출력
+        // println!("{}", format_error(error));
+        i = i + 1;
+    }
+}
