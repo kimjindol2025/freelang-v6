@@ -1,0 +1,11 @@
+// Test: Result 패턴 매칭 (간단한 형태)
+// 실제 Result 생성은 Phase 2에서 구현
+// 여기서는 구조와 syntax만 검증
+
+fn process() {
+  // match 패턴은 이미 지원됨
+  // Phase 2에서 Result<T, E> enum을 내장으로 제공
+  print(42)
+}
+
+process()

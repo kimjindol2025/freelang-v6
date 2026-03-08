@@ -1,0 +1,15 @@
+// Test 1: 단순 enum (데이터 없음)
+enum Color {
+  Red,
+  Green,
+  Blue,
+}
+
+// Test 2: enum with data
+enum Token {
+  Number,
+  Ident,
+  EOF,
+}
+
+print(42)

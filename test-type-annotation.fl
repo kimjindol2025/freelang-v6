@@ -1,0 +1,24 @@
+// Test 1: 함수 파라미터 타입 어노테이션 보존
+fn add(a: i32, b: i32) -> i32 {
+  a + b
+}
+
+// Test 2: 복수 파라미터
+fn multiply(x: f64, y: f64) -> f64 {
+  x * y
+}
+
+// Test 3: 혼합 타입
+fn greet(name: string, age: i32) -> string {
+  name
+}
+
+// Test 4: 없는 타입 어노테이션
+fn identity(x) {
+  x
+}
+
+print(add(1, 2))
+print(multiply(2.5, 3.5))
+print(greet("Alice", 30))
+print(identity(42))

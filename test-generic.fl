@@ -1,0 +1,18 @@
+// Test 1: 함수 제네릭
+fn identity<T>(x: T) -> T {
+  x
+}
+
+// Test 2: 구조체 제네릭
+struct Pair<A, B> {
+  first: A,
+  second: B,
+}
+
+// Test 3: enum 제네릭
+enum Result<T, E> {
+  Ok,
+  Err,
+}
+
+print(42)
