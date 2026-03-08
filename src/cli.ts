@@ -4,6 +4,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
+import { execSync } from "child_process";
 import { run, runWithTrace } from "./index";
 import { lex } from "./lexer";
 import { parse } from "./parser";
@@ -69,6 +70,45 @@ function emitC(filePath: string) {
   }
 }
 
+function buildBinary(filePath: string, outputPath?: string) {
+  const resolved = path.resolve(filePath);
+  if (!fs.existsSync(resolved)) {
+    console.error(`Error: File not found: ${resolved}`);
+    process.exit(1);
+  }
+
+  const output = outputPath || "a.out";
+  const sourceDir = path.dirname(resolved);
+  const source = fs.readFileSync(resolved, "utf-8");
+
+  try {
+    // 1. Parse and generate C code
+    const tokens = lex(source);
+    const ast = parse(tokens);
+    const codegen = new CCodegen();
+    const cCode = codegen.generate(ast);
+
+    // 2. Write C code to temp file
+    const tempC = path.join(sourceDir, "__freelang_temp.c");
+    fs.writeFileSync(tempC, cCode);
+    console.error(`[FreeLang] Generated C code: ${tempC}`);
+
+    // 3. Compile with clang
+    const runtimePath = path.join(__dirname, "..", "..", "freelang-c-final", "runtime");
+    const clangCmd = `clang -I${runtimePath} ${tempC} ${runtimePath}/fl_runtime.c -o ${output} -lm`;
+    console.error(`[FreeLang] Compiling: ${clangCmd}`);
+    execSync(clangCmd, { stdio: "inherit" });
+
+    console.error(`[FreeLang] Build complete: ${output}`);
+
+    // 4. Clean up temp file
+    fs.unlinkSync(tempC);
+  } catch (e: any) {
+    console.error(`[FreeLang] Build failed: ${e.message}`);
+    process.exit(1);
+  }
+}
+
 function startRepl() {
   console.log(`FreeLang v${VERSION} REPL (type "exit" to quit)`);
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: ">> " });
@@ -118,6 +158,9 @@ export function main(args: string[]) {
     }
   } else if (args[0] === "--emit-c" && args[1]) {
     emitC(args[1]);
+  } else if (args[0] === "--build" && args[1]) {
+    const output = args[2] && args[2] === "-o" && args[3] ? args[3] : undefined;
+    buildBinary(args[1], output);
   } else if (args[0] === "--version" || args[0] === "-v") {
     console.log(`FreeLang v${VERSION}`);
   } else if (args[0] === "--help" || args[0] === "-h") {

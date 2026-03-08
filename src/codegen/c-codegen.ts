@@ -13,23 +13,35 @@ export class CCodegen {
     this.emitLine("");
 
     // 함수 선언들
+    const topLevelStmts = [];
     for (const stmt of program.stmts) {
       if (stmt.kind === "fn") {
         this.declareFn(stmt as any);
+      } else {
+        topLevelStmts.push(stmt);
       }
     }
     this.emitLine("");
 
-    // 함수 정의 및 main
+    // 함수 정의
     for (const stmt of program.stmts) {
-      this.genStmt(stmt);
-      this.emitLine("");
+      if (stmt.kind === "fn") {
+        this.genStmt(stmt);
+        this.emitLine("");
+      }
     }
 
-    // main 함수
+    // main 함수 (top-level statements 포함)
     this.emitLine("int main(int argc, char **argv) {");
     this.indent++;
-    this.emitLine("return 0;");
+    if (topLevelStmts.length === 0) {
+      this.emitLine("return 0;");
+    } else {
+      for (const stmt of topLevelStmts) {
+        this.genStmt(stmt);
+      }
+      this.emitLine("return 0;");
+    }
     this.indent--;
     this.emitLine("}");
 

@@ -1,0 +1,2 @@
+// Simple test: print a number
+print(42)
