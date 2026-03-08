@@ -9,6 +9,7 @@ import { lex } from "./lexer";
 import { parse } from "./parser";
 import { compile } from "./compiler";
 import { VM } from "./vm";
+import { CCodegen } from "./codegen/c-codegen";
 
 const VERSION = "6.0.0";
 
@@ -43,6 +44,25 @@ function evalCode(code: string) {
   try {
     const output = run(code);
     for (const line of output) process.stdout.write(line);
+  } catch (e: any) {
+    console.error(e.message);
+    process.exit(1);
+  }
+}
+
+function emitC(filePath: string) {
+  const resolved = path.resolve(filePath);
+  if (!fs.existsSync(resolved)) {
+    console.error(`Error: File not found: ${resolved}`);
+    process.exit(1);
+  }
+  const source = fs.readFileSync(resolved, "utf-8");
+  try {
+    const tokens = lex(source);
+    const ast = parse(tokens);
+    const codegen = new CCodegen();
+    const cCode = codegen.generate(ast);
+    console.log(cCode);
   } catch (e: any) {
     console.error(e.message);
     process.exit(1);
@@ -96,6 +116,8 @@ export function main(args: string[]) {
       console.error(e.message);
       process.exit(1);
     }
+  } else if (args[0] === "--emit-c" && args[1]) {
+    emitC(args[1]);
   } else if (args[0] === "--version" || args[0] === "-v") {
     console.log(`FreeLang v${VERSION}`);
   } else if (args[0] === "--help" || args[0] === "-h") {
