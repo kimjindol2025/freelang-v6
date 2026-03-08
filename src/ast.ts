@@ -1,5 +1,11 @@
 // FreeLang v6: AST Node definitions
 
+// 함수 파라미터 - 타입 어노테이션 보존
+export type Param = {
+  name: string;
+  typeAnnotation?: string;
+};
+
 export type Expr =
   | { kind: "number"; value: number }
   | { kind: "string"; value: string }
@@ -14,7 +20,7 @@ export type Expr =
   | { kind: "assign"; target: Expr; value: Expr }
   | { kind: "array"; elements: Expr[] }
   | { kind: "object"; entries: { key: string; value: Expr }[] }
-  | { kind: "fn"; name: string | null; params: string[]; body: Stmt[] }
+  | { kind: "fn"; name: string | null; params: Param[]; body: Stmt[] }
   | { kind: "ternary"; cond: Expr; then: Expr; else: Expr }
   | { kind: "if"; cond: Expr; then: Stmt[]; else: Stmt[] }
   | { kind: "match"; subject: Expr; arms: MatchArm[] };
@@ -33,11 +39,11 @@ export type Stmt =
   | { kind: "block"; body: Stmt[] }
   | { kind: "break" }
   | { kind: "continue" }
-  | { kind: "fn"; name: string; params: string[]; body: Stmt[] }
+  | { kind: "fn"; name: string; params: Param[]; returnType?: string; body: Stmt[] }
   | { kind: "print"; expr: Expr; newline: boolean }
   | { kind: "try"; body: Stmt[]; catchVar: string | null; catchBody: Stmt[]; finallyBody: Stmt[] }
   | { kind: "throw"; expr: Expr }
-  | { kind: "struct"; name: string; fields: Array<{ name: string; type: string }> }
+  | { kind: "struct"; name: string; typeParams?: string[]; fields: Array<{ name: string; type: string }> }
   | { kind: "import"; names: string[] | null; path: string; alias: string | null }
   | { kind: "export"; stmt: Stmt }
   | { kind: "multi"; stmts: Stmt[] }

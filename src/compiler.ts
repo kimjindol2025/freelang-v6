@@ -1,6 +1,6 @@
 // FreeLang v6: Bytecode Compiler
 
-import { Expr, Stmt, Program, MatchArm } from "./ast";
+import { Expr, Stmt, Program, MatchArm, Param } from "./ast";
 
 export enum Op {
   Const, Pop, Dup,
@@ -389,11 +389,11 @@ export function compile(program: Program): Chunk {
     }
   }
 
-  function compileFnBody(name: string, params: string[], body: Stmt[]) {
+  function compileFnBody(name: string, params: Param[], body: Stmt[]) {
     const jumpOver = currentPos(); emitArg(Op.Jump, 0);
     const fnAddr = currentPos();
     scopes.push({ locals: [], depth: 1, upvalues: [] });
-    for (const p of params) declareLocal(p);
+    for (const p of params) declareLocal(p.name);
     // Compile body as expression: last stmt should leave value on stack
     if (body.length === 0) {
       emitArg(Op.Const, addConst({ tag: "null" }));

@@ -1,7 +1,7 @@
 // FreeLang v6: Parser (Pratt / Recursive Descent)
 
 import { Token, TokenType as T } from "./token";
-import { Expr, Stmt, Program, MatchArm } from "./ast";
+import { Expr, Stmt, Program, MatchArm, Param } from "./ast";
 
 export function parse(tokens: Token[]): Program {
   let pos = 0;
@@ -105,21 +105,27 @@ export function parse(tokens: Token[]): Program {
     expect(T.LParen);
     const params = parseParams();
     expect(T.RParen);
-    // Skip return type annotation if present: -> Type
+
+    // Parse return type annotation if present: -> Type
+    let returnType: string | undefined;
     if (match(T.Arrow)) {
-      // Skip the return type - consume tokens until we hit opening brace
+      const returnTokens: string[] = [];
       let depth = 0;
       while (!at(T.LBrace) && !at(T.EOF)) {
-        const t = advance();
+        const t = peek();
         if (t.type === T.LBracket) depth++;
         if (t.type === T.RBracket) depth--;
-        if (depth < 0) break;
+        if (depth < 0 || (depth === 0 && t.type === T.LBrace)) break;
+        returnTokens.push(t.value || (t.type as unknown as string));
+        advance();
       }
+      returnType = returnTokens.join("");
     }
+
     expect(T.LBrace);
     const body = parseBody();
     expect(T.RBrace);
-    return { kind: "fn", name, params, body };
+    return { kind: "fn", name, params, returnType, body };
   }
 
   function parseReturn(): Stmt {
@@ -554,10 +560,10 @@ export function parse(tokens: Token[]): Program {
             expect(T.LBrace);
             const body = parseBody();
             expect(T.RBrace);
-            return { kind: "fn", name: null, params: [t.value], body };
+            return { kind: "fn", name: null, params: [{ name: t.value }], body };
           }
           const expr = parseAssign();
-          return { kind: "fn", name: null, params: [t.value], body: [{ kind: "return", value: expr }] };
+          return { kind: "fn", name: null, params: [{ name: t.value }], body: [{ kind: "return", value: expr }] };
         }
         return { kind: "ident", name: t.value };
       }
@@ -584,11 +590,11 @@ export function parse(tokens: Token[]): Program {
 
         // Try parsing as ident list for arrow function
         let isArrow = true;
-        const params: string[] = [];
+        const params: Param[] = [];
         const tryPos = pos;
         while (!at(T.RParen) && !at(T.EOF)) {
           if (!at(T.Ident)) { isArrow = false; break; }
-          params.push(advance().value);
+          params.push({ name: advance().value });
           if (!at(T.RParen)) {
             if (!match(T.Comma)) { isArrow = false; break; }
           }
@@ -617,7 +623,7 @@ export function parse(tokens: Token[]): Program {
     }
   }
 
-  function parseArrowBody(params: string[]): Expr {
+  function parseArrowBody(params: Param[]): Expr {
     if (at(T.LBrace)) {
       expect(T.LBrace);
       const body = parseBody();
@@ -666,23 +672,28 @@ export function parse(tokens: Token[]): Program {
     return { kind: "fn", name, params, body };
   }
 
-  function parseParams(): string[] {
-    const params: string[] = [];
+  function parseParams(): Param[] {
+    const params: Param[] = [];
     while (!at(T.RParen) && !at(T.EOF)) {
       const paramName = expect(T.Ident, "Expected parameter name").value;
-      params.push(paramName);
-      // Skip type annotation if present: name: Type
+      let typeAnnotation: string | undefined;
+
+      // Parse type annotation if present: name: Type
       if (match(T.Colon)) {
-        // Skip the type - consume tokens until we hit comma or RParen
+        const typeTokens: string[] = [];
         let depth = 0;
         while (!at(T.Comma) && !at(T.RParen) && !at(T.EOF)) {
-          const t = advance();
-          // Handle nested brackets if needed (for complex types)
+          const t = peek();
           if (t.type === T.LBracket) depth++;
           if (t.type === T.RBracket) depth--;
-          if (depth < 0) break;
+          if (depth < 0 || (depth === 0 && (t.type === T.Comma || t.type === T.RParen))) break;
+          typeTokens.push(t.value || (t.type as unknown as string));
+          advance();
         }
+        typeAnnotation = typeTokens.join("");
       }
+
+      params.push({ name: paramName, typeAnnotation });
       match(T.Comma);
     }
     return params;
