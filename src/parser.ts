@@ -103,6 +103,19 @@ export function parse(tokens: Token[]): Program {
   function parseFnStmt(): Stmt {
     advance(); // fn
     const name = expect(T.Ident, "Expected function name").value;
+
+    // Parse type parameters if present: <T, U>
+    let typeParams: string[] | undefined;
+    if (at(T.Lt)) {
+      advance(); // <
+      typeParams = [];
+      while (!at(T.Gt) && !at(T.EOF)) {
+        typeParams.push(expect(T.Ident).value);
+        match(T.Comma);
+      }
+      expect(T.Gt, "Expected '>' after type parameters");
+    }
+
     expect(T.LParen);
     const params = parseParams();
     expect(T.RParen);
@@ -126,7 +139,7 @@ export function parse(tokens: Token[]): Program {
     expect(T.LBrace);
     const body = parseBody();
     expect(T.RBrace);
-    return { kind: "fn", name, params, returnType, body };
+    return { kind: "fn", name, typeParams, params, returnType, body };
   }
 
   function parseReturn(): Stmt {
@@ -360,6 +373,19 @@ export function parse(tokens: Token[]): Program {
   function parseStruct(): Stmt {
     advance(); // struct
     const name = expect(T.Ident).value;
+
+    // Parse type parameters if present: <K, V>
+    let typeParams: string[] | undefined;
+    if (at(T.Lt)) {
+      advance(); // <
+      typeParams = [];
+      while (!at(T.Gt) && !at(T.EOF)) {
+        typeParams.push(expect(T.Ident).value);
+        match(T.Comma);
+      }
+      expect(T.Gt, "Expected '>' after type parameters");
+    }
+
     expect(T.LBrace);
     const fields: Array<{ name: string; type: string }> = [];
     while (!at(T.RBrace) && !at(T.EOF)) {
@@ -374,12 +400,25 @@ export function parse(tokens: Token[]): Program {
       match(T.Comma);
     }
     expect(T.RBrace);
-    return { kind: "struct", name, fields };
+    return { kind: "struct", name, typeParams, fields };
   }
 
   function parseEnum(): Stmt {
     advance(); // enum
     const name = expect(T.Ident).value;
+
+    // Parse type parameters if present: <T, E>
+    let typeParams: string[] | undefined;
+    if (at(T.Lt)) {
+      advance(); // <
+      typeParams = [];
+      while (!at(T.Gt) && !at(T.EOF)) {
+        typeParams.push(expect(T.Ident).value);
+        match(T.Comma);
+      }
+      expect(T.Gt, "Expected '>' after type parameters");
+    }
+
     expect(T.LBrace);
     const variants: Array<{ name: string; fields?: string[] }> = [];
     while (!at(T.RBrace) && !at(T.EOF)) {
@@ -399,7 +438,7 @@ export function parse(tokens: Token[]): Program {
       match(T.Comma);
     }
     expect(T.RBrace);
-    return { kind: "enum", name, variants };
+    return { kind: "enum", name, typeParams, variants };
   }
 
   function parseImport(): Stmt {

@@ -6,6 +6,14 @@ export type Param = {
   typeAnnotation?: string;
 };
 
+// 제네릭 타입 표현 (재귀적)
+export type TypeExpr =
+  | { kind: "simple"; name: string }              // i32, string
+  | { kind: "generic"; name: string; args: TypeExpr[] }  // Result<T, E>
+  | { kind: "array"; elem: TypeExpr }             // [T]
+  | { kind: "fn"; params: TypeExpr[]; ret: TypeExpr }  // fn(T) -> U
+  | { kind: "typevar"; name: string };             // T (타입 변수)
+
 export type Expr =
   | { kind: "number"; value: number }
   | { kind: "string"; value: string }
@@ -39,7 +47,7 @@ export type Stmt =
   | { kind: "block"; body: Stmt[] }
   | { kind: "break" }
   | { kind: "continue" }
-  | { kind: "fn"; name: string; params: Param[]; returnType?: string; body: Stmt[] }
+  | { kind: "fn"; name: string; typeParams?: string[]; params: Param[]; returnType?: string; body: Stmt[] }
   | { kind: "print"; expr: Expr; newline: boolean }
   | { kind: "try"; body: Stmt[]; catchVar: string | null; catchBody: Stmt[]; finallyBody: Stmt[] }
   | { kind: "throw"; expr: Expr }
