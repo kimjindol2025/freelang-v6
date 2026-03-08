@@ -10,7 +10,7 @@ const KEYWORDS: Record<string, T> = {
   true: T.Bool, false: T.Bool, null: T.Null,
   try: T.Try, catch: T.Catch, finally: T.Finally, throw: T.Throw,
   import: T.Import, export: T.Export, from: T.From, as: T.As,
-  struct: T.Struct, new: T.New, match: T.Match,
+  struct: T.Struct, enum: T.Enum, new: T.New, match: T.Match,
   and: T.And, or: T.Or, not: T.Not,
 };
 

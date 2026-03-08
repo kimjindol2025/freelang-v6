@@ -39,6 +39,7 @@ export function parse(tokens: Token[]): Program {
     if (at(T.Try)) return parseTry();
     if (at(T.Throw)) return parseThrow();
     if (at(T.Struct)) return parseStruct();
+    if (at(T.Enum)) return parseEnum();
     if (at(T.Import)) return parseImport();
     if (at(T.Export)) return parseExport();
     if (at(T.Match)) return parseMatch();
@@ -374,6 +375,31 @@ export function parse(tokens: Token[]): Program {
     }
     expect(T.RBrace);
     return { kind: "struct", name, fields };
+  }
+
+  function parseEnum(): Stmt {
+    advance(); // enum
+    const name = expect(T.Ident).value;
+    expect(T.LBrace);
+    const variants: Array<{ name: string; fields?: string[] }> = [];
+    while (!at(T.RBrace) && !at(T.EOF)) {
+      const variantName = expect(T.Ident).value;
+      let fields: string[] | undefined;
+      // Check for variant with data: Name(Type1, Type2)
+      if (at(T.LParen)) {
+        advance(); // (
+        fields = [];
+        while (!at(T.RParen) && !at(T.EOF)) {
+          fields.push(expect(T.Ident).value);
+          match(T.Comma);
+        }
+        expect(T.RParen);
+      }
+      variants.push({ name: variantName, fields });
+      match(T.Comma);
+    }
+    expect(T.RBrace);
+    return { kind: "enum", name, variants };
   }
 
   function parseImport(): Stmt {

@@ -304,6 +304,26 @@ export function compile(program: Program): Chunk {
         emitArg(Op.StoreGlobal, addConst({ tag: "str", val: s.name }));
         break;
       }
+      case "enum": {
+        // Store enum definition as global with variant metadata
+        globals.add(s.name);
+
+        // Create enum object with variant information
+        const enumVal = new Map<string, Value>();
+
+        // Add variant metadata
+        const variantMetadata = s.variants.map(v => ({
+          name: v.name,
+          fields: v.fields || [],
+        }));
+        enumVal.set("__variants__", { tag: "str", val: JSON.stringify(variantMetadata) });
+        enumVal.set("__enum_name__", { tag: "str", val: s.name });
+
+        // Store enum definition
+        emitArg(Op.Const, addConst({ tag: "object", val: enumVal }));
+        emitArg(Op.StoreGlobal, addConst({ tag: "str", val: s.name }));
+        break;
+      }
       case "import": break; // handled by module loader
       case "export": compileStmt(s.stmt); break; // compile inner stmt
       case "multi": compileStmts(s.stmts); break;

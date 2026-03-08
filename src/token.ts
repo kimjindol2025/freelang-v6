@@ -7,7 +7,7 @@ export enum TokenType {
   Ident, Let, Const, Fn, Return, If, Else, While, For, In,
   Break, Continue, Print, Println,
   Try, Catch, Finally, Throw,
-  Import, Export, From, As, Struct, New,
+  Import, Export, From, As, Struct, Enum, New,
   // Operators
   Plus, Minus, Star, Slash, Percent,
   Eq, Neq, Lt, Gt, Lte, Gte,

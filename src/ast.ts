@@ -44,6 +44,7 @@ export type Stmt =
   | { kind: "try"; body: Stmt[]; catchVar: string | null; catchBody: Stmt[]; finallyBody: Stmt[] }
   | { kind: "throw"; expr: Expr }
   | { kind: "struct"; name: string; typeParams?: string[]; fields: Array<{ name: string; type: string }> }
+  | { kind: "enum"; name: string; typeParams?: string[]; variants: Array<{ name: string; fields?: string[] }> }
   | { kind: "import"; names: string[] | null; path: string; alias: string | null }
   | { kind: "export"; stmt: Stmt }
   | { kind: "multi"; stmts: Stmt[] }
