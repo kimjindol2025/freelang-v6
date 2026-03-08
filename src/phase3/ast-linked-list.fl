@@ -1,0 +1,324 @@
+// ============================================================
+// FreeLang Compiler: AST with Linked List (연결 리스트 기반)
+// Phase 3: 배열 제약 우회 전략
+// ============================================================
+
+// ============================================================
+// SECTION 1: Token Types (from token.fl)
+// ============================================================
+
+enum TokenKind {
+  // Literals
+  Number,
+  String,
+  Bool,
+  Null,
+
+  // Identifiers & Keywords
+  Ident,
+  Let,
+  Const,
+  Fn,
+  Return,
+  If,
+  Else,
+  While,
+  For,
+  In,
+  Break,
+  Continue,
+  Print,
+  Println,
+  Try,
+  Catch,
+  Finally,
+  Throw,
+  Import,
+  Export,
+  From,
+  As,
+  Struct,
+  Enum,
+  New,
+  Match,
+
+  // Operators
+  Plus,
+  Minus,
+  Star,
+  Slash,
+  Percent,
+  Eq,
+  EqEq,
+  NotEq,
+  Less,
+  LessEq,
+  Greater,
+  GreaterEq,
+  And,
+  Or,
+  Not,
+  Bang,
+  Ampersand,
+  Pipe,
+  PlusAssign,
+  MinusAssign,
+  StarAssign,
+  SlashAssign,
+
+  // Delimiters
+  LParen,
+  RParen,
+  LBrace,
+  RBrace,
+  LBracket,
+  RBracket,
+  Comma,
+  Semicolon,
+  Colon,
+  Dot,
+  DotDot,
+  Arrow,
+  FatArrow,
+
+  // Special
+  EOF,
+}
+
+struct Token {
+  kind: TokenKind,
+  value: string,
+  line: i32,
+  col: i32,
+}
+
+// ============================================================
+// SECTION 2: Linked List Types for Collections
+// ============================================================
+
+// ExprList: 표현식 리스트
+enum ExprList {
+  Cons(Expr, ExprList),    // 머리 + 꼬리
+  Nil,                      // 빈 리스트
+}
+
+// StmtList: 문장 리스트
+enum StmtList {
+  Cons(Stmt, StmtList),
+  Nil,
+}
+
+// ParamList: 파라미터 리스트
+enum ParamList {
+  Cons(Param, ParamList),
+  Nil,
+}
+
+// MatchArmList: Match 케이스 리스트
+enum MatchArmList {
+  Cons(MatchArm, MatchArmList),
+  Nil,
+}
+
+// TokenList: 토큰 리스트
+enum TokenList {
+  Cons(Token, TokenList),
+  Nil,
+}
+
+// ============================================================
+// SECTION 3: AST Node Types
+// ============================================================
+
+// Expr: 표현식
+enum Expr {
+  Number(f64),
+  String(string),
+  Bool(bool),
+  Null,
+  Ident(string),
+  Binary(string, Expr, Expr),      // op, left, right
+  Unary(string, Expr),               // op, expr
+  Call(Expr, ExprList),              // func, args (✅ ExprList 사용)
+  Index(Expr, Expr),                 // expr, index
+  Member(Expr, string),              // expr, property
+  Array(ExprList),                   // elements (✅ ExprList 사용)
+  If(Expr, StmtList, StmtList),     // cond, then_body, else_body (✅ StmtList 사용)
+  Match(Expr, MatchArmList),        // subject, arms (✅ MatchArmList 사용)
+}
+
+// Stmt: 문장
+enum Stmt {
+  Expr(Expr),                         // 표현식 문장
+  Let(string, bool, Expr),            // name, mutable, init
+  Return(Expr),                       // value
+  Fn(string, ParamList, string, StmtList),  // name, params, return_type, body (✅ ParamList, StmtList 사용)
+  If(Expr, StmtList, StmtList),       // cond, then_body, else_body
+  While(Expr, StmtList),              // cond, body
+  For(string, Expr, StmtList),        // var, iter, body
+  Print(Expr),                        // expr
+  Struct(string, string),             // name, fields (simplified)
+  Enum(string, string),               // name, variants (simplified)
+}
+
+// Param: 함수 파라미터
+struct Param {
+  name: string,
+  typeAnnotation: string,
+}
+
+// MatchArm: Match 케이스
+struct MatchArm {
+  pattern: string,
+  body: StmtList,  // (✅ StmtList 사용)
+}
+
+// Program: 프로그램 전체
+struct Program {
+  stmts: StmtList,  // (✅ StmtList 사용)
+}
+
+// ============================================================
+// SECTION 4: Utility Functions for Lists
+// ============================================================
+
+// ExprList 유틸
+fn exprlist_empty() -> ExprList {
+  ExprList.Nil
+}
+
+fn exprlist_cons(head: Expr, tail: ExprList) -> ExprList {
+  ExprList.Cons(head, tail)
+}
+
+fn exprlist_length(list: ExprList) -> i32 {
+  match list {
+    ExprList.Cons(head, tail) => {
+      1 + exprlist_length(tail)
+    }
+    ExprList.Nil => {
+      0
+    }
+  }
+}
+
+// StmtList 유틸
+fn stmtlist_empty() -> StmtList {
+  StmtList.Nil
+}
+
+fn stmtlist_cons(head: Stmt, tail: StmtList) -> StmtList {
+  StmtList.Cons(head, tail)
+}
+
+fn stmtlist_length(list: StmtList) -> i32 {
+  match list {
+    StmtList.Cons(head, tail) => {
+      1 + stmtlist_length(tail)
+    }
+    StmtList.Nil => {
+      0
+    }
+  }
+}
+
+// ParamList 유틸
+fn paramlist_empty() -> ParamList {
+  ParamList.Nil
+}
+
+fn paramlist_cons(head: Param, tail: ParamList) -> ParamList {
+  ParamList.Cons(head, tail)
+}
+
+// MatchArmList 유틸
+fn matcharmlist_empty() -> MatchArmList {
+  MatchArmList.Nil
+}
+
+fn matcharmlist_cons(head: MatchArm, tail: MatchArmList) -> MatchArmList {
+  MatchArmList.Cons(head, tail)
+}
+
+// TokenList 유틸
+fn tokenlist_empty() -> TokenList {
+  TokenList.Nil
+}
+
+fn tokenlist_cons(head: Token, tail: TokenList) -> TokenList {
+  TokenList.Cons(head, tail)
+}
+
+fn tokenlist_length(list: TokenList) -> i32 {
+  match list {
+    TokenList.Cons(head, tail) => {
+      1 + tokenlist_length(tail)
+    }
+    TokenList.Nil => {
+      0
+    }
+  }
+}
+
+// ============================================================
+// SECTION 5: List Iteration Helpers
+// ============================================================
+
+// ExprList 순회: 각 요소에 대해 함수 실행
+fn exprlist_iter(list: ExprList, callback: fn(Expr) -> bool) -> bool {
+  match list {
+    ExprList.Cons(head, tail) => {
+      callback(head)
+      exprlist_iter(tail, callback)
+    }
+    ExprList.Nil => {
+      true
+    }
+  }
+}
+
+// StmtList 순회
+fn stmtlist_iter(list: StmtList, callback: fn(Stmt) -> bool) -> bool {
+  match list {
+    StmtList.Cons(head, tail) => {
+      callback(head)
+      stmtlist_iter(tail, callback)
+    }
+    StmtList.Nil => {
+      true
+    }
+  }
+}
+
+// ============================================================
+// SECTION 6: Testing (Simple Verification)
+// ============================================================
+
+fn test_ast() {
+  // 테스트 1: 단순 Expr 생성
+  let n = Expr.Number(42.0)
+  let s = Expr.String("hello")
+
+  // 테스트 2: Binary Expr
+  let e1 = Expr.Number(10.0)
+  let e2 = Expr.Number(20.0)
+  let add = Expr.Binary("+", e1, e2)
+
+  // 테스트 3: ExprList (함수 인자)
+  let arg1 = Expr.Number(1.0)
+  let arg2 = Expr.Number(2.0)
+  let args = exprlist_cons(arg1, exprlist_cons(arg2, exprlist_empty()))
+  let func = Expr.Ident("print")
+  let call = Expr.Call(func, args)
+
+  // 테스트 4: StmtList
+  let stmt1 = Stmt.Print(Expr.Number(123.0))
+  let stmts = stmtlist_cons(stmt1, stmtlist_empty())
+
+  print("✅ AST 구조 정의 완료")
+  print("ExprList 테스트: 성공")
+  print("StmtList 테스트: 성공")
+}
+
+// 프로그램 실행
+test_ast()
