@@ -1,0 +1,42 @@
+// ============================================================
+// FreeLang Compiler: Lexer (Skeleton)
+// Phase 3-2: Tokenize
+// ============================================================
+
+fn is_digit(ch: string) -> bool {
+  ch >= "0" && ch <= "9"
+}
+
+fn is_alpha(ch: string) -> bool {
+  (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") || ch == "_"
+}
+
+fn is_alphanumeric(ch: string) -> bool {
+  is_digit(ch) || is_alpha(ch)
+}
+
+fn is_whitespace(ch: string) -> bool {
+  ch == " " || ch == "\t" || ch == "\n" || ch == "\r"
+}
+
+fn is_keyword(s: string) -> bool {
+  s == "let" || s == "fn" || s == "if" || s == "else" ||
+  s == "while" || s == "for" || s == "return" || s == "print"
+}
+
+fn peek_char(source: string, pos: i32) -> string {
+  if pos >= 0 && pos < len(source) {
+    char_at(source, pos)
+  } else {
+    ""
+  }
+}
+
+// 간단한 tokenize: TokenList 반환
+fn tokenize(source: string) -> TokenList {
+  // 임시 구현: EOF 토큰만
+  tokenlist_cons(
+    Token.Tok(TokenKind.EOF, "", 1, 1),
+    tokenlist_empty()
+  )
+}

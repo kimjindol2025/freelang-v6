@@ -297,3 +297,145 @@ fn test_ast() {
 
 // 프로그램 실행
 test_ast()
+// ============================================================
+// FreeLang Compiler: Lexer (Skeleton)
+// Phase 3-2: Tokenize
+// ============================================================
+
+fn is_digit(ch: string) -> bool {
+  ch >= "0" && ch <= "9"
+}
+
+fn is_alpha(ch: string) -> bool {
+  (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") || ch == "_"
+}
+
+fn is_alphanumeric(ch: string) -> bool {
+  is_digit(ch) || is_alpha(ch)
+}
+
+fn is_whitespace(ch: string) -> bool {
+  ch == " " || ch == "\t" || ch == "\n" || ch == "\r"
+}
+
+fn is_keyword(s: string) -> bool {
+  s == "let" || s == "fn" || s == "if" || s == "else" ||
+  s == "while" || s == "for" || s == "return" || s == "print"
+}
+
+fn peek_char(source: string, pos: i32) -> string {
+  if pos >= 0 && pos < len(source) {
+    char_at(source, pos)
+  } else {
+    ""
+  }
+}
+
+// 간단한 tokenize: TokenList 반환
+fn tokenize(source: string) -> TokenList {
+  // 임시 구현: EOF 토큰만
+  tokenlist_cons(
+    Token.Tok(TokenKind.EOF, "", 1, 1),
+    tokenlist_empty()
+  )
+}
+// ============================================================
+// FreeLang Compiler: Parser (Skeleton)
+// Phase 3-3: Parse
+// ============================================================
+
+fn parse_expr(tokens: TokenList) -> Expr {
+  Expr.Number(0.0)
+}
+
+fn parse_stmt(tokens: TokenList) -> Stmt {
+  Stmt.Expr(Expr.Number(0.0))
+}
+
+fn parse_program(tokens: TokenList) -> Program {
+  Program.Main(stmtlist_empty())
+}
+
+fn parse(tokens: TokenList) -> Program {
+  parse_program(tokens)
+}
+// ============================================================
+// FreeLang Compiler: Code Generator (Skeleton)
+// Phase 3-4: Generate C Code
+// ============================================================
+
+struct CodeGen {
+  lines: string,
+  indent: i32,
+}
+
+fn codegen_expr(expr: Expr) -> string {
+  match expr {
+    Expr.Number(n) => "fl_int(0)"
+    Expr.String(s) => "fl_string(\"\")"
+    Expr.Bool(b) => "fl_bool(0)"
+    Expr.Null => "fl_null()"
+    Expr.Ident(name) => name
+    _ => "fl_null()"
+  }
+}
+
+fn codegen_stmt(stmt: Stmt) -> string {
+  match stmt {
+    Stmt.Print(expr) => "fl_print(" + codegen_expr(expr) + ");"
+    Stmt.Let(name, mutable, init) => "fl_value " + name + " = " + codegen_expr(init) + ";"
+    Stmt.Return(expr) => "return " + codegen_expr(expr) + ";"
+    _ => ""
+  }
+}
+
+fn codegen_stmtlist(stmts: StmtList) -> string {
+  match stmts {
+    StmtList.Cons(head, tail) => {
+      codegen_stmt(head) + "\n" + codegen_stmtlist(tail)
+    }
+    StmtList.Nil => ""
+  }
+}
+
+fn generate(ast: Program) -> string {
+  match ast {
+    Program.Main(stmts) => {
+      "#include \"fl_runtime.h\"\n" +
+      "int main() {\n" +
+      codegen_stmtlist(stmts) +
+      "return 0;\n}\n"
+    }
+  }
+}
+// ============================================================
+// FreeLang Compiler: Main Entry Point (Skeleton)
+// Phase 3-6: Main
+// ============================================================
+
+fn compile_file(filepath: string) -> string {
+  let source = file_read(filepath)
+  if source == "" {
+    "error: cannot read file"
+  } else {
+    let tokens = tokenize(source)
+    let ast = parse(tokens)
+    let c_code = generate(ast)
+    c_code
+  }
+}
+
+fn main() {
+  let source = "let a = 100
+let b = 23
+let sum = a + b
+print(sum)"
+
+  let tokens = tokenize(source)
+  let ast = parse(tokens)
+  let c_code = generate(ast)
+
+  print(c_code)
+}
+
+main()

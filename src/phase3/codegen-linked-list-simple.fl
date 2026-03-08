@@ -1,0 +1,49 @@
+// ============================================================
+// FreeLang Compiler: Code Generator (Skeleton)
+// Phase 3-4: Generate C Code
+// ============================================================
+
+struct CodeGen {
+  lines: string,
+  indent: i32,
+}
+
+fn codegen_expr(expr: Expr) -> string {
+  match expr {
+    Expr.Number(n) => "fl_int(0)"
+    Expr.String(s) => "fl_string(\"\")"
+    Expr.Bool(b) => "fl_bool(0)"
+    Expr.Null => "fl_null()"
+    Expr.Ident(name) => name
+    _ => "fl_null()"
+  }
+}
+
+fn codegen_stmt(stmt: Stmt) -> string {
+  match stmt {
+    Stmt.Print(expr) => "fl_print(" + codegen_expr(expr) + ");"
+    Stmt.Let(name, mutable, init) => "fl_value " + name + " = " + codegen_expr(init) + ";"
+    Stmt.Return(expr) => "return " + codegen_expr(expr) + ";"
+    _ => ""
+  }
+}
+
+fn codegen_stmtlist(stmts: StmtList) -> string {
+  match stmts {
+    StmtList.Cons(head, tail) => {
+      codegen_stmt(head) + "\n" + codegen_stmtlist(tail)
+    }
+    StmtList.Nil => ""
+  }
+}
+
+fn generate(ast: Program) -> string {
+  match ast {
+    Program.Main(stmts) => {
+      "#include \"fl_runtime.h\"\n" +
+      "int main() {\n" +
+      codegen_stmtlist(stmts) +
+      "return 0;\n}\n"
+    }
+  }
+}

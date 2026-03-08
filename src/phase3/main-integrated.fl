@@ -100,38 +100,15 @@ fn token_to_string(t: Token) -> string {
 // SECTION 2: AST Types (from ast.fl)
 // ============================================================
 
-enum Expr {
-  Number(f64),
-  String(string),
-  Bool(bool),
-  Null,
-  Ident(string),
-  Binary(string, Expr, Expr),
-  Unary(string, Expr),
-  Call(Expr, [Expr]),
-  Index(Expr, Expr),
-  Member(Expr, string),
-  Array([Expr]),
-  If(Expr, [Stmt], [Stmt]),
-  Match(Expr, [MatchArm]),
+// 간단화된 AST 타입 (배열 형식 제약 회피)
+struct Expr {
+  kind: string,  // "number", "string", "ident", "binary", etc
+  value: string,
 }
 
-struct MatchArm {
-  pattern: string,
-  body: [Stmt],
-}
-
-enum Stmt {
-  Expr(Expr),
-  Let(string, bool, Expr),
-  Return(Expr),
-  Fn(string, [Param], string, [Stmt]),
-  If(Expr, [Stmt], [Stmt]),
-  While(Expr, [Stmt]),
-  For(string, Expr, [Stmt]),
-  Print(Expr),
-  Struct(string, [Field]),
-  Enum(string, [Variant]),
+struct Stmt {
+  kind: string,  // "let", "print", "return", etc
+  value: string,
 }
 
 struct Param {

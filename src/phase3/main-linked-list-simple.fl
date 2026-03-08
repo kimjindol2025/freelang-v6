@@ -1,0 +1,31 @@
+// ============================================================
+// FreeLang Compiler: Main Entry Point (Skeleton)
+// Phase 3-6: Main
+// ============================================================
+
+fn compile_file(filepath: string) -> string {
+  let source = file_read(filepath)
+  if source == "" {
+    "error: cannot read file"
+  } else {
+    let tokens = tokenize(source)
+    let ast = parse(tokens)
+    let c_code = generate(ast)
+    c_code
+  }
+}
+
+fn main() {
+  let source = "let a = 100
+let b = 23
+let sum = a + b
+print(sum)"
+
+  let tokens = tokenize(source)
+  let ast = parse(tokens)
+  let c_code = generate(ast)
+
+  print(c_code)
+}
+
+main()

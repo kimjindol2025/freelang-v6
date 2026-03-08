@@ -1,0 +1,299 @@
+// ============================================================
+// FreeLang Compiler: Lexer (LinkedList version)
+// Phase 3-2: 문자 스트림을 토큰 리스트로 변환
+// ============================================================
+
+// ============================================================
+// SECTION 1: Character Classification Functions
+// ============================================================
+
+fn is_digit(ch: string) -> bool {
+  ch >= "0" && ch <= "9"
+}
+
+fn is_alpha(ch: string) -> bool {
+  (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") || ch == "_"
+}
+
+fn is_alphanumeric(ch: string) -> bool {
+  is_digit(ch) || is_alpha(ch)
+}
+
+fn is_whitespace(ch: string) -> bool {
+  ch == " " || ch == "\t" || ch == "\n" || ch == "\r"
+}
+
+fn is_newline(ch: string) -> bool {
+  ch == "\n"
+}
+
+// ============================================================
+// SECTION 2: Character Peek Functions
+// ============================================================
+
+fn peek_char(source: string, pos: i32) -> string {
+  if pos >= 0 && pos < len(source) {
+    char_at(source, pos)
+  } else {
+    ""
+  }
+}
+
+fn peek_char2(source: string, pos: i32) -> string {
+  peek_char(source, pos) + peek_char(source, pos + 1)
+}
+
+// ============================================================
+// SECTION 3: Keyword Check
+// ============================================================
+
+fn is_keyword(s: string) -> bool {
+  s == "let" || s == "fn" || s == "if" || s == "else" ||
+  s == "while" || s == "for" || s == "return" || s == "match" ||
+  s == "struct" || s == "enum" || s == "mut" || s == "print" ||
+  s == "true" || s == "false" || s == "null"
+}
+
+// ============================================================
+// SECTION 4: TokenList Reverse Helper
+// ============================================================
+
+// TokenList를 역순으로 뒤집기 (Cons는 역순으로 추가되므로 필요)
+fn tokenlist_reverse(list: TokenList, acc: TokenList) -> TokenList {
+  match list {
+    TokenList.Cons(head, tail) => {
+      tokenlist_reverse(tail, tokenlist_cons(head, acc))
+    }
+    TokenList.Nil => {
+      acc
+    }
+  }
+}
+
+fn tokenlist_rev(list: TokenList) -> TokenList {
+  tokenlist_reverse(list, tokenlist_empty())
+}
+
+// ============================================================
+// SECTION 5: Main Lexer Function
+// ============================================================
+
+fn tokenize(source: string) -> TokenList {
+  // 역순으로 토큰을 수집하는 헬퍼 함수
+  fn tokenize_helper(source: string, pos: i32, line: i32, col: i32, acc: TokenList) -> TokenList {
+    if pos >= len(source) {
+      // EOF 토큰 추가 후 역순 뒤집기
+      let with_eof = tokenlist_cons(
+        Token { kind: TokenKind.EOF, value: "", line: line, col: col },
+        acc
+      )
+      tokenlist_rev(with_eof)
+    } else {
+      let ch = peek_char(source, pos)
+
+      // 공백 및 개행 처리
+      if is_whitespace(ch) {
+        let new_line = if is_newline(ch) { line + 1 } else { line }
+        let new_col = if is_newline(ch) { 1 } else { col + 1 }
+        tokenize_helper(source, pos + 1, new_line, new_col, acc)
+      }
+      // 주석 처리 (//)
+      else if peek_char2(source, pos) == "//" {
+        let new_pos = pos
+        // 주석 끝까지 스킵
+        fn skip_comment(src: string, p: i32, l: i32, c: i32) -> i32 {
+          if p >= len(src) || is_newline(peek_char(src, p)) {
+            p
+          } else {
+            skip_comment(src, p + 1, l, c + 1)
+          }
+        }
+        let comment_end = skip_comment(source, pos, line, col)
+        tokenize_helper(source, comment_end + 1, line + 1, 1, acc)
+      }
+      // 문자열 처리
+      else if ch == "\"" {
+        // 문자열 끝까지 수집
+        fn collect_string(src: string, start: i32, end: i32, c: i32) -> i32 {
+          if end >= len(src) || peek_char(src, end) == "\"" {
+            end
+          } else {
+            collect_string(src, start, end + 1, c + 1)
+          }
+        }
+        let str_end = collect_string(source, pos + 1, pos + 1, col + 1)
+        let str_value = "string"
+        // Token 생성은 나중에 합칠 때 추가
+        let new_acc = acc
+        tokenize_helper(source, str_end + 1, line, col + (str_end - pos) + 1, new_acc)
+      }
+      // 숫자 처리
+      else if is_digit(ch) {
+        fn collect_number(src: string, p: i32, c: i32) -> i32 {
+          if p >= len(src) || !is_digit(peek_char(src, p)) {
+            p
+          } else {
+            collect_number(src, p + 1, c + 1)
+          }
+        }
+        let num_end = collect_number(source, pos, col)
+        let num_value = ch // placeholder
+        let token = Token { kind: TokenKind.Number, value: num_value, line: line, col: col }
+        let new_acc = tokenlist_cons(token, acc)
+        tokenize_helper(source, num_end, line, col + (num_end - pos), new_acc)
+      }
+      // 식별자 및 키워드 처리
+      else if is_alpha(ch) {
+        fn collect_ident(src: string, p: i32, c: i32) -> i32 {
+          if p >= len(src) || !is_alphanumeric(peek_char(src, p)) {
+            p
+          } else {
+            collect_ident(src, p + 1, c + 1)
+          }
+        }
+        let ident_end = collect_ident(source, pos, col)
+        let ident_value = ch // placeholder
+
+        let token_kind = if is_keyword(ident_value) {
+          if ident_value == "let" { TokenKind.Let }
+          else if ident_value == "fn" { TokenKind.Fn }
+          else if ident_value == "if" { TokenKind.If }
+          else if ident_value == "else" { TokenKind.Else }
+          else if ident_value == "while" { TokenKind.While }
+          else if ident_value == "for" { TokenKind.For }
+          else if ident_value == "return" { TokenKind.Return }
+          else if ident_value == "struct" { TokenKind.Struct }
+          else if ident_value == "enum" { TokenKind.Enum }
+          else if ident_value == "print" { TokenKind.Print }
+          else if ident_value == "true" || ident_value == "false" { TokenKind.Bool }
+          else if ident_value == "null" { TokenKind.Null }
+          else { TokenKind.Ident }
+        } else {
+          TokenKind.Ident
+        }
+
+        let token = Token { kind: token_kind, value: ident_value, line: line, col: col }
+        let new_acc = tokenlist_cons(token, acc)
+        tokenize_helper(source, ident_end, line, col + (ident_end - pos), new_acc)
+      }
+      // 연산자 및 구분자 처리
+      else if ch == "(" {
+        let token = Token { kind: TokenKind.LParen, value: "(", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == ")" {
+        let token = Token { kind: TokenKind.RParen, value: ")", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "{" {
+        let token = Token { kind: TokenKind.LBrace, value: "{", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "}" {
+        let token = Token { kind: TokenKind.RBrace, value: "}", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "[" {
+        let token = Token { kind: TokenKind.LBracket, value: "[", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "]" {
+        let token = Token { kind: TokenKind.RBracket, value: "]", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == ";" {
+        let token = Token { kind: TokenKind.Semicolon, value: ";", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "," {
+        let token = Token { kind: TokenKind.Comma, value: ",", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "." {
+        let token = Token { kind: TokenKind.Dot, value: ".", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == ":" {
+        let token = Token { kind: TokenKind.Colon, value: ":", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "+" {
+        let token = Token { kind: TokenKind.Plus, value: "+", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "-" {
+        let token = Token { kind: TokenKind.Minus, value: "-", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "*" {
+        let token = Token { kind: TokenKind.Star, value: "*", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "/" {
+        let token = Token { kind: TokenKind.Slash, value: "/", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if peek_char2(source, pos) == "==" {
+        let token = Token { kind: TokenKind.EqEq, value: "==", line: line, col: col }
+        tokenize_helper(source, pos + 2, line, col + 2, tokenlist_cons(token, acc))
+      }
+      else if peek_char2(source, pos) == "!=" {
+        let token = Token { kind: TokenKind.NotEq, value: "!=", line: line, col: col }
+        tokenize_helper(source, pos + 2, line, col + 2, tokenlist_cons(token, acc))
+      }
+      else if peek_char2(source, pos) == "<=" {
+        let token = Token { kind: TokenKind.LessEq, value: "<=", line: line, col: col }
+        tokenize_helper(source, pos + 2, line, col + 2, tokenlist_cons(token, acc))
+      }
+      else if peek_char2(source, pos) == ">=" {
+        let token = Token { kind: TokenKind.GreaterEq, value: ">=", line: line, col: col }
+        tokenize_helper(source, pos + 2, line, col + 2, tokenlist_cons(token, acc))
+      }
+      else if ch == "=" {
+        let token = Token { kind: TokenKind.Eq, value: "=", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "<" {
+        let token = Token { kind: TokenKind.Less, value: "<", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == ">" {
+        let token = Token { kind: TokenKind.Greater, value: ">", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "|" {
+        let token = Token { kind: TokenKind.Pipe, value: "|", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "&" {
+        let token = Token { kind: TokenKind.Ampersand, value: "&", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else if ch == "!" {
+        let token = Token { kind: TokenKind.Bang, value: "!", line: line, col: col }
+        tokenize_helper(source, pos + 1, line, col + 1, tokenlist_cons(token, acc))
+      }
+      else {
+        // 미인식 문자는 건너뛰기
+        tokenize_helper(source, pos + 1, line, col + 1, acc)
+      }
+    }
+  }
+
+  tokenize_helper(source, 0, 1, 1, tokenlist_empty())
+}
+
+// ============================================================
+// SECTION 6: Testing
+// ============================================================
+
+fn lex_test() -> TokenList {
+  tokenize("let x = 42")
+}
+
+fn test_lexer() {
+  let tokens = tokenize("let x = 42 print(x)")
+  print("✅ Lexer test complete")
+}
+
+test_lexer()

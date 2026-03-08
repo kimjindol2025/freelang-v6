@@ -1,0 +1,20 @@
+// ============================================================
+// FreeLang Compiler: Parser (Skeleton)
+// Phase 3-3: Parse
+// ============================================================
+
+fn parse_expr(tokens: TokenList) -> Expr {
+  Expr.Number(0.0)
+}
+
+fn parse_stmt(tokens: TokenList) -> Stmt {
+  Stmt.Expr(Expr.Number(0.0))
+}
+
+fn parse_program(tokens: TokenList) -> Program {
+  Program.Main(stmtlist_empty())
+}
+
+fn parse(tokens: TokenList) -> Program {
+  parse_program(tokens)
+}
