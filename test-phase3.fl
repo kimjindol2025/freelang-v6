@@ -1,0 +1,7 @@
+// Phase 3 테스트: 간단한 컴파일러 동작 확인
+
+// 간단한 소스 코드
+let source = "let x = 42"
+
+// 이건 Phase 3에 포함된 tokenize가 아직 builtins에 없어서 안 될 것 같음
+// print(source)
